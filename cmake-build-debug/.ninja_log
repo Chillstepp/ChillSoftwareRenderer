@@ -1,0 +1,24 @@
+# ninja log v5
+3	644	7215606583302360	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+72	802	7215579961418238	CMakeFiles/TinyRenderLessonCode.dir/TGAImage.cpp.obj	b17c8ab42c438bb8
+644	1079	7215606587310545	TinyRenderLessonCode.exe	d4f8a7116e225bbd
+33	673	7215713204489178	CMakeFiles/TinyRenderLessonCode.dir/Math.cpp.obj	c70456e0500e5b48
+3	727	7215713205027753	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+52	855	7215713206301822	CMakeFiles/TinyRenderLessonCode.dir/Model.cpp.obj	c2b12dbcbbfcb847
+856	1199	7215713209567363	TinyRenderLessonCode.exe	a97f846b13d337a
+3	636	7215714169301315	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+637	902	7215714171922708	TinyRenderLessonCode.exe	a97f846b13d337a
+3	746	7215714743150950	CMakeFiles/TinyRenderLessonCode.dir/Model.cpp.obj	c2b12dbcbbfcb847
+746	1005	7215714745644787	TinyRenderLessonCode.exe	a97f846b13d337a
+4	660	7215715095941712	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+661	911	7215715098323111	TinyRenderLessonCode.exe	a97f846b13d337a
+3	655	7215720810594441	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+655	931	7215720813256591	TinyRenderLessonCode.exe	a97f846b13d337a
+3	637	7215722468430025	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+638	898	7215722470946555	TinyRenderLessonCode.exe	a97f846b13d337a
+2	646	7215722834265905	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+647	903	7215722836740850	TinyRenderLessonCode.exe	a97f846b13d337a
+3	631	7215723209261865	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+632	887	7215723211717515	TinyRenderLessonCode.exe	a97f846b13d337a
+3	640	7215723374544346	CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj	3a2f8131f9642bc5
+641	893	7215723377000004	TinyRenderLessonCode.exe	a97f846b13d337a
