@@ -27,15 +27,24 @@ Model::Model(const char *filename) {
         }
         else if(!line.compare(0, 2, "f ")){ //f 24/1/24 25/2/25 26/3/26
             std::vector<int> f;
-            int itrash, idx;
+            int itrash, idx, idxt;
             iss>>trash;//f
-            while(iss>>idx>>trash>>itrash>>trash>>itrash){ //只读24 25 26
+            while(iss>>idx>>trash>>idxt>>trash>>itrash){ //只读24 25 26
                 idx--;//obj format idx from 0
+                idxt--;
                 f.push_back(idx);
+                f.push_back(idxt);
             }
             Faces.push_back(f);
         }
+        else if(!line.compare(0, 2, "vt")){
+            iss>>trash>>trash;
+            Vec2f uv;
+            iss>>uv.u>>uv.v;
+            uvs.push_back(uv);
+        }
     }
+    load_texture(filename, "_diffuse.tga", diffusemap_);
 }
 
 Model::~Model() {
@@ -59,5 +68,20 @@ std::vector<int> Model::getface(int idx){
 }
 
 Vec2f Model::getuv(int idx) {
-    return uv.at(idx);
+    return uvs.at(idx);
+}
+
+TGAColor Model::diffuse(Vec2f uv) {
+    Vec2i uvwh(uv.u*diffusemap_.get_width(), uv.v*diffusemap_.get_height());
+    return diffusemap_.get(uvwh.raw[0], uvwh.raw[1]);
+}
+
+void Model::load_texture(std::string filename, const char *suffix, TGAImage &img) {
+    std::string textfile{filename};
+    size_t dot = textfile.find_last_of(".");
+    if(dot != std::string::npos){
+        textfile = textfile.substr(0,dot) + std::string(suffix);
+        img.read_tga_file(textfile.c_str());
+        img.flip_vertically();
+    }
 }
