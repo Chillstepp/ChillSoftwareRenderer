@@ -54,7 +54,7 @@ template<typename T> struct Vec3
     Vec3(T _x, T _y, T _z): x(_x), y(_y), z(_z){}
 
     inline Vec3<T> operator ^(const Vec3<T>& vec){
-        return Vec3<T>{y*vec.z - z*vec.y, x*vec.z - z*vec.x, x*vec.y - y*vec.x};
+        return Vec3<T>{y*vec.z - z*vec.y, z*vec.x - x*vec.z, x*vec.y - y*vec.x};
     }
 
     inline Vec3<T> operator +(const Vec3<T>& vec) const {
