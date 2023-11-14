@@ -62,6 +62,8 @@ Vec3f barycentric(const Vec3i& point1, const Vec3i& point2, const Vec3i& point3,
     return Vec3f{1.0f-1.0f*(U.y+U.z)/U.x, 1.0f*U.y/U.x, 1.0f*U.z/U.x};
 }
 
+
+
 void triangle(Vec3i *pts, Vec2f* textures, TGAImage &image)
 {
     Vec2i bboxmin(image.get_width()-1,  image.get_height()-1);
@@ -83,6 +85,7 @@ void triangle(Vec3i *pts, Vec2f* textures, TGAImage &image)
             Vec2f PTexture(0,0);
             for (int i = 0; i < 3; i++) {
                 z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
+//                std::cout<<pts[i].z << bc_screen.raw[i]<<std::endl;
             }
             for (int i = 0; i < 3; i++) {
                 PTexture.u += textures[i].u * bc_screen.raw[i];
@@ -119,7 +122,7 @@ int main(int argc, char** argv) {
             WorldCoords[j] = model->getvert(face[j*2]);
             ScreenCoords[j] = {static_cast<int>((WorldCoords[j].x+1.0f)*width/2.0f),
                                static_cast<int>((WorldCoords[j].y+1.0f)*height/2.0f),
-                               static_cast<int>(WorldCoords[j].z)};
+                               static_cast<int>(WorldCoords[j].z*10000)};
             Textures[j] = model->getuv(face[j*2+1]);
         }
 //        Vec3f norm = (WorldCoords[2] - WorldCoords[0])^(WorldCoords[1] - WorldCoords[0]);//obj文件 面顶点为逆时针顺序
