@@ -12,6 +12,8 @@ class Model {
 private:
     std::vector<Vec3f>Verts;
     std::vector<std::vector<int>>Faces;
+    std::vector<Vec2f>uv;
+
 public:
     Model(const char* filename);
     ~Model();
@@ -19,6 +21,7 @@ public:
     int nfaces();
     Vec3f getvert(int i);
     std::vector<int> getface(int idx);
+    Vec2f getuv(int idx);
 };
 
 

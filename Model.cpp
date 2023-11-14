@@ -57,3 +57,7 @@ Vec3f Model::getvert(int i){
 std::vector<int> Model::getface(int idx){
     return Faces.at(idx);
 }
+
+Vec2f Model::getuv(int idx) {
+    return uv.at(idx);
+}

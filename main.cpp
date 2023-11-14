@@ -4,6 +4,12 @@
 
 const TGAColor White = TGAColor{255,255,255,255};
 const TGAColor red = TGAColor{255,0,0,255};
+constexpr int width  = 800; // output image size
+constexpr int height = 800;
+std::vector<std::vector<float>>ZBuffer(height,std::vector<float>(width, std::numeric_limits<float>::lowest()));
+Vec3f LightDir{0,0,-1};
+
+
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     bool steep = false;
     if (std::abs(x0-x1)<std::abs(y0-y1)) {
@@ -44,7 +50,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 // so we can (PA_x,AB_x,AC_x) × (PA_y,AB_y,AC_y) => (U_x,U_y,U_z)
 // so (1,β,γ) =  (1,U_y/U_x,U_z/U_x), We can easily get (1,alpha,beta) from cross above two vec
 
-Vec3f barycentric(const Vec2i& point1, const Vec2i& point2, const Vec2i& point3, Vec2i p)
+Vec3f barycentric(const Vec3i& point1, const Vec3i& point2, const Vec3i& point3, Vec3i p)
 {
     Vec3i U = Vec3i{point1.x - p.x, point2.x-point1.x, point3.x-point1.x} ^
               Vec3i{point1.y - p.y, point2.y-point1.y, point3.y-point1.y};
@@ -55,7 +61,7 @@ Vec3f barycentric(const Vec2i& point1, const Vec2i& point2, const Vec2i& point3,
     return Vec3f{1.0f-1.0f*(U.y+U.z)/U.x, 1.0f*U.y/U.x, 1.0f*U.z/U.x};
 }
 
-void triangle(Vec2i *pts, TGAImage &image, TGAColor color)
+void triangle(Vec3i *pts, TGAImage &image, TGAColor color)
 {
     Vec2i bboxmin(image.get_width()-1,  image.get_height()-1);
     Vec2i bboxmax(0, 0);
@@ -67,18 +73,26 @@ void triangle(Vec2i *pts, TGAImage &image, TGAColor color)
         bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
         bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
     }
-    Vec2i P;
+    Vec3i P;
     for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++) {
         for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++) {
+            P.z = 0;
             Vec3f bc_screen  = barycentric(pts[0], pts[1], pts[2], P);
-            if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0) continue; //在三角形外部则跳过这个点继续循环
-            image.set(P.x, P.y, color);
+            for(int i=0;i<3;i++)
+            {
+                P.z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
+            }
+            if (bc_screen.x<-1e-1 || bc_screen.y<-1e-1 || bc_screen.z<-1e-1) continue; //在三角形外部则跳过这个点继续循环
+            if(ZBuffer[P.y][P.x] < P.z)
+            {
+                ZBuffer[P.y][P.x] = P.z;
+                image.set(P.x, P.y, color);
+            }
         }
     }
+
 }
 
-constexpr int width  = 800; // output image size
-constexpr int height = 800;
 
 
 int main(int argc, char** argv) {
@@ -90,14 +104,21 @@ int main(int argc, char** argv) {
     for(int i=0;i<model->nfaces();i++)
     {
         const std::vector<int>& face = model->getface(i);
-        Vec2i ScreenCoords[3];
+        Vec3i ScreenCoords[3];
+        Vec3f WorldCoords[3];
         for(int j=0;j<3;j++)
         {
-            const Vec3f& WorldCoord = model->getvert(face[j]);
-            ScreenCoords[j] = {static_cast<int>((WorldCoord.x+1.0f)*width/2.0f),
-                               static_cast<int>((WorldCoord.y+1.0f)*height/2.0f)};
+            WorldCoords[j] = model->getvert(face[j]);
+            ScreenCoords[j] = {static_cast<int>((WorldCoords[j].x+1.0f)*width/2.0f),
+                               static_cast<int>((WorldCoords[j].y+1.0f)*height/2.0f),
+                               static_cast<int>(WorldCoords[j].z)};
         }
-        triangle(ScreenCoords, image, TGAColor(rand()%255, rand()%255, rand()%255, 255));
+        Vec3f norm = (WorldCoords[2] - WorldCoords[0])^(WorldCoords[1] - WorldCoords[0]);//obj文件 面顶点为逆时针顺序
+        norm.normlize();
+
+        float intensity = norm * LightDir;
+        if(intensity>0)
+            triangle(ScreenCoords, image, TGAColor(intensity*255, intensity*255, intensity*255, 255));
     }
 
     image.flip_vertically();//left-bottom is the origin
