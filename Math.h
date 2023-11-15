@@ -96,4 +96,56 @@ using Vec2f = Vec2<float>;
 using Vec3i = Vec3<int>;
 using Vec2i = Vec2<int>;
 
+
+template<size_t DimRow, size_t DimCol,typename T>
+class Matrix
+{
+public:
+    float raw[DimRow][DimCol];
+    Matrix(){};
+
+     float* operator[] (const size_t idx){
+        return raw[idx];
+    }
+
+    static Matrix<DimRow, DimCol, T> Identity()
+    {
+        Matrix<DimCol,DimRow, T> Ret;
+        static_assert(DimCol == DimRow);
+        for(size_t i = 0; i<DimRow; i++)
+        {
+            for(size_t j = 0; j<DimCol; j++)
+            {
+                Ret[i][j] = (i==j);
+            }
+        }
+        return Ret;
+    }
+};
+
+using Mat4x4 = Matrix<4,4,float>;
+
+
+//  P = αA + βB + γC  (α+β+γ=1 && α>0 && β>0 && γ>0) ,then P is in the triangle ABC
+//=>P = (1-β-γ)A + βB + γC
+//=>0 = (A-P) + β(B-A) + γ(C-A)
+//=>0 = PA + βAB + γAC
+// So 0 = PA_x + βAB_x + γAC_x,0 = PA_y + βAB_y + γAC_y
+//      => 0 = (1,β,γ)dot(PA_x,AB_x,AC_x),  0 = (1,β,γ)dot(PA_y,AB_y,AC_y)
+// we consider  (1,β,γ) as a vec, so (1,β,γ) is 正交 with (PA_x,AB_x,AC_x)，(PA_y,AB_y,AC_y) two vector
+// so we can (PA_x,AB_x,AC_x) × (PA_y,AB_y,AC_y) => (U_x,U_y,U_z)
+// so (1,β,γ) =  (1,U_y/U_x,U_z/U_x), We can easily get (1,alpha,beta) from cross above two vec
+
+static Vec3f barycentric(const Vec3i& point1, const Vec3i& point2, const Vec3i& point3, Vec3i p)
+{
+    Vec3i U = Vec3i{point1.x - p.x, point2.x-point1.x, point3.x-point1.x} ^
+              Vec3i{point1.y - p.y, point2.y-point1.y, point3.y-point1.y};
+    if(std::abs(U.x) == 0) //三角形退化为直线
+    {
+        return Vec3f{1.0,1.0,-1.0};
+    }
+    return Vec3f{1.0f-1.0f*(U.y+U.z)/U.x, 1.0f*U.y/U.x, 1.0f*U.z/U.x};
+}
+
+
 #endif //TINYRENDERLESSONCODE_MATH_H

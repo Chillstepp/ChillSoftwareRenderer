@@ -73,6 +73,12 @@ build CMakeFiles/TinyRenderLessonCode.dir/Math.cpp.obj: CXX_COMPILER__TinyRender
   OBJECT_DIR = CMakeFiles\TinyRenderLessonCode.dir
   OBJECT_FILE_DIR = CMakeFiles\TinyRenderLessonCode.dir
 
+build CMakeFiles/TinyRenderLessonCode.dir/Render.cpp.obj: CXX_COMPILER__TinyRenderLessonCode_Debug D$:/TinyRenderLessonCode/Render.cpp || cmake_object_order_depends_target_TinyRenderLessonCode
+  DEP_FILE = CMakeFiles\TinyRenderLessonCode.dir\Render.cpp.obj.d
+  FLAGS = -g -std=gnu++20
+  OBJECT_DIR = CMakeFiles\TinyRenderLessonCode.dir
+  OBJECT_FILE_DIR = CMakeFiles\TinyRenderLessonCode.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target TinyRenderLessonCode
@@ -81,7 +87,7 @@ build CMakeFiles/TinyRenderLessonCode.dir/Math.cpp.obj: CXX_COMPILER__TinyRender
 #############################################
 # Link the executable TinyRenderLessonCode.exe
 
-build TinyRenderLessonCode.exe: CXX_EXECUTABLE_LINKER__TinyRenderLessonCode_Debug CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/TGAImage.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/Model.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/Math.cpp.obj
+build TinyRenderLessonCode.exe: CXX_EXECUTABLE_LINKER__TinyRenderLessonCode_Debug CMakeFiles/TinyRenderLessonCode.dir/main.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/TGAImage.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/Model.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/Math.cpp.obj CMakeFiles/TinyRenderLessonCode.dir/Render.cpp.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\TinyRenderLessonCode.dir

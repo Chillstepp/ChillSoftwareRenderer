@@ -25,11 +25,11 @@ Model::Model(const char *filename) {
             for(int i=0;i<3;i++) iss>>v.raw[i];
             Verts.push_back(v);
         }
-        else if(!line.compare(0, 2, "f ")){ //f 24/1/24 25/2/25 26/3/26
+        else if(!line.compare(0, 2, "f ")){ //f 24/1/24 25/2/25 26/3/26 : vertex idx,vertex normal vector idx ,vertexTexture idx
             std::vector<int> f;
             int itrash, idx, idxt;
             iss>>trash;//f
-            while(iss>>idx>>trash>>idxt>>trash>>itrash){ //只读24 25 26
+            while(iss>>idx>>trash>>idxt>>trash>>itrash){
                 idx--;//obj format idx from 0
                 idxt--;
                 f.push_back(idx);
