@@ -121,6 +121,21 @@ public:
         }
         return Ret;
     }
+
+    inline Matrix<DimRow, DimRow, T> operator*(Matrix<DimCol, DimRow, T> rhs)
+    {
+         Matrix<DimRow, DimCol, T> Ret;
+         for(size_t i = 0; i<DimRow; i++)
+         {
+             T tep = 0;
+             for(size_t j = 0; j<DimCol; j++)
+             {
+                tep += raw[i][j]*rhs.raw[j][i];
+             }
+
+         }
+
+    }
 };
 
 using Mat4x4 = Matrix<4,4,float>;

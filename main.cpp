@@ -22,6 +22,24 @@ Mat4x4 ModelView;
 Mat4x4 ViewPort;
 Mat4x4 Projection;
 
+//lookat matrix: games 101 is all you need
+Mat4x4 lookat(Vec3f eye, Vec3f center, Vec3f up)
+{
+    Vec3f z = (eye-center).normlize();
+    Vec3f x = (up^z).normlize();
+    Vec3f y = (z^x).normlize();
+    Mat4x4 minv = Mat4x4::Identity();//旋转矩阵
+    Mat4x4 tr = Mat4x4::Identity();//位移矩阵
+    for(int i=0;i<3;i++)
+    {
+        minv[0][i] = x.raw[i];
+        minv[1][i] = y.raw[i];
+        minv[2][i] = z.raw[i];
+        tr[i][3] = -center.raw[i];
+    }
+    return minv * tr;
+}
+
 int main(int argc, char** argv) {
 
     Model* model = new Model(head);
