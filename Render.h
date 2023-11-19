@@ -8,15 +8,16 @@
 #include "TGAImage.h"
 #include "vector"
 #include "Model.h"
+#include "Shader/IShader.h"
 
-static void triangle(Model* model ,Vec3i *pts, Vec2f* textures, TGAImage &image, std::vector<std::vector<float>>& ZBuffer)
+static void triangle(Model* model ,Vec3f *pts, Vec2f* textures, TGAImage &image, std::vector<std::vector<float>>& ZBuffer, IShader* Shader)
 {
-    Vec2i bboxmin(image.get_width()-1,  image.get_height()-1);
-    Vec2i bboxmax(0, 0);
-    Vec2i clamp(image.get_width()-1, image.get_height()-1);
+    Vec2f bboxmin(image.get_width()-1,  image.get_height()-1);
+    Vec2f bboxmax(0, 0);
+    Vec2f clamp(image.get_width()-1, image.get_height()-1);
     for (int i=0; i<3; i++) {
-        bboxmin.x = std::max(0, std::min(bboxmin.x, pts[i].x));
-        bboxmin.y = std::max(0, std::min(bboxmin.y, pts[i].y));
+        bboxmin.x = std::max(0.0f, std::min(bboxmin.x, pts[i].x));
+        bboxmin.y = std::max(0.0f, std::min(bboxmin.y, pts[i].y));
 
         bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, pts[i].x));
         bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, pts[i].y));
@@ -41,6 +42,7 @@ static void triangle(Model* model ,Vec3i *pts, Vec2f* textures, TGAImage &image,
             {
                 ZBuffer[P.x][P.y] = z;
                 auto Color = model->diffuse(PTexture);
+				Shader->fragment(bc_screen, Color);
                 image.set(P.x, P.y, Color);
             }
         }

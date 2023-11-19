@@ -122,20 +122,34 @@ public:
         return Ret;
     }
 
-    inline Matrix<DimRow, DimRow, T> operator*(Matrix<DimCol, DimRow, T> rhs)
+	template<size_t DimCol2>
+    inline Matrix<DimRow, DimCol2, T> operator*(Matrix<DimCol, DimCol2, T> rhs)
     {
-         Matrix<DimRow, DimCol, T> Ret;
-         for(size_t i = 0; i<DimRow; i++)
+         Matrix<DimRow, DimCol2, T> Ret;
+         for(size_t i = 0; i < DimRow; i++)
          {
-             T tep = 0;
-             for(size_t j = 0; j<DimCol; j++)
+             for(size_t j = 0; j < DimCol2; j++)
              {
-                tep += raw[i][j]*rhs.raw[j][i];
+                float Ret_ij = 0.0f;
+				for(size_t t = 0; t < DimCol; t++)
+				{
+					Ret_ij += raw[i][t] * rhs.raw[t][j];
+				}
+				Ret[i][j] = Ret_ij;
              }
-
          }
-
+		return Ret;
     }
+
+	static Matrix<4,1,T> Embed(const Vec3<T>& InVec)
+	{
+		Matrix<4,1,T> Ret;
+	 	for(int i=0; i<4; i++)
+		{
+			 Ret[i][0] = (i<3?InVec.raw[i]:1);
+		}
+		return Ret;
+	}
 };
 
 using Mat4x4 = Matrix<4,4,float>;
@@ -151,10 +165,10 @@ using Mat4x4 = Matrix<4,4,float>;
 // so we can (PA_x,AB_x,AC_x) × (PA_y,AB_y,AC_y) => (U_x,U_y,U_z)
 // so (1,β,γ) =  (1,U_y/U_x,U_z/U_x), We can easily get (1,alpha,beta) from cross above two vec
 
-static Vec3f barycentric(const Vec3i& point1, const Vec3i& point2, const Vec3i& point3, Vec3i p)
+static Vec3f barycentric(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, Vec3i p)
 {
-    Vec3i U = Vec3i{point1.x - p.x, point2.x-point1.x, point3.x-point1.x} ^
-              Vec3i{point1.y - p.y, point2.y-point1.y, point3.y-point1.y};
+    Vec3f U = Vec3f{point1.x - p.x, point2.x-point1.x, point3.x-point1.x} ^
+              Vec3f{point1.y - p.y, point2.y-point1.y, point3.y-point1.y};
     if(std::abs(U.x) == 0) //三角形退化为直线
     {
         return Vec3f{1.0,1.0,-1.0};
