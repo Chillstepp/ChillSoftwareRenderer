@@ -528,6 +528,10 @@ CMakeFiles/TinyRenderLessonCode.dir/Render.cpp.obj
  D:/clion/CLion 2022.2.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/bits/stl_bvector.h
  D:/clion/CLion 2022.2.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/bits/vector.tcc
  E:/TinyRenderLessonCode/Model.h
+ E:/TinyRenderLessonCode/Shader/IShader.h
+ E:/TinyRenderLessonCode/Math.h
+ E:/TinyRenderLessonCode/TGAImage.h
+ E:/TinyRenderLessonCode/Model.h
 
 CMakeFiles/TinyRenderLessonCode.dir/Shader/IShader.cpp.obj
  E:/TinyRenderLessonCode/Shader/IShader.cpp

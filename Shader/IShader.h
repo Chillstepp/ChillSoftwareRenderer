@@ -12,7 +12,7 @@
 class IShader
 {
  public:
-	virtual ~IShader() = 0;
+	virtual ~IShader()= default;;
 	virtual Matrix<4,1,float> vertex(int iface, int nthvert) = 0;
 	virtual bool fragment(Vec3f bar, TGAColor& color) = 0;
 };

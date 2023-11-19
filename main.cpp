@@ -74,7 +74,7 @@ Mat4x4 Projection = projection(-1.0f/3.0f);
 
 int main(int argc, char** argv) {
 
-    Model* model = new Model(boogie);
+    Model* model = new Model(head);
 	FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
     TGAImage image{width,height,TGAImage::RGB};

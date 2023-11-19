@@ -7,8 +7,8 @@
 
 Matrix<4, 1, float> FlatShader::vertex(int iface, int nthvert)
 {
-	std::vector<int> FaceVertexIdxs = model->getface(iface);
-	Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(FaceVertexIdxs.at(nthvert)));
+	std::vector<int> Face = model->getface(iface);
+	Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face.at(nthvert * 2)));
 	gl_vertex = ProjectionMat * ModelViewMat * gl_vertex;
 	for(int i=0; i<3; i++)
 	{
@@ -26,7 +26,7 @@ bool FlatShader::fragment(Vec3f bar, TGAColor& color)
 	};
 	Vec3f norm =  (TriangleVert[2] - TriangleVert[0])^(TriangleVert[1] - TriangleVert[0]);
 
-	float intensity = std::clamp(norm * LightDir, 0.0f, 1.0f);
+	float intensity = std::clamp((norm.normlize() * LightDir), 0.0f, 1.0f);
 	color = TGAColor(255*intensity,255*intensity,255*intensity,255);
 	return true;
 }

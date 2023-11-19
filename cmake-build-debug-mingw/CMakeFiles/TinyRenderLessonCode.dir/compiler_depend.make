@@ -524,6 +524,10 @@ CMakeFiles/TinyRenderLessonCode.dir/Render.cpp.obj: ../Render.cpp \
   D:/clion/CLion\ 2022.2.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/bits/stl_vector.h \
   D:/clion/CLion\ 2022.2.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/bits/stl_bvector.h \
   D:/clion/CLion\ 2022.2.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++/bits/vector.tcc \
+  ../Model.h \
+  ../Shader/IShader.h \
+  ../Math.h \
+  ../TGAImage.h \
   ../Model.h
 
 CMakeFiles/TinyRenderLessonCode.dir/Shader/IShader.cpp.obj: ../Shader/IShader.cpp \
@@ -1431,9 +1435,9 @@ D:/clion/CLion\ 2022.2.1/bin/mingw/lib/gcc/x86_64-w64-mingw32/11.2.0/include/c++
 
 ../Render.h:
 
-../Shader/IShader.cpp:
-
 ../Shader/IShader.h:
+
+../Shader/IShader.cpp:
 
 ../TGAImage.cpp:
 
