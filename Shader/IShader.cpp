@@ -46,8 +46,8 @@ GouraudShader::~GouraudShader() {
 }
 
 Matrix<4, 1, float> GouraudShader::vertex(int iface, int nthvert) {
-    std::vector<int> Face = model->getface(iface);
-    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face.at(nthvert * 2)));
+    const std::vector<int>& Face = model->getface(iface);
+    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
     gl_vertex = ProjectionMat * ModelViewMat * gl_vertex;
     gl_vertex = ViewPortMat * gl_vertex;
     float d = gl_vertex.raw[3][0];

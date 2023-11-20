@@ -27,14 +27,15 @@ Model::Model(const char *filename) {
         }
         else if(!line.compare(0, 2, "f ")){ //f 24/1/24 25/2/25 26/3/26 : vertex idx,vertexTexture idx,vertex normal vector idx
             std::vector<int> f;
-            int itrash, idx, idxt;
+            int itrash, idx, idxt, idxn;
             iss>>trash;//f
-            while(iss>>idx>>trash>>idxt>>trash>>itrash){
+            while(iss>>idx>>trash>>idxt>>trash>>idxn){
                 idx--;//obj format idx from 0
                 idxt--;
+                idxn--;
                 f.push_back(idx);
                 f.push_back(idxt);
-
+                f.push_back(idxn);
             }
             Faces.push_back(f);
         }
@@ -45,7 +46,7 @@ Model::Model(const char *filename) {
             uvs.push_back(uv);
         }
         else if(!line.compare(0,2, "vn")){
-            iss>>trash;
+            iss>>trash>>trash;
             Vec3f v;
             for(int i=0;i<3;i++) iss>>v.raw[i];
             Norms.push_back(v);
@@ -96,5 +97,6 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
 Vec3f Model::getNormal(int iface, int nthvert) {
 
     const std::vector<int>& face = getface(iface);
-    return Norms[face[nthvert*2]].normlize();
+    auto norm = -Norms.at(face[nthvert*3 + 2]).normlize();
+    return norm;
 }

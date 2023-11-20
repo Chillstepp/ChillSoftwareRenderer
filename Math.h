@@ -65,6 +65,10 @@ template<typename T> struct Vec3
         return Vec3<T>{x-vec.x, y-vec.y, z-vec.z};
     }
 
+	inline Vec3<T> operator -() const {
+		return Vec3<T>{-x, -y, -z};
+	}
+
     inline Vec3<T> operator *(const float& f) const {
         return Vec3<T>{x*f, y*f, z*f};
     }

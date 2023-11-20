@@ -74,7 +74,7 @@ Mat4x4 Projection = projection(-1.0f/3.0f);
 
 int main(int argc, char** argv) {
 
-    Model* model = new Model(head);
+    Model* model = new Model(diablo);
 	//FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     GouraudShader* gouraudShader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
     std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
@@ -88,19 +88,18 @@ int main(int argc, char** argv) {
         Vec2f Textures[3];
         for(int j=0;j<3;j++)
         {
-            WorldCoords[j] = model->getvert(face[j*2]);
+            WorldCoords[j] = model->getvert(face[j*3]);
 			auto Mat4x1_Vertex = gouraudShader->vertex(i, j);
 			ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
 			//ScreenCoords[j] = world2screenCoord(WorldCoords[j], ModelView, Projection, ViewPort);
 //            ScreenCoords[j] = {static_cast<int>((WorldCoords[j].x+1.0f)*width/2.0f),
 //                               static_cast<int>((WorldCoords[j].y+1.0f)*height/2.0f),
 //                               static_cast<int>(WorldCoords[j].z*100000)};
-            Textures[j] = model->getuv(face[j*2+1]);
+            Textures[j] = model->getuv(face[j*3+1]);
         }
 //        Vec3f norm = (WorldCoords[2] - WorldCoords[0])^(WorldCoords[1] - WorldCoords[0]);//obj文件 面顶点为逆时针顺序
 //        norm.normlize();
 //        float intensity = norm * LightDir;
-
         triangle(model,ScreenCoords, Textures, image,ZBuffer,gouraudShader);
     }
 
