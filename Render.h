@@ -33,6 +33,7 @@ static void triangle(Model* model ,Vec3f *pts, Vec2f* textures, TGAImage &image,
                 z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
 //                std::cout<<pts[i].z << bc_screen.raw[i]<<std::endl;
             }
+            //插值拿到纹理uv
             for (int i = 0; i < 3; i++) {
                 PTexture.u += textures[i].u * bc_screen.raw[i];
                 PTexture.v += textures[i].v * bc_screen.raw[i];

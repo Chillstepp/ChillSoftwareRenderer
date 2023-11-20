@@ -13,6 +13,7 @@ class Model {
 private:
     std::vector<Vec3f>Verts;
     std::vector<std::vector<int>>Faces;
+    std::vector<Vec3f>Norms;
     std::vector<Vec2f>uvs;
     TGAImage diffusemap_;
     void load_texture(std::string filename, const char *suffix, TGAImage &img);
@@ -24,6 +25,7 @@ public:
     Vec3f getvert(int i);
     std::vector<int> getface(int idx);
     Vec2f getuv(int idx);
+    Vec3f getNormal(int iface, int nthvert);
     TGAColor diffuse(Vec2f uv);
 };
 

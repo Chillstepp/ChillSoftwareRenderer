@@ -34,14 +34,21 @@ Model::Model(const char *filename) {
                 idxt--;
                 f.push_back(idx);
                 f.push_back(idxt);
+
             }
             Faces.push_back(f);
         }
-        else if(!line.compare(0, 2, "vt")){
+        else if(!line.compare(0, 2,"vt")){
             iss>>trash>>trash;
             Vec2f uv;
             iss>>uv.u>>uv.v;
             uvs.push_back(uv);
+        }
+        else if(!line.compare(0,2, "vn")){
+            iss>>trash;
+            Vec3f v;
+            for(int i=0;i<3;i++) iss>>v.raw[i];
+            Norms.push_back(v);
         }
     }
     load_texture(filename, "_diffuse.tga", diffusemap_);
@@ -84,4 +91,10 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
         img.read_tga_file(textfile.c_str());
         img.flip_vertically();
     }
+}
+
+Vec3f Model::getNormal(int iface, int nthvert) {
+
+    const std::vector<int>& face = getface(iface);
+    return Norms[face[nthvert*2]].normlize();
 }

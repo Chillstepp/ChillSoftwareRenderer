@@ -15,6 +15,10 @@ Matrix<4, 1, float> FlatShader::vertex(int iface, int nthvert)
 		Varying_tri.raw[i][nthvert] = gl_vertex.raw[i][0]/gl_vertex.raw[3][0];
 	}
 	gl_vertex = ViewPortMat * gl_vertex;
+    float d = gl_vertex.raw[3][0];
+    gl_vertex.raw[0][0] = gl_vertex.raw[0][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[1][0] = gl_vertex.raw[1][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[2][0] = gl_vertex.raw[2][0] / gl_vertex.raw[3][0];
 	return gl_vertex;
 }
 bool FlatShader::fragment(Vec3f bar, TGAColor& color)
@@ -33,4 +37,33 @@ bool FlatShader::fragment(Vec3f bar, TGAColor& color)
 FlatShader::~FlatShader()
 {
 
+}
+
+
+
+GouraudShader::~GouraudShader() {
+
+}
+
+Matrix<4, 1, float> GouraudShader::vertex(int iface, int nthvert) {
+    std::vector<int> Face = model->getface(iface);
+    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face.at(nthvert * 2)));
+    gl_vertex = ProjectionMat * ModelViewMat * gl_vertex;
+    gl_vertex = ViewPortMat * gl_vertex;
+    float d = gl_vertex.raw[3][0];
+    gl_vertex.raw[0][0] = gl_vertex.raw[0][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[1][0] = gl_vertex.raw[1][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[2][0] = gl_vertex.raw[2][0] / gl_vertex.raw[3][0];
+    Vec3f norm = model->getNormal(iface, nthvert);
+    Varying_intensity.raw[nthvert] = std::clamp(norm*LightDir, 0.0f, 1.0f);
+
+    return gl_vertex;
+}
+
+bool GouraudShader::fragment(Vec3f bar, TGAColor &color) {
+    float intensity = Varying_intensity * bar;
+//    std::cout<<intensity<<" "<< std::endl<<Varying_intensity.raw[0]<<" "<<Varying_intensity.raw[1]<<" "<<Varying_intensity.raw[2]<<std::endl<<
+//    bar.raw[0]<<" "<<bar.raw[1]<<" "<<bar.raw[2]<<std::endl;
+    color = TGAColor(255*intensity,255*intensity,255*intensity,255);
+    return true;
 }
