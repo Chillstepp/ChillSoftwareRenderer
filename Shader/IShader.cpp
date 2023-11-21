@@ -48,15 +48,13 @@ GouraudShader::~GouraudShader() {
 Matrix<4, 1, float> GouraudShader::vertex(int iface, int nthvert) {
     const std::vector<int>& Face = model->getface(iface);
     Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
-    gl_vertex = ProjectionMat * ModelViewMat * gl_vertex;
-    gl_vertex = ViewPortMat * gl_vertex;
-    float d = gl_vertex.raw[3][0];
-    gl_vertex.raw[0][0] = gl_vertex.raw[0][0] / gl_vertex.raw[3][0];
-    gl_vertex.raw[1][0] = gl_vertex.raw[1][0] / gl_vertex.raw[3][0];
-    gl_vertex.raw[2][0] = gl_vertex.raw[2][0] / gl_vertex.raw[3][0];
     Vec3f norm = model->getNormal(iface, nthvert);
     Varying_intensity.raw[nthvert] = std::clamp(norm*LightDir, 0.0f, 1.0f);
 
+    gl_vertex = ViewPortMat * ProjectionMat * ModelViewMat * gl_vertex;
+    gl_vertex.raw[0][0] = gl_vertex.raw[0][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[1][0] = gl_vertex.raw[1][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[2][0] = gl_vertex.raw[2][0] / gl_vertex.raw[3][0];
     return gl_vertex;
 }
 
@@ -65,5 +63,46 @@ bool GouraudShader::fragment(Vec3f bar, TGAColor &color) {
 //    std::cout<<intensity<<" "<< std::endl<<Varying_intensity.raw[0]<<" "<<Varying_intensity.raw[1]<<" "<<Varying_intensity.raw[2]<<std::endl<<
 //    bar.raw[0]<<" "<<bar.raw[1]<<" "<<bar.raw[2]<<std::endl;
     color = TGAColor(255*intensity,255*intensity,255*intensity,255);
+    return true;
+}
+
+
+PhongShader::~PhongShader() {
+
+}
+
+Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
+    const std::vector<int>& Face = model->getface(iface);
+    Vec3f norm = model->getNormal(iface, nthvert);
+    Vec2f uv = model->getuv(Face[nthvert * 3 + 1]);
+    Varying_intensity.raw[nthvert] = std::clamp(norm*LightDir, 0.0f, 1.0f);
+    Varying_uv[nthvert] = uv;
+
+    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
+    gl_vertex = ViewPortMat * ProjectionMat * ModelViewMat * gl_vertex;
+    gl_vertex.raw[0][0] = gl_vertex.raw[0][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[1][0] = gl_vertex.raw[1][0] / gl_vertex.raw[3][0];
+    gl_vertex.raw[2][0] = gl_vertex.raw[2][0] / gl_vertex.raw[3][0];
+    return gl_vertex;
+}
+
+bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
+    float intensity = Varying_intensity * bar;
+//    std::cout<<intensity<<" "<< std::endl<<Varying_intensity.raw[0]<<" "<<Varying_intensity.raw[1]<<" "<<Varying_intensity.raw[2]<<std::endl<<
+//    bar.raw[0]<<" "<<bar.raw[1]<<" "<<bar.raw[2]<<std::endl;
+    //uv插值
+    Vec2f uv;
+    for(int i=0;i<3;i++)
+    {
+        uv.u += Varying_uv[i].u*bar.raw[i];
+        uv.v += Varying_uv[i].v*bar.raw[i];
+    }
+    model->getNormal(uv);
+
+    color = model->diffuse(uv);
+    color.r = (int)(color.r * intensity);
+    color.g = (int)(color.g * intensity);
+    color.b = (int)(color.b * intensity);
+
     return true;
 }

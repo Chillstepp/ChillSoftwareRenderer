@@ -16,6 +16,7 @@ private:
     std::vector<Vec3f>Norms;
     std::vector<Vec2f>uvs;
     TGAImage diffusemap_;
+    TGAImage normalmap_;
     void load_texture(std::string filename, const char *suffix, TGAImage &img);
 public:
     Model(const char* filename);
@@ -26,6 +27,8 @@ public:
     std::vector<int> getface(int idx);
     Vec2f getuv(int idx);
     Vec3f getNormal(int iface, int nthvert);
+    //法线贴图中拿法线
+    Vec3f getNormal(Vec2f uvf);
     TGAColor diffuse(Vec2f uv);
 };
 

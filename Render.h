@@ -42,7 +42,7 @@ static void triangle(Model* model ,Vec3f *pts, Vec2f* textures, TGAImage &image,
             if(ZBuffer[P.x][P.y] < z)
             {
                 ZBuffer[P.x][P.y] = z;
-                auto Color = model->diffuse(PTexture);
+                TGAColor Color;
 				Shader->fragment(bc_screen, Color);
                 image.set(P.x, P.y, Color);
             }

@@ -54,5 +54,24 @@ public:
 	virtual bool fragment(Vec3f bar, TGAColor &color) override;
 };
 
+class PhongShader: public IShader
+{
+private:
+	Vec3f Varying_intensity;
+	std::vector<Vec2f>Varying_uv;
+	Model* model = nullptr;
+	Mat4x4 ProjectionMat;
+	Mat4x4 ModelViewMat;
+	Mat4x4 ViewPortMat;
+	Vec3f LightDir{0,0,-1};
+
+public:
+	explicit PhongShader(Model* model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
+						   Mat4x4 ViewPortMat_, Vec3f LightDir_): model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_){Varying_uv.reserve(3);}
+	~PhongShader() override;
+	virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+	virtual bool fragment(Vec3f bar, TGAColor &color) override;
+};
+
 
 #endif //TINYRENDERLESSONCODE_SHADER_ISHADER_H_

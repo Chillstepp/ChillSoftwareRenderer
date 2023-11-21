@@ -53,6 +53,7 @@ Model::Model(const char *filename) {
         }
     }
     load_texture(filename, "_diffuse.tga", diffusemap_);
+    load_texture(filename,"_nm.tga", normalmap_);
 }
 
 Model::~Model() {
@@ -99,4 +100,16 @@ Vec3f Model::getNormal(int iface, int nthvert) {
     const std::vector<int>& face = getface(iface);
     auto norm = -Norms.at(face[nthvert*3 + 2]).normlize();
     return norm;
+}
+
+Vec3f Model::getNormal(Vec2f uvf) {
+    Vec2i uv(uvf.u * normalmap_.get_width(), uvf.v * normalmap_.get_height());
+    TGAColor normal_color = normalmap_.get(uv.u, uv.v);
+    Vec3f res;
+    //TGAColor is bgra, and in byte
+    for(int i=0; i<3; i++)
+    {
+        res.raw[2-i] = normal_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+    }
+    return res;
 }

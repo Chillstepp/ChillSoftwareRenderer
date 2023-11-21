@@ -154,6 +154,16 @@ public:
 		}
 		return Ret;
 	}
+
+    static Matrix<4,1,T> Embed(const Vec2<T>& InVec)
+    {
+        Matrix<4,1,T> Ret;
+        for(int i=0; i<4; i++)
+        {
+            Ret[i][0] = (i<2?InVec.raw[i]:1);
+        }
+        return Ret;
+    }
 };
 
 using Mat4x4 = Matrix<4,4,float>;
