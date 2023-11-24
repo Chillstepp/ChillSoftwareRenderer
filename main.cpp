@@ -73,7 +73,11 @@ Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(-1.0f/3.0f);
 
 int main(int argc, char** argv) {
-
+    Matrix<3,3,float> m;
+    m[0][0] = 2,m[0][1] = -1, m[0][2] = 0;
+    m[1][0] = -1,m[1][1] = 2, m[1][2] = -1;
+    m[2][0] = 0,m[2][1] = -1, m[2][2] = 2;
+    m.Inverse();
     Model* model = new Model(diablo);
 	//FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* gouraudShader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);

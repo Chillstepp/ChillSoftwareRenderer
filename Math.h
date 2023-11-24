@@ -145,6 +145,74 @@ public:
 		return Ret;
     }
 
+    inline Matrix<DimCol, DimRow, T> Transpose()
+    {
+        Matrix<DimCol, DimRow, T> RetMat;
+        for(int i = 0;i<DimRow;++i)
+        {
+            for(int j=0;j<DimCol;++j)
+            {
+                RetMat[j][i] = raw[i][j];
+            }
+        }
+        return RetMat;
+    }
+
+    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-3) requires (DimRow == DimCol)
+    {
+        //[augmentedMatrix, inverseMatrix]构成增广矩阵
+        Matrix<DimRow, DimRow, T> augmentedMatrix = *this;
+        Matrix<DimRow, DimRow, T> inverseMatrix = Matrix<DimRow, DimRow, T>::Identity();
+        for(size_t pivot = 0; pivot<DimRow; pivot++)//处理到第pivot行
+        {
+            bool FindRow = false;
+            for(size_t i = pivot; i<DimRow; i++)
+            {
+                if(fabs(augmentedMatrix.raw[i][pivot])>eps)
+                {
+                   FindRow = true;
+                   for(int j = 0; j<DimRow; j++)
+                   {
+                        std::swap(augmentedMatrix.raw[pivot][j], augmentedMatrix.raw[i][j]);
+                        std::swap(inverseMatrix.raw[pivot][j], inverseMatrix.raw[i][j]);
+                   }
+                   break;
+                }
+            }
+            if(!FindRow) throw std::runtime_error("Matrix is not full rank matrix");
+            const float Divisor = 1.f/augmentedMatrix.raw[pivot][pivot];
+            for(size_t i = 0; i<DimRow; i++)
+            {
+                augmentedMatrix.raw[pivot][i] *= Divisor;
+                inverseMatrix.raw[pivot][i] *= Divisor;
+            }
+            for(size_t i = pivot + 1; i<DimRow; i++)
+            {
+                const float factor = augmentedMatrix.raw[i][pivot];
+                for(size_t j = 0; j<DimRow; j++)
+                {
+                    augmentedMatrix.raw[i][j] -= factor * augmentedMatrix.raw[pivot][j];
+                    inverseMatrix.raw[i][j] -= factor * inverseMatrix.raw[pivot][j];
+                }
+            }
+        }
+
+
+        for(int i = DimRow;i >= 0; i--)
+        {
+            for(int j = i - 1; j >= 0; j--)
+            {
+                const float factor = augmentedMatrix.raw[j][i];
+                for(int k = 0; k < DimRow; k++)
+                {
+                    augmentedMatrix.raw[j][k] -= factor * augmentedMatrix.raw[i][k];
+                    inverseMatrix.raw[j][k] -= factor * inverseMatrix.raw[i][k];
+                }
+            }
+        }
+        return inverseMatrix;
+    }
+
 	static Matrix<4,1,T> Embed(const Vec3<T>& InVec)
 	{
 		Matrix<4,1,T> Ret;
@@ -164,6 +232,8 @@ public:
         }
         return Ret;
     }
+
+
 };
 
 using Mat4x4 = Matrix<4,4,float>;
