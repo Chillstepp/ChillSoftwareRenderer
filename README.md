@@ -8,6 +8,6 @@
 
 <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231127145300076.png" alt="image-20231127145300076" style="zoom:67%;" />
 
-**PhongShader:**
+**PhongShader: Specular + Ambient + Diffuse**
 
-<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231127160048062.png" alt="image-20231127160048062" style="zoom:67%;" />
+<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231127174048659.png" alt="image-20231127174048659" style="zoom: 80%;" />
