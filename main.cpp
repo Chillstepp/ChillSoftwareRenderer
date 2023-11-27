@@ -14,8 +14,8 @@ auto diablo = "../obj/diablo3_pose/diablo3_pose.obj";
 
 constexpr int width  = 800; // output image size
 constexpr int height = 800;
-Vec3f LightDir{0,0,-1};
-Vec3f Eye{0,0,3};
+Vec3f LightDir{1,1,1};
+Vec3f Eye{0,-1,3};
 Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 
@@ -73,16 +73,11 @@ Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(-1.0f/3.0f);
 
 int main(int argc, char** argv) {
-    Matrix<3,3,float> m;
-    m[0][0] = 2,m[0][1] = -1, m[0][2] = 0;
-    m[1][0] = -1,m[1][1] = 2, m[1][2] = -1;
-    m[2][0] = 0,m[2][1] = -1, m[2][2] = 2;
-    m.Inverse();
-    Model* model = new Model(diablo);
+    Model* model = new Model(head);
 	//FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* gouraudShader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
     PhongShader* phongShader = new PhongShader(model, Projection, ModelView, ViewPort, LightDir);
-    std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
+    std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -99999));
     TGAImage image{width,height,TGAImage::RGB};
     for(int i=0;i<model->nfaces();i++)
     {

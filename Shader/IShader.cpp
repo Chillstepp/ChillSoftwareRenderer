@@ -73,9 +73,7 @@ PhongShader::~PhongShader() {
 
 Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     const std::vector<int>& Face = model->getface(iface);
-    Vec3f norm = model->getNormal(iface, nthvert);
     Vec2f uv = model->getuv(Face[nthvert * 3 + 1]);
-    Varying_intensity.raw[nthvert] = std::clamp(norm*LightDir, 0.0f, 1.0f);
     Varying_uv[nthvert] = uv;
 
     Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
@@ -87,7 +85,6 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
 }
 
 bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
-    float intensity = Varying_intensity * bar;
 //    std::cout<<intensity<<" "<< std::endl<<Varying_intensity.raw[0]<<" "<<Varying_intensity.raw[1]<<" "<<Varying_intensity.raw[2]<<std::endl<<
 //    bar.raw[0]<<" "<<bar.raw[1]<<" "<<bar.raw[2]<<std::endl;
     //uv插值
@@ -97,12 +94,16 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         uv.u += Varying_uv[i].u*bar.raw[i];
         uv.v += Varying_uv[i].v*bar.raw[i];
     }
-    model->getNormal(uv);
+    Vec3f n = Matrix<4,1,float>::Proj(Uniform_MIT*Mat4x4::Embed(model->getNormal(uv))).normlize();
+    Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
+    float intensity = std::max(0.f, n*l);
+    //std::cout<<n<<" "<<l<<std::endl;
 
     color = model->diffuse(uv);
     color.r = (int)(color.r * intensity);
     color.g = (int)(color.g * intensity);
     color.b = (int)(color.b * intensity);
+    //std::cout<<intensity<<std::endl;
+    return false;
 
-    return true;
 }

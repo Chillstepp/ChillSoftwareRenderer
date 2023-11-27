@@ -112,6 +112,10 @@ public:
         return raw[idx];
     }
 
+    float* operator[] (const size_t idx) const {
+        return raw[idx];
+    }
+
     static Matrix<DimRow, DimCol, T> Identity()
     {
         Matrix<DimCol,DimRow, T> Ret;
@@ -222,6 +226,11 @@ public:
 		}
 		return Ret;
 	}
+
+    static Vec3f Proj(const Matrix<4,1,float>& InMat)
+    {
+         return Vec3f{InMat.raw[0][0], InMat.raw[1][0], InMat.raw[2][0]};
+    }
 
     static Matrix<4,1,T> Embed(const Vec2<T>& InVec)
     {
