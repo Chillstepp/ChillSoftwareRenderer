@@ -73,7 +73,7 @@ Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(-1.0f/3.0f);
 
 int main(int argc, char** argv) {
-    Model* model = new Model(head);
+    Model* model = new Model(diablo);
 	//FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* gouraudShader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
     PhongShader* phongShader = new PhongShader(model, Projection, ModelView, ViewPort, LightDir);

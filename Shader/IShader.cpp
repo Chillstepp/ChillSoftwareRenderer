@@ -96,14 +96,15 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     }
     Vec3f n = Matrix<4,1,float>::Proj(Uniform_MIT*Mat4x4::Embed(model->getNormal(uv))).normlize();
     Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
-    float intensity = std::max(0.f, n*l);
-    //std::cout<<n<<" "<<l<<std::endl;
+    Vec3f r = (n*(n*l*2.f) - l).normlize(); // reflected light
+    float spec = pow(std::max(r.z, 0.0f), model->getSpecular(uv)); // we're looking from z-axis
+    float diff = std::max(0.f, n*l);
 
-    color = model->diffuse(uv);
-    color.r = (int)(color.r * intensity);
-    color.g = (int)(color.g * intensity);
-    color.b = (int)(color.b * intensity);
-    //std::cout<<intensity<<std::endl;
+
+    TGAColor c = model->diffuse(uv);
+    color = c;
+    for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(5+c.raw[i]*(1.2*diff+.7*spec), 255);
+
     return false;
 
 }
