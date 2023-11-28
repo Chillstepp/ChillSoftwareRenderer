@@ -10,4 +10,4 @@
 
 **PhongShader: Specular + Ambient + Diffuse**
 
-<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231127174048659.png" alt="image-20231127174048659" style="zoom: 80%;" />
+<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128141210757.png" alt="image-20231128141210757" style="zoom:80%;" />
