@@ -6,6 +6,7 @@
 #define TINYRENDERLESSONCODE_MATH_H
 #include <cmath>
 #include "iostream"
+#include "TGAImage.h"
 
 
 template<typename T> struct Vec2
@@ -52,6 +53,7 @@ template<typename T> struct Vec3
     };
     Vec3(): x(0), y(0), z(0) {}
     Vec3(T _x, T _y, T _z): x(_x), y(_y), z(_z){}
+    explicit Vec3(TGAColor color): x(color.raw[0]), y(color.raw[1]), z(color.raw[2]){}
 
     inline Vec3<T> operator ^(const Vec3<T>& vec){
         return Vec3<T>{y*vec.z - z*vec.y, z*vec.x - x*vec.z, x*vec.y - y*vec.x};
@@ -59,6 +61,10 @@ template<typename T> struct Vec3
 
     inline Vec3<T> operator +(const Vec3<T>& vec) const {
         return Vec3<T>{x+vec.x, y+vec.y, z+vec.z};
+    }
+
+    inline Vec3<T> operator +(const float& f) const {
+        return Vec3<T>{x+f, y+f, z+f};
     }
 
     inline Vec3<T> operator -(const Vec3<T>& vec) const {
@@ -71,6 +77,14 @@ template<typename T> struct Vec3
 
     inline Vec3<T> operator *(const float& f) const {
         return Vec3<T>{x*f, y*f, z*f};
+    }
+
+    inline Vec3<T> operator /(const float& f) const {
+        return Vec3<T>{x/f, y/f, z/f};
+    }
+
+    inline Vec3<T> operator *=(const float& f) const {
+        return this->operator*(f);
     }
 
     inline T operator *(const Vec3<T>& vec) const {
@@ -94,6 +108,17 @@ std::ostream &operator<<(std::ostream &s, Vec3<T> &v) {
     s << "(" << v.x << ", " << v.y << ", " << v.z << ")\n";
     return s;
 }
+
+template<typename T>
+inline Vec3<T> operator *(const float& f, const Vec3<T>& v) {
+    return Vec3<T>{v.x*f, v.y*f, v.z*f};
+}
+
+template<typename T>
+inline Vec3<T> operator +(const float& f, const Vec3<T>& v) {
+    return Vec3<T>{v.x+f, v.y+f, v.z+f};
+}
+
 
 using Vec3f = Vec3<float>;
 using Vec2f = Vec2<float>;
