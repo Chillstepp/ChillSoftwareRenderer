@@ -1,3 +1,0 @@
-"D:\clion\CLion 2022.2.1\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\TinyRenderLessonCode.dir/objects.a
-D:\clion\CLION2~1.1\bin\mingw\bin\ar.exe qc CMakeFiles\TinyRenderLessonCode.dir/objects.a @CMakeFiles\TinyRenderLessonCode.dir\objects1.rsp
-D:\clion\CLION2~1.1\bin\mingw\bin\G__~1.EXE -g -Wl,--whole-archive CMakeFiles\TinyRenderLessonCode.dir/objects.a -Wl,--no-whole-archive -o TinyRenderLessonCode.exe -Wl,--out-implib,libTinyRenderLessonCode.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\TinyRenderLessonCode.dir\linklibs.rsp
