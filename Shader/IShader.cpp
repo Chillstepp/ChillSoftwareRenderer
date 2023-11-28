@@ -103,7 +103,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
 
     TGAColor c = model->diffuse(uv);
     color = c;
-    for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(5+c.raw[i]*(1.5*diff+1.5*spec), 255);
+    for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(5+c.raw[i]*(1.0*diff+1.7*spec), 255);
 
     return false;
 

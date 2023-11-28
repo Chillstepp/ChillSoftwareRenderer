@@ -11,6 +11,28 @@
 #include "Model.h"
 #include "Shader/IShader.h"
 
+static TGAColor ACESToneMapping(Vec3f color, float adapted_lum = 1.0f)
+{
+
+    const float A = 2.51f;
+    const float B = 0.03f;
+    const float C = 2.43f;
+    const float D = 0.59f;
+    const float E = 0.14f;
+    //std::cout<<color<<std::endl;
+    color *= adapted_lum;
+    color = color / 255.0f;
+    TGAColor MappingColor;
+    for(int i=0;i<3;i++)
+    {
+        MappingColor.raw[i] = (color.raw[i] * (A * color + B).raw[i]) / (color.raw[i] * (C * color.raw[i] + D) + E) * 255;
+    }
+    //std::cout<<(float)MappingColor.raw[0]<<" "<<(float)MappingColor.raw[1]<<" "<<(float)MappingColor.raw[2]<<std::endl;
+
+    return MappingColor;
+}
+
+
 static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, Vec2f* textures, TGAImage &image, std::vector<std::vector<float>>& ZBuffer, std::shared_ptr<IShader>& Shader)
 {
     Vec2f bboxmin(image.get_width()-1,  image.get_height()-1);
@@ -45,7 +67,7 @@ static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, Vec2f* textures,
                 ZBuffer[P.x][P.y] = z;
                 TGAColor Color;
 				Shader->fragment(bc_screen, Color);
-                image.set(P.x, P.y, Color);
+                image.set(P.x, P.y, ACESToneMapping(Vec3f(Color)));
             }
         }
     }
