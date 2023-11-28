@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include "TGAImage.h"
 #include "Model.h"
 #include "Math.h"
@@ -71,17 +72,17 @@ Vec3f world2screenCoord(Vec3f v, Mat4x4 modelview, Mat4x4 projection, Mat4x4 vie
 Mat4x4 ModelView = lookat(Eye, Center, Up);
 Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(-1.0f/3.0f);
+TGAImage image{width,height,TGAImage::RGB};
+std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -99999));
 
 int main(int argc, char** argv) {
-    Model* model = new Model(diablo);
+    std::shared_ptr<Model> model = std::make_shared<Model>(diablo);
 	//FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* gouraudShader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
-    PhongShader* phongShader = new PhongShader(model, Projection, ModelView, ViewPort, LightDir);
-    std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -99999));
-    TGAImage image{width,height,TGAImage::RGB};
+    std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort, LightDir);
+
     for(int i=0;i<model->nfaces();i++)
     {
-        Mat4x4::Identity();
         const std::vector<int>& face = model->getface(i);
         Vec3f ScreenCoords[3];
         Vec3f WorldCoords[3];
@@ -89,26 +90,14 @@ int main(int argc, char** argv) {
         for(int j=0;j<3;j++)
         {
             WorldCoords[j] = model->getvert(face[j*3]);
-			auto Mat4x1_Vertex = phongShader->vertex(i, j);
+			auto Mat4x1_Vertex = Shader->vertex(i, j);
 			ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
-			//ScreenCoords[j] = world2screenCoord(WorldCoords[j], ModelView, Projection, ViewPort);
-//            ScreenCoords[j] = {static_cast<int>((WorldCoords[j].x+1.0f)*width/2.0f),
-//                               static_cast<int>((WorldCoords[j].y+1.0f)*height/2.0f),
-//                               static_cast<int>(WorldCoords[j].z*100000)};
             Textures[j] = model->getuv(face[j*3+1]);
         }
-//        Vec3f norm = (WorldCoords[2] - WorldCoords[0])^(WorldCoords[1] - WorldCoords[0]);//obj文件 面顶点为逆时针顺序
-//        norm.normlize();
-//        float intensity = norm * LightDir;
-        triangle(model,ScreenCoords, Textures, image,ZBuffer,phongShader);
+        triangle(model,ScreenCoords, Textures, image,ZBuffer,Shader);
     }
 
     image.flip_vertically();//left-bottom is the origin
     image.write_tga_file("output.tga");
-
-	delete model;
-	//delete flatShader;
-    //delete gouraudShader;
-    delete phongShader;
     return 0;
 }

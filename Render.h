@@ -7,10 +7,11 @@
 #include "Math.h"
 #include "TGAImage.h"
 #include "vector"
+#include "memory"
 #include "Model.h"
 #include "Shader/IShader.h"
 
-static void triangle(Model* model ,Vec3f *pts, Vec2f* textures, TGAImage &image, std::vector<std::vector<float>>& ZBuffer, IShader* Shader)
+static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, Vec2f* textures, TGAImage &image, std::vector<std::vector<float>>& ZBuffer, std::shared_ptr<IShader>& Shader)
 {
     Vec2f bboxmin(image.get_width()-1,  image.get_height()-1);
     Vec2f bboxmax(0, 0);

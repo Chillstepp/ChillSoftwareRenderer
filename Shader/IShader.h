@@ -5,6 +5,7 @@
 #ifndef TINYRENDERLESSONCODE_SHADER_ISHADER_H_
 #define TINYRENDERLESSONCODE_SHADER_ISHADER_H_
 
+#include <memory>
 #include "../Math.h"
 #include "../TGAImage.h"
 #include "../Model.h"
@@ -40,14 +41,14 @@ class GouraudShader: public IShader
 {
 private:
 	Vec3f Varying_intensity;
-	Model* model = nullptr;
+	std::shared_ptr<Model> model = nullptr;
 	Mat4x4 ProjectionMat;
 	Mat4x4 ModelViewMat;
 	Mat4x4 ViewPortMat;
 	Vec3f LightDir{0,0,-1};
 
 public:
-	explicit GouraudShader(Model* model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
+	explicit GouraudShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
 						Mat4x4 ViewPortMat_, Vec3f LightDir_): model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_){}
 	~GouraudShader() override;
 	virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
@@ -59,7 +60,7 @@ class PhongShader: public IShader
 private:
 	Vec3f Varying_intensity;
 	std::vector<Vec2f>Varying_uv;
-	Model* model = nullptr;
+	std::shared_ptr<Model> model = nullptr;
 	Mat4x4 ProjectionMat;
 	Mat4x4 ModelViewMat;
 	Mat4x4 ViewPortMat;
@@ -69,7 +70,7 @@ private:
     Mat4x4 Uniform_MIT;
 
 public:
-	explicit PhongShader(Model* model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
+	explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
 						   Mat4x4 ViewPortMat_, Vec3f LightDir_): model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_){
         Varying_uv.reserve(3);
         Uniform_M = ProjectionMat_*ModelViewMat_;
