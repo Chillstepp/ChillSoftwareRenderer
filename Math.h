@@ -141,6 +141,17 @@ public:
         return raw[idx];
     }
 
+    Matrix<DimRow, DimCol,float> operator /=(const float d){
+         for(int i = 0;i<DimRow;i++)
+         {
+             for(int j=0;j<DimCol;j++)
+             {
+                 raw[i][j] /= d;
+             }
+         }
+        return *this;
+     }
+
     static Matrix<DimRow, DimCol, T> Identity()
     {
         Matrix<DimCol,DimRow, T> Ret;
@@ -294,5 +305,41 @@ static Vec3f barycentric(const Vec3f& point1, const Vec3f& point2, const Vec3f& 
     return Vec3f{1.0f-1.0f*(U.y+U.z)/U.x, 1.0f*U.y/U.x, 1.0f*U.z/U.x};
 }
 
+
+/**/
+//lookat matrix: games 101 is all you need
+static Mat4x4 lookat(Vec3f eye, Vec3f center, Vec3f up)
+{
+    Vec3f z = (eye-center).normlize();
+    Vec3f x = (up^z).normlize();
+    Vec3f y = (z^x).normlize();
+    Mat4x4 minv = Mat4x4::Identity();//旋转矩阵
+    Mat4x4 tr = Mat4x4::Identity();//位移矩阵
+    for(int i=0;i<3;i++)
+    {
+        minv[0][i] = x.raw[i];
+        minv[1][i] = y.raw[i];
+        minv[2][i] = z.raw[i];
+        tr[i][3] = -center.raw[i];
+    }
+    return minv * tr;
+}
+
+static Mat4x4 viewport(int x, int y, int w, int h)
+{
+    Mat4x4 ViewPortMat = Mat4x4::Identity();
+    ViewPortMat[0][3] = x + w/2.0f;
+    ViewPortMat[1][3] = y + h/2.0f;
+    ViewPortMat[0][0] = w/2.0f;
+    ViewPortMat[1][1] = h/2.0f;
+    //it's good to let z [0,255], then we can easily get zbuffer image,
+    return ViewPortMat;
+}
+
+static Mat4x4 projection(float coeff){
+    Mat4x4 Projection = Mat4x4::Identity();
+    Projection[3][2] = coeff;
+    return Projection;
+}
 
 #endif //TINYRENDERLESSONCODE_MATH_H
