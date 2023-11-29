@@ -5,9 +5,8 @@
 #include "Math.h"
 #include "Render.h"
 #include "Shader/IShader.h"
+#include "Window.h"
 
-const TGAColor White = TGAColor{255,255,255,255};
-const TGAColor red = TGAColor{255,0,0,255};
 auto head = "../obj/african_head/african_head.obj";
 auto boogie = "../obj/boggie/body.obj";
 auto diablo = "../obj/diablo3_pose/diablo3_pose.obj";
@@ -56,19 +55,6 @@ Mat4x4 projection(float coeff){
 	return Projection;
 }
 
-Vec3f world2screenCoord(Vec3f v, Mat4x4 modelview, Mat4x4 projection, Mat4x4 viewport)
-{
-	auto gl_vertex = Mat4x4::Embed(v);
-	gl_vertex = viewport * projection * modelview * gl_vertex;
-	float d = gl_vertex.raw[3][0];
-	//std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<" "<<gl_vertex.raw[3][0]<<std::endl;
-	return {
-		gl_vertex.raw[0][0]/d,
-		gl_vertex.raw[1][0]/d,
-		gl_vertex.raw[2][0]/d
-	};
-}
-
 Mat4x4 ModelView = lookat(Eye, Center, Up);
 Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(-1.0f/3.0f);
@@ -77,8 +63,8 @@ std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -99999))
 
 int main(int argc, char** argv) {
     std::shared_ptr<Model> model = std::make_shared<Model>(diablo);
-	//FlatShader* flatShader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
-    //GouraudShader* gouraudShader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
+	//FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
+    //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
     std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort, LightDir);
 
     for(int i=0;i<model->nfaces();i++)
@@ -96,8 +82,9 @@ int main(int argc, char** argv) {
         }
         triangle(model,ScreenCoords, Textures, image,ZBuffer,Shader);
     }
-
     image.flip_vertically();//left-bottom is the origin
     image.write_tga_file("output.tga");
+
+    std::unique_ptr<Window> win = std::make_unique<Window>(500,500);
     return 0;
 }
