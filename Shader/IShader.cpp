@@ -108,3 +108,25 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     return false;
 
 }
+
+Matrix<4, 1, float> DepthShder::vertex(int iface, int nthvert) {
+    const std::vector<int>& Face = model->getface(iface);
+    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
+
+    gl_vertex = ViewPortMat*ProjectionMat*ModelViewMat*gl_vertex;
+    gl_vertex /= gl_vertex.raw[3][0];
+    varying_tri[nthvert] = {gl_vertex.raw[0][0], gl_vertex.raw[1][0], gl_vertex.raw[2][0]};
+    return gl_vertex;
+}
+
+bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
+    Vec3f p(0,0,0);
+    for(int i=0;i<3;i++)
+    {
+        p = p + varying_tri[i] * bar.raw[i];
+    }
+    float factor = (p.z + 1)/2;
+   // std::cout<<factor<<std::endl;
+    color = TGAColor((int)255*factor, (int)255*factor, (int)255*factor, 255);
+    return true;
+}

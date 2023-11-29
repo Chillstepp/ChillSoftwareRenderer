@@ -51,15 +51,9 @@ static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, Vec2f* textures,
             float z = 0;
             Vec3f bc_screen = barycentric(pts[0], pts[1], pts[2], P);
             if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0) continue;
-            Vec2f PTexture(0,0);
+
             for (int i = 0; i < 3; i++) {
                 z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
-//                std::cout<<pts[i].z << bc_screen.raw[i]<<std::endl;
-            }
-            //插值拿到纹理uv
-            for (int i = 0; i < 3; i++) {
-                PTexture.u += textures[i].u * bc_screen.raw[i];
-                PTexture.v += textures[i].v * bc_screen.raw[i];
             }
             //在三角形外部则跳过这个点继续循环
             if(ZBuffer[P.x][P.y] < z)

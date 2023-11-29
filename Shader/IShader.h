@@ -58,20 +58,21 @@ public:
 class PhongShader: public IShader
 {
 private:
-	Vec3f Varying_intensity;
-	std::vector<Vec2f>Varying_uv;
-	std::shared_ptr<Model> model = nullptr;
+	std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
+    Vec3f LightDir{0,0,-1};
 	Mat4x4 ProjectionMat;
 	Mat4x4 ModelViewMat;
 	Mat4x4 ViewPortMat;
-	Vec3f LightDir{0,0,-1};
 
+    std::vector<Vec2f>Varying_uv;
     Mat4x4 Uniform_M;
     Mat4x4 Uniform_MIT;
 
 public:
-	explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
-						   Mat4x4 ViewPortMat_, Vec3f LightDir_): model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_){
+	explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_, Vec3f LightDir_):
+                model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_)
+    {
+
         Varying_uv.reserve(3);
         Uniform_M = ProjectionMat_*ModelViewMat_;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
@@ -81,5 +82,23 @@ public:
 	virtual bool fragment(Vec3f bar, TGAColor &color) override;
 };
 
+
+class DepthShder : public IShader
+{
+public:
+    std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
+    std::vector<Vec3f>varying_tri;
+    Mat4x4 ProjectionMat;
+    Mat4x4 ModelViewMat;
+    Mat4x4 ViewPortMat;
+
+    DepthShder(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_):
+            model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_)
+    {
+        varying_tri.reserve(3);
+    }
+    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+    virtual bool fragment(Vec3f bar, TGAColor &color) override;
+};
 
 #endif //TINYRENDERLESSONCODE_SHADER_ISHADER_H_
