@@ -57,8 +57,7 @@ Here we use  DepthShader to get Depth Buffer
 
 | Depth Buffer（In Light View）                                |
 | ------------------------------------------------------------ |
-| <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129161027212.png" alt="image-20231129161027212" style="zoom:50%;" /> |
-|                                                              |
+| <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129161027212.png" alt="image-20231129161027212" style="zoom: 25%;" /> |
 
 ​	For a point, We transform it form FrameBuffer screen coordinates to DepthBuffer screen coordinates.If a point's depth is deeper than DepthBuffer, then this point should be a shadow point. We let the `color*ShadowFactor`, and ShadowFactor is between 0 to 1 to make this point's color dark.
 
@@ -71,8 +70,6 @@ Here we use  DepthShader to get Depth Buffer
 ### SSAO
 
 **屏幕空间环境光遮蔽(Screen-Space Ambient Occlusion, SSAO)**
-
-点阴影
 
 - AO的概念理解 https://mentalraytips.blogspot.com/2008/11/joy-of-little-ambience.html
 
