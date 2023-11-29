@@ -16,12 +16,16 @@
 
 ## Tech
 
+### Tangent Space Normal Mapping
+
+
+
 ### AECS ToneMapping 
 
 - [Tone mapping进化论](https://zhuanlan.zhihu.com/p/21983679 ) 
 - [ACES Filmic Tone Mapping Curve](https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/)
 
-very elegant fitting
+A very elegant fitting.
 
 ```c++
 float3 ACESToneMapping(float3 color, float adapted_lum)
@@ -40,4 +44,23 @@ float3 ACESToneMapping(float3 color, float adapted_lum)
 | With ACES ToneMapping                                        | Without ACES ToneMapping                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150403640.png" alt="image-20231128150403640" style="zoom:67%;" /> | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150312255.png" alt="image-20231128150312255" style="zoom:67%;" /> |
+
+### Shadow
+
+- Z-fighting https://en.wikipedia.org/wiki/Z-fighting
+
+- DirectX - 改进阴影深度映射的常见技术 https://learn.microsoft.com/zh-cn/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps?redirectedfrom=MSDN
+
+### SSAO
+
+**屏幕空间环境光遮蔽(Screen-Space Ambient Occlusion, SSAO)**
+
+- AO的概念理解 https://mentalraytips.blogspot.com/2008/11/joy-of-little-ambience.html
+
+- https://learnopengl-cn.readthedocs.io/zh/latest/05%20Advanced%20Lighting/09%20SSAO/
+- http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
+
+| With SSAO | Without SSAO |
+| --------- | ------------ |
+|           |              |
 
