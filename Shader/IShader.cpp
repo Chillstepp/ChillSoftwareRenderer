@@ -78,9 +78,8 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
 
     Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
     gl_vertex = ViewPortMat * ProjectionMat * ModelViewMat * gl_vertex;
-    gl_vertex.raw[0][0] = gl_vertex.raw[0][0] / gl_vertex.raw[3][0];
-    gl_vertex.raw[1][0] = gl_vertex.raw[1][0] / gl_vertex.raw[3][0];
-    gl_vertex.raw[2][0] = gl_vertex.raw[2][0] / gl_vertex.raw[3][0];
+    gl_vertex /= gl_vertex.raw[3][0];
+    Varying_tri[nthvert] = {gl_vertex.raw[0][0], gl_vertex.raw[1][0], gl_vertex.raw[2][0]};
     return gl_vertex;
 }
 
@@ -94,16 +93,29 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         uv.u += Varying_uv[i].u*bar.raw[i];
         uv.v += Varying_uv[i].v*bar.raw[i];
     }
+    //坐标插值
+    Vec3f p(0,0,0);
+    for(int i=0;i<3;i++)
+    {
+        p = p + Varying_tri[i] * bar.raw[i];
+    }
+    Matrix<4,1,float>CorrespondingPointInShadowBuffer = Uniform_MShadow * Matrix<4,1,float>::Embed(p);
+    CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];
+    Vec3f CorrespondingPoint{CorrespondingPointInShadowBuffer.raw[0][0], CorrespondingPointInShadowBuffer.raw[1][0], CorrespondingPointInShadowBuffer.raw[2][0]};
+    float shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z);
+
     Vec3f n = Matrix<4,1,float>::Proj(Uniform_MIT*Mat4x4::Embed(model->getNormal(uv))).normlize();
     Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
     Vec3f r = (n*(n*l*2.f) - l).normlize(); // reflected light
     float spec = pow(std::max(r.z, 0.0f), 20 + model->getSpecular(uv)); // we're looking from z-axis
     float diff = std::max(0.f, n*l);
 
-
     TGAColor c = model->diffuse(uv);
     color = c;
-    for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(5+c.raw[i]*(1.0*diff+1.7*spec), 255);
+
+
+
+    for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(5+c.raw[i]*(1.0*diff+1.7*spec)*shadowFactor, 255);
 
     return false;
 

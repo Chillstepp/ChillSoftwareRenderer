@@ -59,23 +59,29 @@ class PhongShader: public IShader
 {
 private:
 	std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
+    const std::vector<std::vector<float>>&DepthBuffer;
     Vec3f LightDir{0,0,-1};
 	Mat4x4 ProjectionMat;
 	Mat4x4 ModelViewMat;
 	Mat4x4 ViewPortMat;
 
+
     std::vector<Vec2f>Varying_uv;
+    std::vector<Vec3f>Varying_tri;
     Mat4x4 Uniform_M;
     Mat4x4 Uniform_MIT;
+    Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
 
 public:
-	explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_, Vec3f LightDir_):
-                model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_)
+	explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_, Vec3f LightDir_, Mat4x4 Uniform_MShadow_, const std::vector<std::vector<float>>&DepthBuffer_) :
+                model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_), Uniform_MShadow(Uniform_MShadow_), DepthBuffer(DepthBuffer_)
     {
-
         Varying_uv.reserve(3);
+        Varying_tri.reserve(3);
         Uniform_M = ProjectionMat_*ModelViewMat_;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
+        // framebuffer screen coordinates -> world coordinates -> shadowbuffer screen coordinates
+
     }
 	~PhongShader() override;
 	virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;

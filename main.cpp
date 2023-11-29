@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     std::shared_ptr<Model> model = std::make_shared<Model>(diablo);
 	//FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
-    std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort, LightDir);
+
     std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(0), lookat(LightDir, Center, Up), ViewPort);
 
     TGAImage image{width,height,TGAImage::RGB};
@@ -50,6 +50,9 @@ int main(int argc, char** argv) {
     image.flip_vertically();//left-bottom is the origin
     image.write_tga_file("output_depth.tga");
 
+
+    Mat4x4 Uniform_MShadow = (ViewPort*Projection*ModelView)*(ViewPort*projection(0)*lookat(LightDir, Center, Up)).Inverse();
+    std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort, LightDir, Uniform_MShadow, DepthBuffer);
     TGAImage image2{width,height,TGAImage::RGB};
     for(int i=0;i<model->nfaces();i++)
     {
