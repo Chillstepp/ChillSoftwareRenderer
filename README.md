@@ -45,15 +45,34 @@ float3 ACESToneMapping(float3 color, float adapted_lum)
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150403640.png" alt="image-20231128150403640" style="zoom:67%;" /> | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150312255.png" alt="image-20231128150312255" style="zoom:67%;" /> |
 
-### Shadow
+### Omnidirectional Shadow maps
+
+Omnidirectional Shadow maps(点光源阴影)
 
 - Z-fighting https://en.wikipedia.org/wiki/Z-fighting
 
 - DirectX - 改进阴影深度映射的常见技术 https://learn.microsoft.com/zh-cn/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps?redirectedfrom=MSDN
 
+Here we use  DepthShader to get Depth Buffer
+
+| Depth Buffer（In Light View）                                |
+| ------------------------------------------------------------ |
+| <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129161027212.png" alt="image-20231129161027212" style="zoom:50%;" /> |
+|                                                              |
+
+​	For a point, We transform it form FrameBuffer screen coordinates to DepthBuffer screen coordinates.If a point's depth is deeper than DepthBuffer, then this point should be a shadow point. We let the `color*ShadowFactor`, and ShadowFactor is between 0 to 1 to make this point's color dark.
+
+| With Shadow                                                  | Without Shadow                                               |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129173100355.png" alt="image-20231129173100355" style="zoom:67%;" /> | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150403640.png" alt="image-20231128150403640" style="zoom:67%;" /> |
+
+
+
 ### SSAO
 
 **屏幕空间环境光遮蔽(Screen-Space Ambient Occlusion, SSAO)**
+
+点阴影
 
 - AO的概念理解 https://mentalraytips.blogspot.com/2008/11/joy-of-little-ambience.html
 
