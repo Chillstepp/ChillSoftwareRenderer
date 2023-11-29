@@ -20,71 +20,52 @@ Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 
 
-//lookat matrix: games 101 is all you need
-Mat4x4 lookat(Vec3f eye, Vec3f center, Vec3f up)
-{
-    Vec3f z = (eye-center).normlize();
-    Vec3f x = (up^z).normlize();
-    Vec3f y = (z^x).normlize();
-    Mat4x4 minv = Mat4x4::Identity();//旋转矩阵
-    Mat4x4 tr = Mat4x4::Identity();//位移矩阵
-    for(int i=0;i<3;i++)
-    {
-        minv[0][i] = x.raw[i];
-        minv[1][i] = y.raw[i];
-        minv[2][i] = z.raw[i];
-        tr[i][3] = -center.raw[i];
-    }
-    return minv * tr;
-}
-
-Mat4x4 viewport(int x, int y, int w, int h)
-{
-	Mat4x4 ViewPortMat = Mat4x4::Identity();
-	ViewPortMat[0][3] = x + w/2.0f;
-	ViewPortMat[1][3] = y + h/2.0f;
-	ViewPortMat[0][0] = w/2.0f;
-	ViewPortMat[1][1] = h/2.0f;
-	//it's good to let z [0,255], then we can easily get zbuffer image,
-	return ViewPortMat;
-}
-
-Mat4x4 projection(float coeff){
-	Mat4x4 Projection = Mat4x4::Identity();
-	Projection[3][2] = coeff;
-	return Projection;
-}
-
 Mat4x4 ModelView = lookat(Eye, Center, Up);
 Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(-1.0f/3.0f);
-TGAImage image{width,height,TGAImage::RGB};
-std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -99999));
+std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
+std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
 
 int main(int argc, char** argv) {
     std::shared_ptr<Model> model = std::make_shared<Model>(diablo);
 	//FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
     std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort, LightDir);
+    std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(0), lookat(LightDir, Center, Up), ViewPort);
 
+    TGAImage image{width,height,TGAImage::RGB};
     for(int i=0;i<model->nfaces();i++)
     {
         const std::vector<int>& face = model->getface(i);
         Vec3f ScreenCoords[3];
-        Vec3f WorldCoords[3];
         Vec2f Textures[3];
         for(int j=0;j<3;j++)
         {
-            WorldCoords[j] = model->getvert(face[j*3]);
+            auto Mat4x1_Vertex = Shader_dep->vertex(i, j);
+            ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
+            Textures[j] = model->getuv(face[j*3+1]);
+        }
+        triangle(model,ScreenCoords, Textures, image,DepthBuffer,Shader_dep);
+    }
+    image.flip_vertically();//left-bottom is the origin
+    image.write_tga_file("output_depth.tga");
+
+    TGAImage image2{width,height,TGAImage::RGB};
+    for(int i=0;i<model->nfaces();i++)
+    {
+        const std::vector<int>& face = model->getface(i);
+        Vec3f ScreenCoords[3];
+        Vec2f Textures[3];
+        for(int j=0;j<3;j++)
+        {
 			auto Mat4x1_Vertex = Shader->vertex(i, j);
 			ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
             Textures[j] = model->getuv(face[j*3+1]);
         }
-        triangle(model,ScreenCoords, Textures, image,ZBuffer,Shader);
+        triangle(model,ScreenCoords, Textures, image2,ZBuffer,Shader);
     }
-    image.flip_vertically();//left-bottom is the origin
-    image.write_tga_file("output.tga");
-
-    std::unique_ptr<Window> win = std::make_unique<Window>(500,500);
+    image2.flip_vertically();//left-bottom is the origin
+    image2.write_tga_file("output.tga");
+    
     return 0;
 }
