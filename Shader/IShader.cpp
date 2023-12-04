@@ -153,7 +153,7 @@ Matrix<4, 1, float> SSAOShader::vertex(int iface, int nthvert) {
 }
 
 bool SSAOShader::fragment(Vec3f bar, TGAColor &color) {
-    color = TGAColor(0,0,0,255);
+    color = TGAColor(255,255,255,255);
 
     return true;
 }
