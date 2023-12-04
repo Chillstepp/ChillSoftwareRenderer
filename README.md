@@ -65,6 +65,15 @@ Here we use  DepthShader to get Depth Buffer
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129173100355.png" alt="image-20231129173100355" style="zoom:67%;" /> | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150403640.png" alt="image-20231128150403640" style="zoom:67%;" /> |
 
+当一个像素点在Shadow Map（阴影贴图）中找不到对应的深度值是很常见的问题，比如你的光源没有把整个角色照到。
+
+以下是几种处理方法：
+
+1. 固定阴影：将超出Shadow Map范围的像素点视为在阴影中，这样就可以给予物体一个全局的阴影效果。这种方法适用于开放世界游戏中的遥远物体或无法包含在Shadow Map中的大场景。
+2. 边界处理：在将Shadow Map的深度值与对应像素点的深度值进行比较时，如果像素点处于阴影区域的边界上（即在Shadow Map范围内但未找到对应深度值），可以根据相邻像素点的深度值进行插值，以消除锯齿或产生更平滑的阴影过渡效果。
+3. PSSM（Parallel Split Shadow Maps）：PSSM是一种将阴影贴图分成多个级别的技术，每个级别具有不同的观察矩阵和投影矩阵。如果一个像素点不在当前级别的Shadow Map中，可以尝试从下一个级别的Shadow Map中查找对应深度值。这种方法在遥远物体的阴影渲染中特别有效。
+4. 使用近似算法：有时可以使用近似算法来估计不在Shadow Map中的像素点的阴影值。例如，可以使用屏幕空间的法线、深度等信息进行计算，以生成一个近似的阴影效果。
+
 
 
 ### SSAO
