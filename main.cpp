@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
 	//FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
 
-    std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(0), lookat(LightDir, Center, Up), ViewPort);
 
+    std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(0), lookat(LightDir, Center, Up), ViewPort);
     TGAImage image{width,height,TGAImage::RGB};
     for(int i=0;i<model->nfaces();i++)
     {
@@ -69,6 +69,42 @@ int main(int argc, char** argv) {
     }
     image2.flip_vertically();//left-bottom is the origin
     image2.write_tga_file("output.tga");
-    
+
+
+
+    std::shared_ptr<IShader> AOShader = std::make_shared<SSAOShader>(model, Projection, ModelView, ViewPort);
+    TGAImage image3{width,height,TGAImage::RGB};
+    for(int i=0;i<model->nfaces();i++)
+    {
+        const std::vector<int>& face = model->getface(i);
+        Vec3f ScreenCoords[3];
+        Vec2f Textures[3];
+        for(int j=0;j<3;j++)
+        {
+            auto Mat4x1_Vertex = Shader->vertex(i, j);
+            ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
+            Textures[j] = model->getuv(face[j*3+1]);
+        }
+        triangle(model,ScreenCoords, Textures, image3,ZBuffer,AOShader);
+    }
+
+    //post-process : SSAO
+    for (int x=0; x<width; x++) {
+        for (int y = 0; y < height; y++) {
+            if(ZBuffer[x][y] < -1e5) continue;
+            float total = 0;
+            for(float angle = 0; angle<M_PI*2-(1e-4); angle += M_PI/4)
+            {
+                total += M_PI/2.0f - max_elevation_angle(ZBuffer, Vec2f(x,y), Vec2f(cos(angle), sin(angle)), width, height);
+            }
+            total /= (M_PI/2)*8;
+            total = std::pow(total, 100.0f);
+            image3.set(x, y, TGAColor(total*255, total*255, total*255, 255));
+        }
+        //std::cout<<x<<std::endl;
+    }
+    image3.flip_vertically();//left-bottom is the origin
+    image3.write_tga_file("AO.tga");
+
     return 0;
 }

@@ -5,6 +5,7 @@
 #ifndef TINYRENDERLESSONCODE_MATH_H
 #define TINYRENDERLESSONCODE_MATH_H
 #include <cmath>
+#include <vector>
 #include "iostream"
 #include "TGAImage.h"
 
@@ -33,6 +34,10 @@ template<typename T> struct Vec2
         return Vec2<T>{u*f, v*f};
     }
 
+    inline float norm()
+    {
+        return std::sqrt(x*x + y*y);
+    }
     template<class> friend std::ostream& operator<<(std::ostream& s, Vec2<T>&v);
 
 };
@@ -340,6 +345,21 @@ static Mat4x4 projection(float coeff){
     Mat4x4 Projection = Mat4x4::Identity();
     Projection[3][2] = coeff;
     return Projection;
+}
+
+//for each point, search around point to find max elevation angle
+static float max_elevation_angle(std::vector<std::vector<float>>& zbuffer, Vec2f p, Vec2f dir, float width, float height) {
+    float maxangle = 0;
+    for (float t=0.; t<100.; t+=1.) {
+        Vec2f cur = p + dir*t;
+        if (cur.x>=width || cur.y>=height || cur.x<0 || cur.y<0) return maxangle;
+
+        float distance = (p-cur).norm();
+        if (distance < 1.f) continue;
+        float elevation = zbuffer[int(cur.x)][int(cur.y)]-zbuffer[int(p.x)][int(p.y)];
+        maxangle = std::max(maxangle, atanf(elevation/distance));
+    }
+    return maxangle;
 }
 
 #endif //TINYRENDERLESSONCODE_MATH_H

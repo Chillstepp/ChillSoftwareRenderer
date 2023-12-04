@@ -107,4 +107,24 @@ public:
     virtual bool fragment(Vec3f bar, TGAColor &color) override;
 };
 
+
+class SSAOShader : public IShader
+{
+public:
+    std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
+    std::vector<Vec3f>varying_tri;
+    Mat4x4 ProjectionMat;
+    Mat4x4 ModelViewMat;
+    Mat4x4 ViewPortMat;
+
+    SSAOShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_):
+    model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_)
+    {
+        varying_tri.reserve(3);
+    }
+    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+    virtual bool fragment(Vec3f bar, TGAColor &color) override;
+
+};
+
 #endif //TINYRENDERLESSONCODE_SHADER_ISHADER_H_

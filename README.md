@@ -84,8 +84,13 @@ Here we use  DepthShader to get Depth Buffer
 
 - https://learnopengl-cn.readthedocs.io/zh/latest/05%20Advanced%20Lighting/09%20SSAO/
 - http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
+- 球体均匀采样https://mathworld.wolfram.com/SpherePointPicking.html
 
-| With SSAO | Without SSAO |
-| --------- | ------------ |
-|           |              |
+
+
+Only SSAO Exist with all white model 
+
+| With SSAO                                                    | Without SSAO                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20231204200320537](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204200320537.png) | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204201046444.png" alt="image-20231204201046444" style="zoom:85%;" /> |
 
