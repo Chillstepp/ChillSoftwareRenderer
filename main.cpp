@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
         Vec2f Textures[3];
         for(int j=0;j<3;j++)
         {
-            auto Mat4x1_Vertex = Shader->vertex(i, j);
+            auto Mat4x1_Vertex = AOShader->vertex(i, j);
             ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
             Textures[j] = model->getuv(face[j*3+1]);
         }
