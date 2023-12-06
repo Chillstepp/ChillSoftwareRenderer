@@ -33,6 +33,8 @@ public:
 
     void SwapColorBuffer(std::vector<uint32_t>& colorBuffer);
 
+    void SetPixel(int x, int y, uint32_t color);
+
     inline HWND GetWindowHandle() const
     {
         return mHwnd;

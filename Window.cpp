@@ -193,3 +193,7 @@ Window::~Window()
     }
 
 }
+
+void Window::SetPixel(int x, int y, uint32_t color) {
+    mColorBuffer[y*mWidth + x] = color;
+}
