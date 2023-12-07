@@ -21,6 +21,11 @@ public:
     }
 
     void Add(const std::shared_ptr<Model>& AddModel);
+
+	decltype(auto) GetAllModels()
+	{
+		return Models;
+	}
 private:
     std::vector<std::weak_ptr<Model>> Models;
 };

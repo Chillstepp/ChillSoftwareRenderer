@@ -6,6 +6,7 @@
 #include "Render.h"
 #include "Shader/IShader.h"
 #include "Window.h"
+#include "Scene.h"
 
 auto head = "../obj/african_head/african_head.obj";
 auto boogie = "../obj/boggie/body.obj";
@@ -27,26 +28,36 @@ std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, -std::nu
 std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
 
 int main(int argc, char** argv) {
+
+	std::unique_ptr<Scene> scene = std::make_unique<Scene>();
     std::shared_ptr<Model> model = std::make_shared<Model>(diablo);
+	scene->Add(model);
+
 	//FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
-
-
     std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(0), lookat(LightDir, Center, Up), ViewPort);
     TGAImage image{width,height,TGAImage::RGB};
-    for(int i=0;i<model->nfaces();i++)
-    {
-        const std::vector<int>& face = model->getface(i);
-        Vec3f ScreenCoords[3];
-        Vec2f Textures[3];
-        for(int j=0;j<3;j++)
-        {
-            auto Mat4x1_Vertex = Shader_dep->vertex(i, j);
-            ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
-            Textures[j] = model->getuv(face[j*3+1]);
-        }
-        triangle(model,ScreenCoords, Textures, image,DepthBuffer,Shader_dep);
-    }
+	for(auto& model_WeakPtr: scene->GetAllModels())
+	{
+//		if(model_WeakPtr.expired())
+//		{
+//			return ;
+//		}
+		for(int i=0;i<model->nfaces();i++)
+		{
+			const std::vector<int>& face = model->getface(i);
+			Vec3f ScreenCoords[3];
+			Vec2f Textures[3];
+			for(int j=0;j<3;j++)
+			{
+				auto Mat4x1_Vertex = Shader_dep->vertex(i, j);
+				ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
+				Textures[j] = model->getuv(face[j*3+1]);
+			}
+			triangle(model,ScreenCoords, Textures, image,DepthBuffer,Shader_dep);
+		}
+	}
+
     image.flip_vertically();//left-bottom is the origin
     image.write_tga_file("output_depth.tga");
 
