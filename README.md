@@ -18,7 +18,18 @@
 
 ### Tangent Space Normal Mapping
 
+法线贴图、切线空间 - 夏新温的文章 - 知乎
+https://zhuanlan.zhihu.com/p/489792336
 
+存储在模型顶点的**切线空间tangent space**中，优势：
+
+1. 切线空间存储的是相对法线信息，因此换个网格（或者网格变换deforming）应用该纹理，也能得到合理的结果。
+
+2. 可以进行uv动画，通过移动该纹理的uv坐标实现凹凸移动的效果，这种UV动画在水或者火山熔岩这种类型的物体会会用到。
+
+3. 可以重用法线纹理，比如,一个砖块,我们仅使用一张法线纹理就可以用到所有的6个面。
+
+4. 可以压缩。因为切线空间的法线z方向总是正方向，因此可以仅存储xy方向，从而推导z方向（存储的法线向量是单位向量，用勾股定理由xy得出z，取z为正的一个即可）。
 
 ### AECS ToneMapping 
 
@@ -76,9 +87,9 @@ Here we use  DepthShader to get Depth Buffer
 
 
 
-### SSAO
+### AO
 
-**屏幕空间环境光遮蔽(Screen-Space Ambient Occlusion, SSAO)**
+#### **屏幕空间环境光遮蔽(Screen-Space Ambient Occlusion, SSAO)** 
 
 - AO的概念理解 https://mentalraytips.blogspot.com/2008/11/joy-of-little-ambience.html
 
@@ -88,9 +99,25 @@ Here we use  DepthShader to get Depth Buffer
 
 
 
+实现的几个细节：
+
+- 物体相差远的地方, 会在深度图上误认为有AO,实际上不应该有AO
+
+  <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231205011832980.png" alt="image-20231205011832980" style="zoom: 67%;" />
+
+- 由于深度图精度问题, 即使本身深度通过的地方, 在相机看来不通过, 产生z-fighting现象.
+- 降噪: 双边滤波
+
 Only SSAO Exist with all white model 
 
 | With SSAO                                                    | Without SSAO                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![image-20231204200320537](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204200320537.png) | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204201046444.png" alt="image-20231204201046444" style="zoom:85%;" /> |
 
+#### HBAO
+
+
+
+
+
+### Anti-Aliasing
