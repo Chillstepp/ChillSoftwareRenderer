@@ -135,8 +135,23 @@ template<size_t DimRow, size_t DimCol,typename T>
 class Matrix
 {
 public:
-    float raw[DimRow][DimCol];
+    T raw[DimRow][DimCol];
     Matrix(){};
+	Matrix(std::initializer_list<std::initializer_list<T>>InitList)
+	{
+		//todo:
+//		if(InitList.size()==DimRow && InitList.begin()->size() == DimCol)
+//		{
+//			throw std::runtime_error("Matrix is not full rank matrix");
+//		}
+//		for(int i = 0; i < DimRow; i++)
+//		{
+//			for(int j = 0; j < DimCol; j++)
+//			{
+//				raw[i][j] = data(InitList);
+//			}
+//		}
+	};
 
      float* operator[] (const size_t idx){
         return raw[idx];
@@ -315,7 +330,7 @@ static Vec3f barycentric(const Vec3f& point1, const Vec3f& point2, const Vec3f& 
 //lookat matrix: games 101 is all you need
 static Mat4x4 lookat(Vec3f eye, Vec3f center, Vec3f up)
 {
-    Vec3f z = (eye-center).normlize();
+    Vec3f z = (center-eye).normlize();
     Vec3f x = (up^z).normlize();
     Vec3f y = (z^x).normlize();
     Mat4x4 minv = Mat4x4::Identity();//旋转矩阵
@@ -325,7 +340,7 @@ static Mat4x4 lookat(Vec3f eye, Vec3f center, Vec3f up)
         minv[0][i] = x.raw[i];
         minv[1][i] = y.raw[i];
         minv[2][i] = z.raw[i];
-        tr[i][3] = -center.raw[i];
+        tr[i][3] = -eye.raw[i];
     }
     return minv * tr;
 }
@@ -335,15 +350,17 @@ static Mat4x4 viewport(int x, int y, int w, int h)
     Mat4x4 ViewPortMat = Mat4x4::Identity();
     ViewPortMat[0][3] = x + w/2.0f;
     ViewPortMat[1][3] = y + h/2.0f;
+	//ViewPortMat[2][3] = 1.0f/2.0f;
     ViewPortMat[0][0] = w/2.0f;
     ViewPortMat[1][1] = h/2.0f;
+	//ViewPortMat[2][2] = 1.0f/2.0f;
     //it's good to let z [0,255], then we can easily get zbuffer image,
     return ViewPortMat;
 }
 
 static Mat4x4 projection(float coeff){
     Mat4x4 Projection = Mat4x4::Identity();
-    Projection[3][2] = coeff;
+	Projection[3][2] = coeff;
     return Projection;
 }
 
@@ -360,6 +377,34 @@ static float max_elevation_angle(std::vector<std::vector<float>>& zbuffer, Vec2f
         maxangle = std::max(maxangle, atanf(elevation/distance));
     }
     return maxangle;
+}
+
+
+//x,y,z -> roll,pitch,yaw: roll/pitch/yaw rotate around x/y/z
+static Mat4x4 RotationMatrix(float roll, float pitch, float yaw)
+{
+	Mat4x4 rotateAroundX = {
+		{1, 0, 0, 0},
+		{0, std::cos(roll), -std::sin(roll), 0},
+		{0, std::sin(roll),  std::cos(roll), 0},
+		{0, 0, 0, 1}
+	};
+
+	Mat4x4 rotateAroundY = {
+		{ std::cos(pitch), 0,std::sin(pitch), 0},
+		{ 0, 1, 0, 0},
+		{-std::sin(pitch), 0, std::cos(pitch), 0},
+		{ 0, 0, 0, 1}
+	};
+
+	Mat4x4 rotateAroundZ = {
+		{std::cos(yaw), -std::sin(yaw), 0, 0},
+		{std::sin(yaw),  std::cos(yaw), 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1}
+	};
+
+	return rotateAroundX * rotateAroundY * rotateAroundZ;
 }
 
 #endif //TINYRENDERLESSONCODE_MATH_H
