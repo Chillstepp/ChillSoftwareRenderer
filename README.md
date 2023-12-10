@@ -121,3 +121,23 @@ Only SSAO Exist with all white model
 
 
 ### Anti-Aliasing
+
+
+
+
+
+
+
+### Scene Management
+
+Multi Objects Render Pipeline
+
+![image-20231210235752725](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231210235752725.png)
+
+
+
+
+
+My Coord Tips:
+
+![image-20231210235613863](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231210235613863.png)
