@@ -60,7 +60,7 @@ class PhongShader: public IShader
 private:
 	std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
     const std::vector<std::vector<float>>&DepthBuffer;
-    Vec3f LightDir{0,0,-1};
+    Vec3f LightDir;
 	Mat4x4 ProjectionMat;
 	Mat4x4 ModelViewMat;
 	Mat4x4 ViewPortMat;

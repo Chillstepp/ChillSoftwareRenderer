@@ -60,8 +60,6 @@ Matrix<4, 1, float> GouraudShader::vertex(int iface, int nthvert) {
 
 bool GouraudShader::fragment(Vec3f bar, TGAColor &color) {
     float intensity = Varying_intensity * bar;
-//    std::cout<<intensity<<" "<< std::endl<<Varying_intensity.raw[0]<<" "<<Varying_intensity.raw[1]<<" "<<Varying_intensity.raw[2]<<std::endl<<
-//    bar.raw[0]<<" "<<bar.raw[1]<<" "<<bar.raw[2]<<std::endl;
     color = TGAColor(255*intensity,255*intensity,255*intensity,255);
     return true;
 }
@@ -84,8 +82,6 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
 }
 
 bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
-//    std::cout<<intensity<<" "<< std::endl<<Varying_intensity.raw[0]<<" "<<Varying_intensity.raw[1]<<" "<<Varying_intensity.raw[2]<<std::endl<<
-//    bar.raw[0]<<" "<<bar.raw[1]<<" "<<bar.raw[2]<<std::endl;
     //uv插值
     Vec2f uv;
     for(int i=0;i<3;i++)
@@ -102,20 +98,22 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     Matrix<4,1,float>CorrespondingPointInShadowBuffer = Uniform_MShadow * Matrix<4,1,float>::Embed(p);
     CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];
     Vec3f CorrespondingPoint{CorrespondingPointInShadowBuffer.raw[0][0], CorrespondingPointInShadowBuffer.raw[1][0], CorrespondingPointInShadowBuffer.raw[2][0]};
-    float shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z);
+	float shadowFactor = 1.0f;
+//	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
+//	{shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z);
+//	}
 
     Vec3f n = Matrix<4,1,float>::Proj(Uniform_MIT*Mat4x4::Embed(model->getNormal(uv))).normlize();
     Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
-    Vec3f r = (n*(n*l*2.f) - l).normlize(); // reflected light
-    float spec = pow(std::max(r.z, 0.0f), 20 + model->getSpecular(uv)); // we're looking from z-axis
-    float diff = std::max(0.f, n*l);
+    Vec3f r = (l - n*(n*l*2.f)).normlize(); // reflected light
+	//todo: should use (eye-center) * (r),not just r.z
+    float spec = pow(std::max(-r.z, 0.0f), 20 + model->getSpecular(uv)); // we're looking from z-axis
+    float diff = std::max(0.f, -n*l);
 
     TGAColor c = model->diffuse(uv);
     color = c;
 
-
-
-    for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(5+c.raw[i]*(1.0*diff+1.7*spec)*shadowFactor, 255);
+	for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(c.raw[i]*(0.3 + 1.0*diff + 1.6*spec)*shadowFactor, 255);
 
     return false;
 
@@ -137,8 +135,7 @@ bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
     {
         p = p + varying_tri[i] * bar.raw[i];
     }
-    float factor = (p.z + 1)/2;
-   // std::cout<<factor<<std::endl;
+    float factor = p.z;
     color = TGAColor((int)255*factor, (int)255*factor, (int)255*factor, 255);
     return true;
 }
