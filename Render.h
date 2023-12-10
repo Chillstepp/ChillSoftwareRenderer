@@ -19,7 +19,6 @@ static TGAColor ACESToneMapping(Vec3f color, float adapted_lum = 1.0f)
     const float C = 2.43f;
     const float D = 0.59f;
     const float E = 0.14f;
-    //std::cout<<color<<std::endl;
     color *= adapted_lum;
     color = color / 255.0f;
     TGAColor MappingColor;
@@ -27,13 +26,12 @@ static TGAColor ACESToneMapping(Vec3f color, float adapted_lum = 1.0f)
     {
         MappingColor.raw[i] = (color.raw[i] * (A * color + B).raw[i]) / (color.raw[i] * (C * color.raw[i] + D) + E) * 255;
     }
-    //std::cout<<(float)MappingColor.raw[0]<<" "<<(float)MappingColor.raw[1]<<" "<<(float)MappingColor.raw[2]<<std::endl;
 
     return MappingColor;
 }
 
 
-static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, Vec2f* textures, TGAImage &image, std::vector<std::vector<float>>& ZBuffer, std::shared_ptr<IShader>& Shader)
+static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, TGAImage &image, std::vector<std::vector<float>>& ZBuffer, std::shared_ptr<IShader>& Shader)
 {
     Vec2f bboxmin(image.get_width()-1,  image.get_height()-1);
     Vec2f bboxmax(0, 0);
@@ -56,12 +54,12 @@ static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, Vec2f* textures,
                 z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
             }
             //在三角形外部则跳过这个点继续循环
-            if(ZBuffer[P.x][P.y] < z)
+            if(ZBuffer[P.x][P.y] > z)
             {
                 ZBuffer[P.x][P.y] = z;
                 TGAColor Color;
 				Shader->fragment(bc_screen, Color);
-                image.set(P.x, P.y, ACESToneMapping(Vec3f(Color)));
+                image.set(P.x, P.y, Color);
             }
         }
     }
