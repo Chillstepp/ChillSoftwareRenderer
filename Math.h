@@ -285,7 +285,7 @@ public:
 
     static Vec3f Proj(const Matrix<4,1,float>& InMat)
     {
-         return Vec3f{InMat.raw[0][0], InMat.raw[1][0], InMat.raw[2][0]};
+         return Vec3f{InMat.raw[0][0]/InMat.raw[3][0], InMat.raw[1][0]/InMat.raw[3][0], InMat.raw[2][0]/InMat.raw[3][0]};
     }
 
     static Matrix<4,1,T> Embed(const Vec2<T>& InVec)
@@ -359,9 +359,16 @@ static Mat4x4 viewport(int x, int y, int w, int h)
 }
 
 static Mat4x4 projection(float coeff){
-    Mat4x4 Projection = Mat4x4::Identity();
-	Projection[3][2] = coeff;
-    return Projection;
+    Mat4x4 Persp2Ortho = Mat4x4::Identity();
+    Persp2Ortho[0][0] = 1;
+    Persp2Ortho[1][1] = 1;
+    Persp2Ortho[2][2] = 1 + 1000;
+    Persp2Ortho[2][3] = -1*1000;
+	Persp2Ortho[3][2] = 1;
+
+    Mat4x4 Ortho = Mat4x4::Identity();
+    Ortho[2][3] = -(1 + 1000)/2.0f;
+    return Ortho * Persp2Ortho;
 }
 
 //for each point, search around point to find max elevation angle
@@ -374,7 +381,7 @@ static float max_elevation_angle(std::vector<std::vector<float>>& zbuffer, Vec2f
         float distance = (p-cur).norm();
         if (distance < 1.f) continue;
         float elevation = zbuffer[int(cur.x)][int(cur.y)]-zbuffer[int(p.x)][int(p.y)];
-        maxangle = std::max(maxangle, atanf(elevation/distance));
+        maxangle = std::max(maxangle, atanf(-elevation/distance));
     }
     return maxangle;
 }

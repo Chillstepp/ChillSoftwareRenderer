@@ -21,7 +21,7 @@ constexpr int width  = 800; // output image size
 constexpr int height = 800;
 Vec3f LightDir{-3,-3,-3};
 Vec3f LightSpotLoc = -LightDir;
-Vec3f Eye{0,0,1};
+Vec3f Eye{0,0,2};
 Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 
@@ -65,7 +65,8 @@ int main(int argc, char** argv) {
 		}
 
 		Mat4x4 Uniform_MShadow = (ViewPort*Projection*ModelView)*(ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)).Inverse();
-		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort, LightDir, Uniform_MShadow, DepthBuffer);
+		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
+                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer);
 		for(int i=0;i<model->nfaces();i++)
 		{
 			const std::vector<int>& face = model->getface(i);
@@ -95,9 +96,18 @@ int main(int argc, char** argv) {
 	}
 	image.flip_vertically();
 	image.write_tga_file("lightview_depth.tga");
-	//todo: ACES should also be here
+
+    //Post-process : ACES ToneMapping
+    for (int x=0; x<width; x++) {
+        for (int y = 0; y < height; y++) {
+            TGAColor color = image2.get(x, y);
+            ACESToneMapping({(float)color.raw[0], (float)color.raw[1], (float)color.raw[2]});
+        }
+    }
+
 	image2.flip_vertically();//left-bottom is the origin
 	image2.write_tga_file("output.tga");
+
     //post-process : SSAO
     for (int x=0; x<width; x++) {
         for (int y = 0; y < height; y++) {

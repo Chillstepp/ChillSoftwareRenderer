@@ -16,6 +16,16 @@
 
 ## Tech
 
+### Camera
+
+- 规定$CenterLocation - CameraLocation$ 作为向量规定为**摄像机坐标系下z轴**的**正方向**，即**离摄像机越远的z值越大。**
+- **右手坐标系**
+- ![image-20231121144853967](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231121144853967.png)
+
+#### 透视矫正插值
+
+https://zhuanlan.zhihu.com/p/403259571
+
 ### Tangent Space Normal Mapping
 
 法线贴图、切线空间 - 夏新温的文章 - 知乎
