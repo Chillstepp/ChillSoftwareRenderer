@@ -1,5 +1,9 @@
 # SoftwareRender
 
+[toc]
+
+
+
 ## Show Case
 
 - Normal Interpolation
@@ -66,9 +70,7 @@ float3 ACESToneMapping(float3 color, float adapted_lum)
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150403640.png" alt="image-20231128150403640" style="zoom:67%;" /> | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150312255.png" alt="image-20231128150312255" style="zoom:67%;" /> |
 
-### Omnidirectional Shadow maps
-
-Omnidirectional Shadow maps(点光源阴影)
+### Shadow Mapping
 
 - Z-fighting https://en.wikipedia.org/wiki/Z-fighting
 
@@ -97,9 +99,21 @@ Here we use  DepthShader to get Depth Buffer
 
 
 
+#### PCF
+
+#### PCSS
+
+#### VSM
+
+#### SDF
+
+更多技术：
+
+PCF/PCSS/VSM/SDF阴影
+
 ### AO
 
-#### **屏幕空间环境光遮蔽(Screen-Space Ambient Occlusion, SSAO)** 
+#### SSAO(Screen-Space Ambient Occlusion)
 
 - AO的概念理解 https://mentalraytips.blogspot.com/2008/11/joy-of-little-ambience.html
 
@@ -132,9 +146,23 @@ Only SSAO Exist with all white model
 
 ### Anti-Aliasing
 
+#### TAA
 
 
 
+#### MSAA
+
+
+
+### SSR
+
+
+
+### PBR
+
+
+
+### IBL
 
 
 
