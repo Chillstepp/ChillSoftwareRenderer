@@ -30,6 +30,12 @@
 
 https://zhuanlan.zhihu.com/p/403259571
 
+#### Culling
+
+- 如何写一个软渲染(4)-Clipping - 拳四郎的文章 - 知乎 https://zhuanlan.zhihu.com/p/43586784
+
+
+
 ### Tangent Space Normal Mapping
 
 法线贴图、切线空间 - 夏新温的文章 - 知乎
@@ -121,7 +127,8 @@ PCF/PCSS/VSM/SDF阴影
 - http://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html
 - 球体均匀采样https://mathworld.wolfram.com/SpherePointPicking.html
 
-
+- 游戏后期特效第四发 -- 屏幕空间环境光遮蔽(SSAO) - 音速键盘猫的文章 - 知乎
+  https://zhuanlan.zhihu.com/p/25038820
 
 实现的几个细节：
 
