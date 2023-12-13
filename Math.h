@@ -137,20 +137,14 @@ class Matrix
 public:
     T raw[DimRow][DimCol];
     Matrix(){};
-	Matrix(std::initializer_list<std::initializer_list<T>>InitList)
+	Matrix(std::initializer_list<Vec3f>ColVecs)
 	{
-		//todo:
-//		if(InitList.size()==DimRow && InitList.begin()->size() == DimCol)
-//		{
-//			throw std::runtime_error("Matrix is not full rank matrix");
-//		}
-//		for(int i = 0; i < DimRow; i++)
-//		{
-//			for(int j = 0; j < DimCol; j++)
-//			{
-//				raw[i][j] = data(InitList);
-//			}
-//		}
+        int ColNumber = 0;
+        for(auto vec:ColVecs)
+        {
+            raw[0][ColNumber] = vec.raw[0], raw[1][ColNumber] = vec.raw[1], raw[2][ColNumber] = vec.raw[2];
+            ColNumber ++;
+        }
 	};
 
      float* operator[] (const size_t idx){
@@ -288,20 +282,12 @@ public:
          return Vec3f{InMat.raw[0][0]/InMat.raw[3][0], InMat.raw[1][0]/InMat.raw[3][0], InMat.raw[2][0]/InMat.raw[3][0]};
     }
 
-    static Matrix<4,1,T> Embed(const Vec2<T>& InVec)
-    {
-        Matrix<4,1,T> Ret;
-        for(int i=0; i<4; i++)
-        {
-            Ret[i][0] = (i<2?InVec.raw[i]:1);
-        }
-        return Ret;
-    }
 
 
 };
 
 using Mat4x4 = Matrix<4,4,float>;
+using Mat3x3 = Matrix<3,3,float>;
 
 
 //  P = αA + βB + γC  (α+β+γ=1 && α>0 && β>0 && γ>0) ,then P is in the triangle ABC
