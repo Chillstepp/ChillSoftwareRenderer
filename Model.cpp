@@ -53,7 +53,7 @@ Model::Model(const char *filename) {
         }
     }
     load_texture(filename, "_diffuse.tga", diffusemap_);
-    load_texture(filename,"_nm.tga", normalmap_);
+    load_texture(filename,"_nm_tangent.tga", normalmap_);
     load_texture(filename, "_spec.tga", specularmap_);
 }
 
@@ -105,7 +105,7 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
 Vec3f Model::getNormal(int iface, int nthvert) {
 
     const std::vector<int>& face = getface(iface);
-    auto norm = -Norms.at(face[nthvert*3 + 2]).normlize();
+    auto norm = Norms.at(face[nthvert*3 + 2]).normlize();
     return norm;
 }
 

@@ -88,6 +88,11 @@ template<typename T> struct Vec3
         return Vec3<T>{x/f, y/f, z/f};
     }
 
+    inline std::vector<T> ToStdVector() const
+    {
+        return std::vector<T>{raw[0] , raw[1], raw[2]};
+    }
+
     inline Vec3<T> operator *=(const float& f) const {
         return this->operator*(f);
     }
@@ -137,20 +142,11 @@ class Matrix
 public:
     T raw[DimRow][DimCol];
     Matrix(){};
-	Matrix(std::initializer_list<Vec3f>ColVecs)
-	{
-        int ColNumber = 0;
-        for(auto vec:ColVecs)
-        {
-            raw[0][ColNumber] = vec.raw[0], raw[1][ColNumber] = vec.raw[1], raw[2][ColNumber] = vec.raw[2];
-            ColNumber ++;
-        }
-	};
 
     Matrix(std::initializer_list<std::vector<float>>RowVecs)
     {
         int RowNumber = 0;
-        for(auto vec:RowVecs)
+        for(const auto& vec:RowVecs)
         {
             for(int j = 0; j < vec.size(); j++)
             {
