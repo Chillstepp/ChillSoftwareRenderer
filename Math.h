@@ -147,6 +147,19 @@ public:
         }
 	};
 
+    Matrix(std::initializer_list<std::vector<float>>RowVecs)
+    {
+        int RowNumber = 0;
+        for(auto vec:RowVecs)
+        {
+            for(int j = 0; j < vec.size(); j++)
+            {
+                raw[RowNumber][j] = vec[j];
+            }
+            RowNumber ++;
+        }
+    };
+
      float* operator[] (const size_t idx){
         return raw[idx];
     }

@@ -73,6 +73,12 @@ Vec3f Model::getvert(int i){
     return Verts.at(i);
 }
 
+Vec3f Model::getvert(int iface, int nthvert) {
+    const std::vector<int>& Face = getface(iface);
+    return Verts.at(Face[nthvert * 3]);
+}
+
+
 std::vector<int> Model::getface(int idx){
     return Faces.at(idx);
 }

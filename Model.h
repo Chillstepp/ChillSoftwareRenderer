@@ -25,6 +25,7 @@ public:
     int nverts();
     int nfaces();
     Vec3f getvert(int i);
+    Vec3f getvert(int iface, int nthvert);
     std::vector<int> getface(int idx);
     Vec2f getuv(int idx);
     Vec3f getNormal(int iface, int nthvert);

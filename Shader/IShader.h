@@ -68,8 +68,9 @@ private:
     Vec3f Center;
 
 
-    std::vector<Vec2f>Varying_uv;
-    std::vector<Vec3f>Varying_tri;
+    std::vector<Vec2f>Varying_uv{3, {0, 0}};
+    std::vector<Vec3f>Varying_tri{3, {0, 0, 0}};
+    std::vector<Vec3f>Varying_normal{3, {0, 0, 0}};
     Mat4x4 Uniform_M;
     Mat4x4 Uniform_MIT;
     Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
@@ -80,12 +81,10 @@ public:
                 model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_),
                 Uniform_MShadow(Uniform_MShadow_), DepthBuffer(DepthBuffer_),Eye(Eye_), Center(Center_)
     {
-        Varying_uv.reserve(3);
-        Varying_tri.reserve(3);
         Uniform_M = ModelViewMat_;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
         // framebuffer screen coordinates -> world coordinates -> shadowbuffer screen coordinates
-
+        
     }
 	~PhongShader() override;
 	virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
