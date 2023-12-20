@@ -30,7 +30,7 @@ Mat4x4 ModelView = lookat(Eye, Center, Up);
 Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(1.0f/3.0f);
 std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
-std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, -std::numeric_limits<float>::max()));
+std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
 
 int main(int argc, char** argv) {
 

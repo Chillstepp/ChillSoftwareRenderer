@@ -71,7 +71,7 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Vec2f uv = model->getuv(Face[nthvert * 3 + 1]);
     Varying_uv[nthvert] = uv;
 
-    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
+    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
     gl_vertex = ModelViewMat * gl_vertex;
     Varying_tri[nthvert] = {gl_vertex.raw[0][0]/gl_vertex.raw[3][0], gl_vertex.raw[1][0]/gl_vertex.raw[3][0], gl_vertex.raw[2][0]/gl_vertex.raw[3][0]};
     gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
@@ -131,7 +131,6 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     Vec3f n = Vec3f{Mat_n[0][0], Mat_n[1][0], Mat_n[2][0]}.normlize();
     Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
     Vec3f r = (l - n*(n*l*2.f)).normlize(); // reflected light
-    auto x = Uniform_M*Mat4x4::Embed((Eye - Center).normlize(), 0.0f);
     Vec3f Center2Eye = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed((Eye - Center).normlize(), 0.0f), false);
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv)); // we're looking from z-axis
     float diff = std::max(0.f, -n*l);
