@@ -45,7 +45,7 @@ private:
 	Mat4x4 ProjectionMat;
 	Mat4x4 ModelViewMat;
 	Mat4x4 ViewPortMat;
-	Vec3f LightDir{0,0,-1};
+	Vec3f LightDir;
 
 public:
 	explicit GouraudShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,

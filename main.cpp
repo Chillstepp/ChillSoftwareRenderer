@@ -17,11 +17,11 @@ namespace FilePath
 }
 
 
-constexpr int width  = 800; // output image size
-constexpr int height = 800;
+constexpr int width  = 2000; // output image size
+constexpr int height = 2000;
 Vec3f LightDir{-3,-3,-3};
 Vec3f LightSpotLoc = -LightDir;
-Vec3f Eye{0,0,2};
+Vec3f Eye{0,0,1};
 Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 

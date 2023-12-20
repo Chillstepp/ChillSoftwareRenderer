@@ -221,7 +221,29 @@ public:
         return RetMat;
     }
 
-    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-3) requires (DimRow == DimCol)
+    inline Matrix<DimRow, DimCol, T>Normalize()
+    {
+         Matrix<DimRow, DimCol, T>RetMat = *this;
+         float sum = 0;
+         for(int i = 0; i < DimRow; i++)
+         {
+             for(int j = 0; j < DimCol; j++)
+             {
+                 sum += raw[i][j] * raw[i][j];
+             }
+         }
+         sum = std::sqrt(sum);
+         for(int i = 0; i < DimRow; i++)
+         {
+            for(int j = 0; j < DimCol; j++)
+            {
+                RetMat[i][j] /= sum;
+            }
+         }
+        return RetMat;
+    }
+
+    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-6) requires (DimRow == DimCol)
     {
         //[augmentedMatrix, inverseMatrix]构成增广矩阵
         Matrix<DimRow, DimRow, T> augmentedMatrix = *this;
@@ -242,7 +264,10 @@ public:
                    break;
                 }
             }
-            if(!FindRow) throw std::runtime_error("Matrix is not full rank matrix");
+            if(!FindRow)
+            {
+                throw std::runtime_error("Matrix is not full rank matrix");
+            }
             const float Divisor = 1.f/augmentedMatrix.raw[pivot][pivot];
             for(size_t i = 0; i<DimRow; i++)
             {
@@ -276,19 +301,22 @@ public:
         return inverseMatrix;
     }
 
-	static Matrix<4,1,T> Embed(const Vec3<T>& InVec)
+	static Matrix<4,1,T> Embed(const Vec3<T>& InVec, T FillValue = 1)
 	{
 		Matrix<4,1,T> Ret;
 	 	for(int i=0; i<4; i++)
 		{
-			 Ret[i][0] = (i<3?InVec.raw[i]:1);
+			 Ret[i][0] = (i<3?InVec.raw[i]:FillValue);
 		}
 		return Ret;
 	}
 
-    static Vec3f Proj(const Matrix<4,1,float>& InMat)
+    static Vec3f Proj(const Matrix<4,1,float>& InMat, bool DoNormalization = true)
     {
-         return Vec3f{InMat.raw[0][0]/InMat.raw[3][0], InMat.raw[1][0]/InMat.raw[3][0], InMat.raw[2][0]/InMat.raw[3][0]};
+         if(DoNormalization){
+             return Vec3f{InMat.raw[0][0]/InMat.raw[3][0], InMat.raw[1][0]/InMat.raw[3][0], InMat.raw[2][0]/InMat.raw[3][0]};
+         }
+         return Vec3f{InMat.raw[0][0], InMat.raw[1][0], InMat.raw[2][0]};
     }
 
 

@@ -72,12 +72,13 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Varying_uv[nthvert] = uv;
 
     Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
-    gl_vertex = ViewPortMat * ProjectionMat * ModelViewMat * gl_vertex;
+    gl_vertex = ModelViewMat * gl_vertex;
+    Varying_tri[nthvert] = {gl_vertex.raw[0][0]/gl_vertex.raw[3][0], gl_vertex.raw[1][0]/gl_vertex.raw[3][0], gl_vertex.raw[2][0]/gl_vertex.raw[3][0]};
+    gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
     gl_vertex /= gl_vertex.raw[3][0];
 
-    Varying_tri[nthvert] = {gl_vertex.raw[0][0], gl_vertex.raw[1][0], gl_vertex.raw[2][0]};
-    Varying_normal[nthvert] = model->getNormal(iface, nthvert);
-    std::cout<< iface<< " "<< nthvert<<" " << Varying_normal[nthvert]<<std::endl;
+    Varying_normal[nthvert] = Matrix<4,1,float>::Proj((ModelViewMat).Inverse().Transpose() * Matrix<4,1,float>::Embed(model->getNormal(iface, nthvert)));
+    //std::cout<< iface<< " "<< nthvert<<" " << Varying_normal[nthvert]<<std::endl;
 
     return gl_vertex;
 }
@@ -105,24 +106,36 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
 //	}
     //tangent-space-normal-mapping
     Vec3f bn = {0.0f, 0.0f, 0.0f};
-    std::for_each(Varying_normal.begin(), Varying_normal.end(),
-                  [&bn, &bar = std::as_const(bar)](const Vec3f& in)
-                  {bn = bn + in * bar[];}
-                  );
+    for(int i = 0; i < 3; i++)
+    {
+        bn = bn + Varying_normal[i] * bar.raw[i];
+    }
+    bn = bn.normlize();
     Mat3x3 AI = Mat3x3{ (Varying_tri[1] - Varying_tri[0]).ToStdVector(), (Varying_tri[2] - Varying_tri[0]).ToStdVector(), bn.ToStdVector()}.Inverse();
-    Mat3x3 TBN = AI * Mat3x3{{Varying_uv[1].u - Varying_uv[0].u , Varying_uv[1].v - Varying_uv[0].v, 0},
-                             {Varying_uv[2].u - Varying_uv[0].u , Varying_uv[2].v - Varying_uv[0].v, 0},
-                             {0, 0, 0}};
+    Matrix<3,1,float> T = (AI * Matrix<3,1,float>{
+        {Varying_uv[1].u - Varying_uv[0].u} ,
+        {Varying_uv[2].u - Varying_uv[0].u},
+        {0}}).Normalize();
+
+    Matrix<3,1,float> B = (AI * Matrix<3,1,float>{
+            {Varying_uv[1].v - Varying_uv[0].v} ,
+            {Varying_uv[2].v - Varying_uv[0].v},
+            {0}}).Normalize();
+    Mat3x3 TBN{
+        {T.raw[0][0], T.raw[1][0], T.raw[2][0]},
+        {B.raw[0][0], B.raw[1][0], B.raw[2][0]},
+        {bn.x, bn.y, bn.z},
+    };
     Vec3f tagentSpaceNormal = model->getNormal(uv);
     auto Mat_n = TBN.Transpose() * Matrix<3, 1, float>{{tagentSpaceNormal.x}, {tagentSpaceNormal.y}, {tagentSpaceNormal.z}};//TBN^T is same as TBN^-1
     Vec3f n = Vec3f{Mat_n[0][0], Mat_n[1][0], Mat_n[2][0]}.normlize();
     Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
     Vec3f r = (l - n*(n*l*2.f)).normlize(); // reflected light
-    Vec3f Center2Eye = {0,0,-1};
+    auto x = Uniform_M*Mat4x4::Embed((Eye - Center).normlize(), 0.0f);
+    Vec3f Center2Eye = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed((Eye - Center).normlize(), 0.0f), false);
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv)); // we're looking from z-axis
     float diff = std::max(0.f, -n*l);
-    auto x = model->getNormal(uv);
-   // std::cout<<"r:"<<r<<"n:"<<n<<"l:"<<l<<"uv:"<<uv<<"normal:"<< x<<"diff:"<<diff<<" spec:"<<spec<<std::endl;
+
     TGAColor c = model->diffuse(uv);
     color = c;
 
