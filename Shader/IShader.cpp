@@ -126,19 +126,19 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         {B.raw[0][0], B.raw[1][0], B.raw[2][0]},
         {bn.x, bn.y, bn.z},
     };
-    Vec3f tagentSpaceNormal = model->getNormal(uv);
-    auto Mat_n = TBN.Transpose() * Matrix<3, 1, float>{{tagentSpaceNormal.x}, {tagentSpaceNormal.y}, {tagentSpaceNormal.z}};//TBN^T is same as TBN^-1
-    Vec3f n = Vec3f{Mat_n[0][0], Mat_n[1][0], Mat_n[2][0]}.normlize();
-    Vec3f l = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed(LightDir)).normlize();
+    Vec3f tangentSpaceNormal = model->getNormal(uv);
+    Matrix Mat_n = TBN.Transpose() * tangentSpaceNormal.ToMatrix();//TBN^T is same as TBN^-1
+    Vec3f n = Mat_n.ToVec3f().normlize();
+    Vec3f l = (Uniform_M.RemoveHomogeneousDim() * LightDir.ToMatrix()).ToVec3f().normlize() ;
     Vec3f r = (l - n*(n*l*2.f)).normlize(); // reflected light
-    Vec3f Center2Eye = Matrix<4,1,float>::Proj(Uniform_M*Mat4x4::Embed((Eye - Center).normlize(), 0.0f), false);
-    float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv)); // we're looking from z-axis
+    Vec3f Center2Eye = (Uniform_M.RemoveHomogeneousDim()*(Eye - Center).normlize().ToMatrix()).ToVec3f();
+    float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv));
     float diff = std::max(0.f, -n*l);
 
     TGAColor c = model->diffuse(uv);
     color = c;
 
-	for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>(c.raw[i]*(0.3 + 1.0*diff + 1.6*spec)*shadowFactor, 255);
+	for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>((float)c.raw[i]*(0.3f + 1.0f*diff + 1.6f*spec)*shadowFactor, 255.0f);
 
     return false;
 

@@ -9,6 +9,8 @@
 #include "iostream"
 #include "TGAImage.h"
 
+template<size_t DimRow, size_t DimCol,typename T>
+class Matrix;
 
 template<typename T> struct Vec2
 {
@@ -47,6 +49,8 @@ std::ostream &operator<<(std::ostream &s, Vec2<T> &v) {
     s << "(" <<v.x<<","<<v.y<<") \n";
     return s;
 }
+
+
 
 
 template<typename T> struct Vec3
@@ -91,6 +95,11 @@ template<typename T> struct Vec3
     inline std::vector<T> ToStdVector() const
     {
         return std::vector<T>{raw[0] , raw[1], raw[2]};
+    }
+
+    inline Matrix<3,1, T> ToMatrix() const
+    {
+        return Matrix<3,1, T>{{x},{y},{z}};
     }
 
     inline Vec3<T> operator *=(const float& f) const {
@@ -299,6 +308,24 @@ public:
             }
         }
         return inverseMatrix;
+    }
+
+    inline Matrix<DimRow-1, DimCol-1, T> RemoveHomogeneousDim()
+    {
+        Matrix<DimRow-1, DimCol-1, T>Ret;
+        for(int i = 0; i < DimRow-1; i++)
+        {
+            for(int j = 0; j < DimCol-1; j++)
+            {
+                Ret[i][j] = raw[i][j];
+            }
+        }
+        return Ret;
+    }
+
+    inline Vec3f ToVec3f() requires (DimRow == 3 and DimCol == 1 and std::is_same_v<std::remove_cvref_t<T>, float>)
+    {
+        return Vec3f{raw[0][0], raw[1][0], raw[2][0]};
     }
 
 	static Matrix<4,1,T> Embed(const Vec3<T>& InVec, T FillValue = 1)
