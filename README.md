@@ -41,34 +41,13 @@ https://zhuanlan.zhihu.com/p/403259571
 存储在模型顶点的**切线空间(tangent space)**中，优势：
 
 1. 切线空间存储的是相对法线信息，因此换个网格（或者网格变换deforming）应用该纹理，也能得到合理的结果。
-
 2. 可以进行uv动画，通过移动该纹理的uv坐标实现凹凸移动的效果，这种UV动画在水或者火山熔岩这种类型的物体会会用到。
-
 3. 重用法线纹理节省内存，比如,一个砖块,我们仅使用一张法线纹理就可以用到所有的6个面，无需对每个面有一个发现贴图，这样大大减少了法线贴图的大小。
-
 4. 可以压缩。因为切线空间的法线z方向总是正方向，因此可以仅存储xy方向，从而推导z方向（存储的法线向量是单位向量，用勾股定理由xy得出z，取z为正的一个即可）。
 
 
 
-- 法线贴图、切线空间 - 夏新温的文章 - 知乎 https://zhuanlan.zhihu.com/p/489792336
-- 图形学的数学基础（三十四）：TBN空间与TBN矩阵 https://juejin.cn/post/7145099319673094174
-
-UV to TBN 推导: https://learnopengl-cn.github.io/05%20Advanced%20Lighting/04%20Normal%20Mapping/#_3
-
-![image-20231213101341958](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231213101341958.png)
-$$
-\left[\begin{array}{ccc}
-T_{x} & T_{y} & T_{z} \\
-B_{x} & B_{y} & B_{z}
-\end{array}\right]=\frac{1}{\Delta U_{1} \Delta V_{2}-\Delta U_{2} \Delta V_{1}}\left[\begin{array}{cc}
-\Delta V_{2} & -\Delta V_{1} \\
--\Delta U_{2} & \Delta U_{1}
-\end{array}\right]\left[\begin{array}{lll}
-E_{1 x} & E_{1 y} & E_{1 z} \\
-E_{2 x} & E_{2 y} & E_{2 z}
-\end{array}\right]
-$$
-只需要三角形的三个点的UV坐标即可推出TB两个向量
+项目wiki上的理解/公式推导: [Summary of TagentSpaceNormal, TBN Matrix, TBN Coordinate](https://github.com/Chillstepp/ChillSoftwareRenderer/wiki/Summary-of-TagentSpaceNormal,-TBN-Matrix,--TBN-Coordinate)
 
 ### AECS ToneMapping 
 
@@ -189,6 +168,10 @@ Only SSAO Exist with all white model
 
 
 ### IBL
+
+
+
+### CubeMap
 
 
 
