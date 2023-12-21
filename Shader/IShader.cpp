@@ -101,9 +101,10 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];
     Vec3f CorrespondingPoint{CorrespondingPointInShadowBuffer.raw[0][0], CorrespondingPointInShadowBuffer.raw[1][0], CorrespondingPointInShadowBuffer.raw[2][0]};
 	float shadowFactor = 1.0f;
-//	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
-//	{shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z);
-//	}
+	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
+	{
+        shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - 1);
+	}
     //tangent-space-normal-mapping
     Vec3f bn = {0.0f, 0.0f, 0.0f};
     for(int i = 0; i < 3; i++)
@@ -161,7 +162,8 @@ bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
         p = p + varying_tri[i] * bar.raw[i];
     }
     float factor = p.z;
-    color = TGAColor((int)255*factor, (int)255*factor, (int)255*factor, 255);
+    //std::cout<<p.z<<std::endl;
+    color = TGAColor((int)(factor), (int)(factor), (int)(factor), 255);
     return true;
 }
 

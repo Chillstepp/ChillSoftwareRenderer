@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 			triangle(model, ScreenCoords, image, DepthBuffer, Shader_dep);
 		}
 
-		Mat4x4 Uniform_MShadow = (ViewPort*Projection*ModelView)*(ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)).Inverse();
+		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
                                                                         LightDir, Eye, Center, Uniform_MShadow, DepthBuffer);
 		for(int i=0;i<model->nfaces();i++)
