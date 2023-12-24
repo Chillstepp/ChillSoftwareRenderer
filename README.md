@@ -76,6 +76,8 @@ float3 ACESToneMapping(float3 color, float adapted_lum)
 
 ### Shadow Mapping
 
+#### The Most Basic Method Of Shadow Mapping
+
 - Z-fighting https://en.wikipedia.org/wiki/Z-fighting
 
 - DirectX - 改进阴影深度映射的常见技术 https://learn.microsoft.com/zh-cn/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps?redirectedfrom=MSDN
@@ -92,7 +94,105 @@ Here we use  DepthShader to get Depth Buffer
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129173100355.png" alt="image-20231129173100355" style="zoom:67%;" /> | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128150403640.png" alt="image-20231128150403640" style="zoom:67%;" /> |
 
-当一个像素点在Shadow Map（阴影贴图）中找不到对应的深度值是很常见的问题，比如你的光源没有把整个角色照到。
+思路不错但会出现几个问题：
+
+- **阴影失真(Shadow Acne)**
+- **阴影悬浮**
+- **阴影锯齿(Shadow Aliasing)**
+
+- 大场景中Shadow Map找不到对应的点
+
+
+
+##### 阴影失真
+
+![image-20231224202229441](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202229441.png)
+
+上图出现了条状的阴影:
+
+![image-20231224202314452](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202314452.png)
+
+​	以方向光源为例，一般认为方向光是平行光，在光源处渲染时使用正交投影。因为Shadow Map的分辨率有限，Shadow Map上面的**一个片段**对应场景中的**一块区域**，又因为很多情况下光源与物体存在夹角，因此记录的深度通常与物体的实际深度存在偏差。
+
+​	上图中蓝色片段即为Shadow Map中记录的深度。在纹理中像素为最小单位，一个像素只能记录一个值，图中每个像素记录的是箭头处的深度。这就导致了明明本该整块被照亮的地板，会出现明暗相间的条纹：黑线处的地板由于在光源视角中深度小于记录的值，因此不在阴影中。红线处的地板深度大于记录的值，没有通过阴影测试。
+
+​	解决办法有些trick，我们可以用一个叫做**阴影偏移**（shadow bias）的技巧来解决这个问题，我们简单的对表面的深度（或深度贴图）应用一个偏移量，这样片元就不会被错误地认为在表面之下了。
+
+![image-20231224202630631](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202630631.png)
+
+```c++
+float shadowFactor = 1.0f;
+if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
+{
+    shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - 1);//1 is shadow bias
+}
+```
+
+我们这里简单的用了1作为bias， 阴影基本正常：
+
+![image-20231224202923283](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202923283.png)
+
+因为阴影失真的问题是由于光线和物体表面的夹角导致的，光线越垂直于物体，失真的影响就越小，因此通常会将bias与光线和物体表面法线的夹角挂钩：
+
+$\text { bias }=k \cdot(1.0-\operatorname{dot}(\text { normal, lightDir }))$
+
+```c++
+	//Shadow
+	Vec3f p(0,0,0);
+	for(int i=0;i<3;i++)//坐标插值
+	{
+		p = p + Varying_tri[i] * bar.raw[i];
+	}
+	Matrix<4,1,float>CorrespondingPointInShadowBuffer = Uniform_MShadow * Matrix<4,1,float>::Embed(p);
+	CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];
+	Vec3f CorrespondingPoint{CorrespondingPointInShadowBuffer.raw[0][0], CorrespondingPointInShadowBuffer.raw[1][0], CorrespondingPointInShadowBuffer.raw[2][0]};
+	float shadowFactor = 1.0f;
+	constexpr float shadowK = 1.0f;
+	float shadowBias = shadowK*(1.0f - n*l);
+	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
+	{
+		shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);//1 is shadow bias
+	}
+```
+
+
+
+
+
+Reference:
+
+- https://learnopengl-cn.readthedocs.io/zh/latest/05%20Advanced%20Lighting/03%20Shadows/01%20Shadow%20Mapping/
+- 实时阴影(一) ShadowMap, PCF与Face Culling - 陈陈的文章 - 知乎
+  https://zhuanlan.zhihu.com/p/477330771
+
+##### 阴影悬浮
+
+这其实是由于ShdowBias导致的：
+
+![image-20231224204404293](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224204404293.png)
+
+本来不能通过阴影测试，bias设置过大，导致本该被遮挡的物体，因为减去了bias导致深度值变小，通过了阴影测试。
+
+解决方法：
+
+1.其实bias设置合理一点即可，不要太大。
+
+2.也可以当渲染深度贴图时候使用正面剔除（front face culling），我们只利用背面，这样阴影失真也解决了，不再需要bias的辅助。使用这个方法可以免去反复调整bias，并且也不会导致悬浮的问题。但使用该方法的前提是**场景中的物体必须是一个体（有正面和反面）而非原先的一个面**。
+
+##### 阴影锯齿
+
+我们上述的阴影有的锯齿：
+
+![image-20231224211837915](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224211837915.png)
+
+- 锯齿本质是采样频率不够，最直接的解决方法就是 提高采样频率，但也会带来时间/空间的开销
+- 使用PCF/PCSS等各种效果更好的阴影算法
+
+
+
+##### 大场景中ShadowMap找不到对应的点
+
+当一个像素点在Shadow Map中找不到对应的深度值是很常见的问题，比如你的光源没有把整个角色照到。
 
 以下是几种处理方法：
 
@@ -105,15 +205,29 @@ Here we use  DepthShader to get Depth Buffer
 
 #### PCF
 
+
+
 #### PCSS
+
+#### CSM(Cascaded Shadow Mapping)
+
+​	一个常见的疑问是为什么有的叫它CSM，有的叫他PSSM（Parallel-Split Shadow Map）。实际上原论文是把它叫做PSSM，工业界实现的时候选择了个更广泛的名字CSM。从名字本身来说，只要是一系列层级关系的shadow map，就能叫CSM，而只有平行切分视锥的才叫做PSSM。换句话说，CSM是个种类，PSSM是具体方法。
+
+​	![image-20231224214449007](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224214449007.png)
+
+CSGO游戏中就是用了CSM，保证了近处阴影的细节，远处阴影的基本轮廓。
+
+
+
+Reference:
+
+https://learnopengl.com/Guest-Articles/2021/CSM
+
+#### SDF Soft Shadows
 
 #### VSM
 
-#### SDF
 
-更多技术：
-
-PCF/PCSS/VSM/SDF阴影
 
 ### AO(Ambient Occlusion)
 
