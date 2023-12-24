@@ -21,7 +21,7 @@ constexpr int width  = 2000; // output image size
 constexpr int height = 2000;
 Vec3f LightDir{-3,-3,-3};
 Vec3f LightSpotLoc = -LightDir;
-Vec3f Eye{0,0,1};
+Vec3f Eye{0,0,1.5};
 Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 
@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
 	scene->Add(model_diablo);
 
 
+
 	//FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
     //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
 
@@ -51,19 +52,24 @@ int main(int argc, char** argv) {
 	{
 		auto model = model_WeakPtr.lock();
 
-		std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(1.0f/3.0f), lookat(LightSpotLoc, Center, Up), ViewPort);
-		for(int i=0;i<model->nfaces();i++)
+		std::shared_ptr<IShader> Shader_dep =
+			std::make_shared<DepthShder>(model, projection(1.0f / 3.0f), lookat(LightSpotLoc, Center, Up), ViewPort);
+		for (int i = 0; i < model->nfaces(); i++)
 		{
 			const std::vector<int>& face = model->getface(i);
 			Vec3f ScreenCoords[3];
-			for(int j=0;j<3;j++)
+			for (int j = 0; j < 3; j++)
 			{
 				auto Mat4x1_Vertex = Shader_dep->vertex(i, j);
-				ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
+				ScreenCoords[j] = { Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0] };
 			}
 			triangle(model, ScreenCoords, image, DepthBuffer, Shader_dep);
 		}
+	}
 
+	for(auto& model_WeakPtr: scene->GetAllModels())
+	{
+		auto model = model_WeakPtr.lock();
 		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
                                                                         LightDir, Eye, Center, Uniform_MShadow, DepthBuffer);

@@ -91,20 +91,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         uv.u += Varying_uv[i].u*bar.raw[i];
         uv.v += Varying_uv[i].v*bar.raw[i];
     }
-    //坐标插值
-    Vec3f p(0,0,0);
-    for(int i=0;i<3;i++)
-    {
-        p = p + Varying_tri[i] * bar.raw[i];
-    }
-    Matrix<4,1,float>CorrespondingPointInShadowBuffer = Uniform_MShadow * Matrix<4,1,float>::Embed(p);
-    CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];
-    Vec3f CorrespondingPoint{CorrespondingPointInShadowBuffer.raw[0][0], CorrespondingPointInShadowBuffer.raw[1][0], CorrespondingPointInShadowBuffer.raw[2][0]};
-	float shadowFactor = 1.0f;
-	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
-	{
-        shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - 1);
-	}
+
     //tangent-space-normal-mapping
     Vec3f bn = {0.0f, 0.0f, 0.0f};
     for(int i = 0; i < 3; i++)
@@ -135,6 +122,24 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     Vec3f Center2Eye = (Uniform_M.RemoveHomogeneousDim()*(Eye - Center).normlize().ToMatrix()).ToVec3f();
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv));
     float diff = std::max(0.f, -n*l);
+
+
+	//Shadow
+	Vec3f p(0,0,0);
+	for(int i=0;i<3;i++)//坐标插值
+	{
+		p = p + Varying_tri[i] * bar.raw[i];
+	}
+	Matrix<4,1,float>CorrespondingPointInShadowBuffer = Uniform_MShadow * Matrix<4,1,float>::Embed(p);
+	CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];
+	Vec3f CorrespondingPoint{CorrespondingPointInShadowBuffer.raw[0][0], CorrespondingPointInShadowBuffer.raw[1][0], CorrespondingPointInShadowBuffer.raw[2][0]};
+	float shadowFactor = 1.0f;
+	constexpr float shadowK = 1.0f;
+	float shadowBias = shadowK*(1.0f - n*l);
+	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
+	{
+		shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);//1 is shadow bias
+	}
 
     TGAColor c = model->diffuse(uv);
     color = c;
