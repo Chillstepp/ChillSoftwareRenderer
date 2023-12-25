@@ -1,6 +1,38 @@
 # ChillSoftwareRender
+- [ChillSoftwareRender](#chillsoftwarerender)
+  * [Show Case](#show-case)
+  * [Tech Roadmap](#tech-roadmap)
+    + [Camera](#camera)
+      - [Perspective-Correct Interpolation](#perspective-correct-interpolation)
+      - [Culling](#culling)
+    + [Tangent Space Normal Mapping](#tangent-space-normal-mapping)
+    + [AECS ToneMapping](#aecs-tonemapping)
+    + [Shadow Mapping](#shadow-mapping)
+      - [The Most Basic Method Of Shadow Mapping](#the-most-basic-method-of-shadow-mapping)
+        * [阴影失真](#----)
+        * [阴影悬浮](#----)
+        * [阴影锯齿](#----)
+        * [大场景中ShadowMap找不到对应的点](#----shadowmap-------)
+      - [PCF](#pcf)
+      - [PCSS](#pcss)
+      - [CSM(Cascaded Shadow Mapping)](#csm-cascaded-shadow-mapping-)
+      - [SDF Soft Shadows](#sdf-soft-shadows)
+      - [VSM](#vsm)
+    + [AO(Ambient Occlusion)](#ao-ambient-occlusion-)
+      - [SSAO(Screen-Space Ambient Occlusion)](#ssao-screen-space-ambient-occlusion-)
+      - [HBAO](#hbao)
+    + [Anti-Aliasing](#anti-aliasing)
+      - [TAA](#taa)
+      - [MSAA](#msaa)
+    + [SSR(Screen Space Reflection)](#ssr-screen-space-reflection-)
+    + [PBR](#pbr)
+    + [IBL](#ibl)
+    + [CubeMap](#cubemap)
+    + [Scene Management](#scene-management)
 
-[toc]
+
+
+
 
 
 
@@ -205,9 +237,11 @@ Reference:
 
 #### PCF
 
-
+PCF全称是Percentage Closer Filtering，优化阴影测试时的采样方式。
 
 #### PCSS
+
+
 
 #### CSM(Cascaded Shadow Mapping)
 
@@ -295,3 +329,4 @@ Multi Objects Render Pipeline
 
 ![image-20231210235752725](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231210235752725.png)
 
+s
