@@ -31,6 +31,7 @@ Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(1.0f/3.0f);
 std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
+std::vector<std::vector<bool>>ShadowBuffer(width, std::vector<bool>(height, false));
 
 int main(int argc, char** argv) {
 
@@ -72,7 +73,7 @@ int main(int argc, char** argv) {
 		auto model = model_WeakPtr.lock();
 		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
-                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer);
+                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer);
 		for(int i=0;i<model->nfaces();i++)
 		{
 			const std::vector<int>& face = model->getface(i);
@@ -102,6 +103,25 @@ int main(int argc, char** argv) {
 	}
 	image.flip_vertically();
 	image.write_tga_file("lightview_depth.tga");
+
+    //PCF
+    for(int i = 1; i < width-1; i++)
+    {
+        for(int j = 1; j< height-1; j++)
+        {
+            int SampleShadowNumber = 0;
+            for(int dx = -1; dx <= 1; dx++)
+            {
+                for(int dy = -1; dy <= 1; dy++)
+                {
+                    SampleShadowNumber += ShadowBuffer[i + dx][j + dy];
+                }
+            }
+            float SampleShadowRate = SampleShadowNumber/(3.0f*3.0f);
+            float PCFShadowFactor = 1.0f - 0.7f*SampleShadowRate;
+            image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
+        }
+    }
 
     //Post-process : ACES ToneMapping
     for (int x=0; x<width; x++) {

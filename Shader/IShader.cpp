@@ -138,13 +138,14 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
 	float shadowBias = shadowK*(1.0f - n*l);
 	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
 	{
-		shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);//1 is shadow bias
+        ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = (DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias);
+		//shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);//1 is shadow bias
 	}
-
+    //ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = shadowFactor
     TGAColor c = model->diffuse(uv);
     color = c;
 
-	for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>((float)c.raw[i]*(0.3f + 1.0f*diff + 1.6f*spec)*shadowFactor, 255.0f);
+	for (int i = 0; i < 3; i++) color.raw[i] = std::min<float>((float)c.raw[i]*(0.3f + 1.0f*diff + 1.6f*spec), 255.0f);
 
     return false;
 

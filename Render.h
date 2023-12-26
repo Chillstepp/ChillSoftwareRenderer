@@ -53,6 +53,7 @@ static void triangle(std::shared_ptr<Model>& model ,Vec3f *pts, TGAImage &image,
             for (int i = 0; i < 3; i++) {
                 z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
             }
+            Shader->ScreenCoord = {P.x, P.y};
             //在三角形外部则跳过这个点继续循环
             if(ZBuffer[P.x][P.y] > z)
             {

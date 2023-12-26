@@ -235,11 +235,39 @@ Reference:
 
 
 
-#### PCF
+#### PCF(Percentage Closer Filtering)
 
-PCF全称是Percentage Closer Filtering，优化阴影测试时的采样方式。
+PCF全称是Percentage Closer Filtering，优化阴影测试时的采样方式，对一个shadowbuffer上的点的周围3*3采样，相当于模糊处理，以节约阴影锯齿的问题。
 
-#### PCSS
+| Without PCF                                                  | With PCF                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20231226201932225](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231226201932225.png) | ![image-20231226202027397](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231226202027397.png) |
+
+```c++
+    //PCF
+    for(int i = 1; i < width-1; i++)
+    {
+        for(int j = 1; j< height-1; j++)
+        {
+            int SampleShadowNumber = 0;
+            for(int dx = -1; dx <= 1; dx++)
+            {
+                for(int dy = -1; dy <= 1; dy++)
+                {
+                    SampleShadowNumber += ShadowBuffer[i + dx][j + dy];
+                }
+            }
+            float SampleShadowRate = SampleShadowNumber/(3.0f*3.0f);
+            float PCFShadowFactor = 1.0f - 0.7f*SampleShadowRate;
+            image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
+        }
+    }
+
+```
+
+
+
+#### PCSS(Percentage-Closer Soft Shadows)
 
 
 
