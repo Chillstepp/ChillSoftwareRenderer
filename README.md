@@ -1,4 +1,5 @@
 # ChillSoftwareRender
+
 - [ChillSoftwareRender](#chillsoftwarerender)
   * [Show Case](#show-case)
   * [Tech Roadmap](#tech-roadmap)
@@ -13,8 +14,8 @@
         * [阴影悬浮](#----)
         * [阴影锯齿](#----)
         * [大场景中ShadowMap找不到对应的点](#----shadowmap-------)
-      - [PCF](#pcf)
-      - [PCSS](#pcss)
+      - [PCF(Percentage Closer Filtering)](#pcf-percentage-closer-filtering-)
+      - [PCSS(Percentage-Closer Soft Shadows)](#pcss-percentage-closer-soft-shadows-)
       - [CSM(Cascaded Shadow Mapping)](#csm-cascaded-shadow-mapping-)
       - [SDF Soft Shadows](#sdf-soft-shadows)
       - [VSM](#vsm)
@@ -32,23 +33,9 @@
 
 
 
-
-
-
-
 ## Show Case
 
-- Normal Interpolation
-
-<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231127145044441.png" alt="image-20231127145044441" style="zoom: 50%;" />
-
-- **Normal mapping + Texture**
-
-<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231127145300076.png" alt="image-20231127145300076" style="zoom: 50%;" />
-
-**PhongShader: Specular + Ambient + Diffuse**
-
-<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231128141210757.png" alt="image-20231128141210757" style="zoom: 50%;" />
+![image-20231226204111746](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231226204111746.png)
 
 ## Tech Roadmap
 
