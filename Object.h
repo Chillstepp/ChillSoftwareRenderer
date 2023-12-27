@@ -9,6 +9,13 @@
 #include "memory"
 #include "Model.h"
 
+enum class EFaceCulling : uint8_t
+{
+    BackFacingCulling = 0,
+    FrontFacingCulling = 1,
+    DisableFacingCulling = 2
+};
+
 class Object
 {
  public:
@@ -18,6 +25,7 @@ class Object
 	Vec3f Rotation{0.0f, 0.0f, 0.0f};// Roll, Pitch, Yaw
 	Vec3f Scale{1.0f, 1.0f, 1.0f};//
 
+    EFaceCulling FaceCullingType;
 
 };
 
