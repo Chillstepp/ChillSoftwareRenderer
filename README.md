@@ -289,7 +289,24 @@ PCF全称是Percentage Closer Filtering，优化阴影测试时的采样方式�
 
 #### PCSS(Percentage-Closer Soft Shadows)
 
+PCF虽然“软化”了阴影，但是我们阴影往往是由硬阴影+软阴影组成，PCF这种全软化的方式算不上很好的效果。
 
+现实中的阴影往往是如下图，沿着红线越来越“软”
+
+![image-20231228171039621](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231228171039621.png)
+
+PCSS就是动态适应的选择PCF模糊的size：
+
+![image-20231228171344785](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231228171344785.png)
+
+如上图，只需要遮挡处到光源处的竖直距离$d_{Blocker}$, 投射阴影处到光源处的竖直距离$d_{Receiver}$，还需要一个光源，有了Penumbra的大小很容易算出
+
+
+
+Reference:
+
+- [高质量实时渲染：实时软阴影](https://yangwc.com/2021/04/14/PCSS/)
+- Unity SRP 实战（三）PCSS 软阴影与性能优化 - AKG4e3的文章 - 知乎https://zhuanlan.zhihu.com/p/462371147
 
 #### CSM(Cascaded Shadow Mapping)
 
@@ -307,9 +324,11 @@ https://learnopengl.com/Guest-Articles/2021/CSM
 
 #### SDF Soft Shadows
 
-#### VSM
+#### VSM/VSSM
 
+- 实时阴影(三) VSM与VSSM - 陈陈的文章 - 知乎 https://zhuanlan.zhihu.com/p/483674565
 
+#### ESM
 
 ### AO(Ambient Occlusion)
 
