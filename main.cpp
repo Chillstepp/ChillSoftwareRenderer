@@ -114,19 +114,22 @@ int main(int argc, char** argv) {
 	image.write_tga_file("lightview_depth.tga");
 
     //PCF
-    for(int i = 1; i < width-1; i++)
+
+    int sampleHalfSize = 3;
+    int sampleSize = 2*sampleHalfSize + 1;
+    for(int i = sampleHalfSize; i < width - sampleHalfSize; i++)
     {
-        for(int j = 1; j< height-1; j++)
+        for(int j = sampleHalfSize; j < height - sampleHalfSize; j++)
         {
             int SampleShadowNumber = 0;
-            for(int dx = -1; dx <= 1; dx++)
+            for(int dx = -sampleHalfSize; dx <= sampleHalfSize; dx++)
             {
-                for(int dy = -1; dy <= 1; dy++)
+                for(int dy = -sampleHalfSize; dy <= sampleHalfSize; dy++)
                 {
                     SampleShadowNumber += ShadowBuffer[i + dx][j + dy];
                 }
             }
-            float SampleShadowRate = SampleShadowNumber/(3.0f*3.0f);
+            float SampleShadowRate = 1.0f*SampleShadowNumber / (sampleSize * sampleSize);
             float PCFShadowFactor = 1.0f - 0.7f*SampleShadowRate;
             image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
         }
