@@ -136,10 +136,37 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
 	float shadowFactor = 1.0f;
 	constexpr float shadowK = 1.0f;
 	float shadowBias = shadowK*(1.0f - n*l);
+    //PCSS
+    auto findAverageBlockerDis = [&shadowBias](const Vec2i& point, const float receiverDis, const std::vector<std::vector<float>>& depthBufferInLightView, const int sampleRadius = 1){
+        int totalSampleTimes = 0;
+        float totalBlockerDis = 0;
+        for(int dx = -sampleRadius; dx <= sampleRadius; dx++)
+        {
+            for(int dy = -sampleRadius; dy <= sampleRadius; dy++)
+            {
+                float ClosetDis = depthBufferInLightView[point.x + dx][point.y + dy];
+                if(ClosetDis < receiverDis - shadowBias)
+                {
+                    totalBlockerDis += ClosetDis;
+                    ++ totalSampleTimes;
+                }
+            }
+        }
+        return totalBlockerDis / static_cast<float>(totalSampleTimes);
+    };
 	if((int)CorrespondingPoint.x < DepthBuffer.size() && (int)CorrespondingPoint.y < DepthBuffer[(int)CorrespondingPoint.x].size())
 	{
-        ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = (DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias);
-		//shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);//1 is shadow bias
+        bool bBlock = false;
+        if(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias)
+        {
+            bBlock = true;
+            float averageBlockerDis = findAverageBlockerDis({(int)CorrespondingPoint.x, (int)CorrespondingPoint.y}, CorrespondingPoint.z, DepthBuffer, 1);
+            float RecevierDisatance = CorrespondingPoint.z;
+            constexpr float lightRadius = 20.0f;
+            float Penumbra = (RecevierDisatance - averageBlockerDis) * lightRadius / averageBlockerDis;
+        }
+        ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = bBlock;
+		//shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);
 	}
     //ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = shadowFactor
     TGAColor c = model->diffuse(uv);

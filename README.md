@@ -307,6 +307,7 @@ Reference:
 
 - [高质量实时渲染：实时软阴影](https://yangwc.com/2021/04/14/PCSS/)
 - Unity SRP 实战（三）PCSS 软阴影与性能优化 - AKG4e3的文章 - 知乎https://zhuanlan.zhihu.com/p/462371147
+- 高效的泊松圆盘采样：[Robert Bridson](http://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)
 
 #### CSM(Cascaded Shadow Mapping)
 
