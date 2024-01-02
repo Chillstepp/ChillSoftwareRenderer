@@ -170,9 +170,9 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         }
         ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = bBlock;
 
-        float averageBlockerDis = findAverageBlockerDis({(int)CorrespondingPoint.x, (int)CorrespondingPoint.y}, CorrespondingPoint.z, DepthBuffer, 5);
+        float averageBlockerDis = findAverageBlockerDis({(int)CorrespondingPoint.x, (int)CorrespondingPoint.y}, CorrespondingPoint.z, DepthBuffer, 40);
         float RecevierDisatance = CorrespondingPoint.z;
-        constexpr float lightRadius = 20.0f;
+        constexpr float lightRadius = 50.0f;
         float Penumbra = (RecevierDisatance - averageBlockerDis) * lightRadius / averageBlockerDis;
         PenumbraBuffer[ScreenCoord.x][ScreenCoord.y] = Penumbra;
 

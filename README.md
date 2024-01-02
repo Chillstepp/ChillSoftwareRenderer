@@ -302,7 +302,15 @@ PCSS就是动态适应的选择PCF模糊的size：
 
 ![image-20231228171344785](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231228171344785.png)
 
-如上图，只需要遮挡处到光源处的竖直距离$d_{Blocker}$, 投射阴影处到光源处的竖直距离$d_{Receiver}$，还需要一个光源，有了Penumbra的大小很容易算出
+如上图，只需要遮挡处到光源处的竖直距离$d_{Blocker}$, 投射阴影处到光源处的竖直距离$d_{Receiver}$，还需要一个光源大小$W_{Light}$, 
+
+![image-20240102214451107](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240102214451107.png)
+
+我们法线过度好像好生硬，这是因为$d_{Blocker}$出现了突变，即我们计算average $d_{Blocker}$的时候选择的采样半径太小，导致变化不够平滑，我们调整计算平均$d_{Blocker}$的采样大小为40，$W_{light}$大小为50：过度平滑了很多
+
+![image-20240102215517557](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240102215517557.png)
+
+
 
 
 
