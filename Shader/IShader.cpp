@@ -75,7 +75,10 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     gl_vertex = ModelViewMat * gl_vertex;
     Varying_tri[nthvert] = {gl_vertex.raw[0][0]/gl_vertex.raw[3][0], gl_vertex.raw[1][0]/gl_vertex.raw[3][0], gl_vertex.raw[2][0]/gl_vertex.raw[3][0]};
     gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
+    //std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
     gl_vertex /= gl_vertex.raw[3][0];
+    //std::cout<<"test:"<< gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
+
 
     Varying_normal[nthvert] = Matrix<4,1,float>::Proj((ModelViewMat).Inverse().Transpose() * Matrix<4,1,float>::Embed(model->getNormal(iface, nthvert)));
     //std::cout<< iface<< " "<< nthvert<<" " << Varying_normal[nthvert]<<std::endl;
@@ -138,12 +141,16 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
 	float shadowBias = shadowK*(1.0f - n*l);
     //PCSS
     auto findAverageBlockerDis = [&shadowBias](const Vec2i& point, const float receiverDis, const std::vector<std::vector<float>>& depthBufferInLightView, const int sampleRadius = 1){
+        bool overEdge = point.x - sampleRadius < 0 or point.x + sampleRadius >= depthBufferInLightView.size()
+                or point.y - sampleRadius < 0 or point.y + sampleRadius >= depthBufferInLightView[0].size();
+        if(overEdge) return 0.0f;
         int totalSampleTimes = 0;
         float totalBlockerDis = 0;
         for(int dx = -sampleRadius; dx <= sampleRadius; dx++)
         {
             for(int dy = -sampleRadius; dy <= sampleRadius; dy++)
             {
+
                 float ClosetDis = depthBufferInLightView[point.x + dx][point.y + dy];
                 if(ClosetDis < receiverDis - shadowBias)
                 {
@@ -160,12 +167,15 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         if(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias)
         {
             bBlock = true;
-            float averageBlockerDis = findAverageBlockerDis({(int)CorrespondingPoint.x, (int)CorrespondingPoint.y}, CorrespondingPoint.z, DepthBuffer, 1);
-            float RecevierDisatance = CorrespondingPoint.z;
-            constexpr float lightRadius = 20.0f;
-            float Penumbra = (RecevierDisatance - averageBlockerDis) * lightRadius / averageBlockerDis;
         }
         ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = bBlock;
+
+        float averageBlockerDis = findAverageBlockerDis({(int)CorrespondingPoint.x, (int)CorrespondingPoint.y}, CorrespondingPoint.z, DepthBuffer, 5);
+        float RecevierDisatance = CorrespondingPoint.z;
+        constexpr float lightRadius = 20.0f;
+        float Penumbra = (RecevierDisatance - averageBlockerDis) * lightRadius / averageBlockerDis;
+        PenumbraBuffer[ScreenCoord.x][ScreenCoord.y] = Penumbra;
+
 		//shadowFactor = 0.3f + 0.7f*(DepthBuffer[(int)CorrespondingPoint.x][(int)CorrespondingPoint.y] > CorrespondingPoint.z - shadowBias);
 	}
     //ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = shadowFactor
@@ -180,10 +190,16 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
 
 Matrix<4, 1, float> DepthShder::vertex(int iface, int nthvert) {
     const std::vector<int>& Face = model->getface(iface);
-    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
-
-    gl_vertex = ViewPortMat*ProjectionMat*ModelViewMat*gl_vertex;
+    Matrix<4,1,float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
+    //std::cout<<"0x :"<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
+    gl_vertex = ModelViewMat*gl_vertex;
+   // std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
+    gl_vertex = ProjectionMat*gl_vertex;
+   // std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
+    gl_vertex = ViewPortMat*gl_vertex;
+    //std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
     gl_vertex /= gl_vertex.raw[3][0];
+    //std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
     varying_tri[nthvert] = {gl_vertex.raw[0][0], gl_vertex.raw[1][0], gl_vertex.raw[2][0]};
     return gl_vertex;
 }
@@ -192,6 +208,7 @@ bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
     Vec3f p(0,0,0);
     for(int i=0;i<3;i++)
     {
+
         p = p + varying_tri[i] * bar.raw[i];
     }
     float factor = p.z;

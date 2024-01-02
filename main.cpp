@@ -19,7 +19,7 @@ namespace FilePath
 
 constexpr int width  = 2000; // output image size
 constexpr int height = 2000;
-Vec3f LightDir{-3,-3,-3};
+Vec3f LightDir{-1.5,-1.5,-1.5};
 Vec3f LightSpotLoc = -LightDir;
 Vec3f Eye{0,0,1.5};
 Vec3f Center{0,0,0};
@@ -32,6 +32,7 @@ Mat4x4 Projection = projection(1.0f/3.0f);
 std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<bool>>ShadowBuffer(width, std::vector<bool>(height, false));
+std::vector<std::vector<float>>PenumbraBuffer(width,std::vector<float>(height, 0));
 
 int main(int argc, char** argv) {
 
@@ -73,7 +74,7 @@ int main(int argc, char** argv) {
 		auto model = model_WeakPtr.lock();
 		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
-                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer);
+                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer);
 		for(int i=0;i<model->nfaces();i++)
 		{
 			const std::vector<int>& face = model->getface(i);
@@ -113,25 +114,52 @@ int main(int argc, char** argv) {
 	image.flip_vertically();
 	image.write_tga_file("lightview_depth.tga");
 
-    //PCF
+    //Shadow: PCF
 
-    int sampleHalfSize = 3;
-    int sampleSize = 2*sampleHalfSize + 1;
-    for(int i = sampleHalfSize; i < width - sampleHalfSize; i++)
+//    int sampleHalfSize = 3;
+//    int sampleSize = 2*sampleHalfSize + 1;
+//    for(int i = sampleHalfSize; i < width - sampleHalfSize; i++)
+//    {
+//        for(int j = sampleHalfSize; j < height - sampleHalfSize; j++)
+//        {
+//           // if(!ShadowBuffer[i][j]) continue;
+//            int SampleShadowNumber = 0;
+//            for(int dx = -sampleHalfSize; dx <= sampleHalfSize; dx++)
+//            {
+//                for(int dy = -sampleHalfSize; dy <= sampleHalfSize; dy++)
+//                {
+//                    SampleShadowNumber += ShadowBuffer[i + dx][j + dy];
+//                }
+//            }
+//            float SampleShadowRate = 1.0f*SampleShadowNumber / (sampleSize * sampleSize);
+//            float PCFShadowFactor = 1.0f - 0.7f*SampleShadowRate;
+//            image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
+//        }
+//    }
+
+
+    //Shadow: PCSS
+    for(int i = 0; i < width; i++)
     {
-        for(int j = sampleHalfSize; j < height - sampleHalfSize; j++)
+        for(int j = 0; j < height; j++)
         {
+            int sampleHalfSize = PenumbraBuffer[i][j];
+            int sampleSize = 2*sampleHalfSize + 1;
             int SampleShadowNumber = 0;
-            for(int dx = -sampleHalfSize; dx <= sampleHalfSize; dx++)
+            //std::cout<<sampleHalfSize<<"\n";
+            if(i - sampleHalfSize >= 0 && i + sampleHalfSize < width && j - sampleHalfSize >= 0 && j + sampleHalfSize < height)
             {
-                for(int dy = -sampleHalfSize; dy <= sampleHalfSize; dy++)
+                for(int dx = -sampleHalfSize; dx <= sampleHalfSize; dx++)
                 {
-                    SampleShadowNumber += ShadowBuffer[i + dx][j + dy];
+                    for(int dy = -sampleHalfSize; dy <= sampleHalfSize; dy++)
+                    {
+                        SampleShadowNumber += ShadowBuffer[i + dx][j + dy];
+                    }
                 }
+                float SampleShadowRate = 1.0f*SampleShadowNumber / (sampleSize * sampleSize);
+                float PCFShadowFactor = 1.0f - 0.7f*SampleShadowRate;
+                image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
             }
-            float SampleShadowRate = 1.0f*SampleShadowNumber / (sampleSize * sampleSize);
-            float PCFShadowFactor = 1.0f - 0.7f*SampleShadowRate;
-            image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
         }
     }
 
