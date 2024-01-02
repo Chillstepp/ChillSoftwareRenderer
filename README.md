@@ -35,6 +35,9 @@
 
 ## Show Case
 
+- [ ] G-Buffer like global buffer management
+- [ ] Split current shader to multi shader
+
 ![image-20231226204111746](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231226204111746.png)
 
 ## Tech Roadmap
@@ -149,14 +152,14 @@ Here we use  DepthShader to get Depth Buffer
 思路不错但会出现几个问题：
 
 - **阴影失真(Shadow Acne)**
-- **阴影悬浮**
+- **阴影悬浮(Shadow Peter-panning)**
 - **阴影锯齿(Shadow Aliasing)**
 
 - 大场景中Shadow Map找不到对应的点
 
 
 
-##### 阴影失真
+##### Shadow Acne
 
 ![image-20231224202229441](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202229441.png)
 
@@ -217,7 +220,7 @@ Reference:
 - 实时阴影(一) ShadowMap, PCF与Face Culling - 陈陈的文章 - 知乎
   https://zhuanlan.zhihu.com/p/477330771
 
-##### 阴影悬浮
+##### Shadow Peter-panning
 
 这其实是由于ShdowBias导致的：
 
@@ -231,7 +234,7 @@ Reference:
 
 2.也可以当渲染深度贴图时候使用正面剔除（front face culling），我们只利用背面，这样阴影失真也解决了，不再需要bias的辅助。使用这个方法可以免去反复调整bias，并且也不会导致悬浮的问题。但使用该方法的前提是**场景中的物体必须是一个体（有正面和反面）而非原先的一个面**。
 
-##### 阴影锯齿
+##### Shadow Aliasing
 
 我们上述的阴影有的锯齿：
 
@@ -375,6 +378,10 @@ Only SSAO Exist with all white model
 
 
 
+#### FXAA
+
+
+
 ### SSR(Screen Space Reflection)
 
 - [图形学基础|屏幕空间反射(SSR)](https://blog.csdn.net/qjh5606/article/details/120102582#SSR_0)
@@ -393,8 +400,4 @@ Only SSAO Exist with all white model
 
 ### Scene Management
 
-Multi Objects Render Pipeline
-
-![image-20231210235752725](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231210235752725.png)
-
-s
+Multi Objects Render Pipeline is supported~ 
