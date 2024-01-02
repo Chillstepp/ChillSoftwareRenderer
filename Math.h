@@ -400,25 +400,31 @@ static Mat4x4 viewport(int x, int y, int w, int h)
     Mat4x4 ViewPortMat = Mat4x4::Identity();
     ViewPortMat[0][3] = x + w/2.0f;
     ViewPortMat[1][3] = y + h/2.0f;
-	//ViewPortMat[2][3] = 1.0f/2.0f;
+	ViewPortMat[2][3] = 255.0f/2.0f;
     ViewPortMat[0][0] = w/2.0f;
     ViewPortMat[1][1] = h/2.0f;
-	//ViewPortMat[2][2] = 1.0f/2.0f;
+	ViewPortMat[2][2] = 255.0f/2.0f;
     //it's good to let z [0,255], then we can easily get zbuffer image,
     return ViewPortMat;
 }
 
 static Mat4x4 projection(float coeff){
+
+    float near = 1;
+    float far = 5;
     Mat4x4 Persp2Ortho = Mat4x4::Identity();
     Persp2Ortho[0][0] = 1;
     Persp2Ortho[1][1] = 1;
-    Persp2Ortho[2][2] = 1 + 1000;
-    Persp2Ortho[2][3] = -1*1000;
+    Persp2Ortho[2][2] = near + far;
+    Persp2Ortho[2][3] = -near * far;
 	Persp2Ortho[3][2] = 1;
 
-    Mat4x4 Ortho = Mat4x4::Identity();
-    Ortho[2][3] = -(1 + 1000)/2.0f;
-    return Ortho * Persp2Ortho;
+    Mat4x4 Ortho_Translation = Mat4x4::Identity();
+    Mat4x4 Ortho_Scale = Mat4x4::Identity();
+    Ortho_Translation[2][3] = -1.0f*(near + far)/2;
+    Ortho_Scale[2][2] = 2.0f/(far - near);
+
+    return Ortho_Scale * Ortho_Translation * Persp2Ortho;
 }
 
 //for each point, search around point to find max elevation angle
