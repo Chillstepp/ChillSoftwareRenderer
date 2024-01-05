@@ -5,6 +5,7 @@
 #include "Math.h"
 #include "Render.h"
 #include "Shader/IShader.h"
+#include "Shader/PhongShader.h"
 #include "Window.h"
 #include "Scene.h"
 
@@ -31,7 +32,7 @@ Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection(1.0f/3.0f);
 std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
-std::vector<std::vector<bool>>ShadowBuffer(width, std::vector<bool>(height, false));
+std::vector<std::vector<float>>ShadowBuffer(width, std::vector<float>(height, 0));
 std::vector<std::vector<float>>PenumbraBuffer(width,std::vector<float>(height, 0));
 
 int main(int argc, char** argv) {
