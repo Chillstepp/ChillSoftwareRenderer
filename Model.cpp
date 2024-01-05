@@ -87,6 +87,13 @@ Vec2f Model::getuv(int idx) {
     return uvs.at(idx);
 }
 
+Vec2f Model::getuv(int iface, int nthvert) {
+    const std::vector<int> &Face = getface(iface);
+    Vec2f uv = getuv(Face[nthvert * 3 + 1]);
+    return uv;
+}
+
+
 TGAColor Model::diffuse(Vec2f uv) {
     Vec2i uvwh(uv.u*diffusemap_.get_width(), uv.v*diffusemap_.get_height());
     return diffusemap_.get(uvwh.raw[0], uvwh.raw[1]);

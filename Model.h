@@ -28,6 +28,7 @@ public:
     Vec3f getvert(int iface, int nthvert);
     std::vector<int> getface(int idx);
     Vec2f getuv(int idx);
+    Vec2f getuv(int iface, int nthvert);
     Vec3f getNormal(int iface, int nthvert);
     //法线贴图中拿法线
     Vec3f getNormal(Vec2f uvf);
