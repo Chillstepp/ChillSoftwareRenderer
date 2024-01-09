@@ -84,7 +84,10 @@ std::vector<int> Model::getface(int idx){
 }
 
 Vec2f Model::getuv(int idx) {
-    return uvs.at(idx);
+    Vec2f uv = uvs.at(idx);
+    uv.u = fmodf(uv.u, 1);
+    uv.v = fmodf(uv.v, 1);
+    return uv;
 }
 
 Vec2f Model::getuv(int iface, int nthvert) {
