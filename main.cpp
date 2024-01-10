@@ -8,6 +8,8 @@
 #include "Shader/PhongShader.h"
 #include "Window.h"
 #include "Scene.h"
+#include "Shader/GBuffer.h"
+#include "random"
 
 namespace FilePath
 {
@@ -15,8 +17,9 @@ namespace FilePath
 	auto boogie = "../obj/boggie/body.obj";
 	auto diablo = "../obj/diablo3_pose/diablo3_pose.obj";
 	auto floor = "../obj/floor.obj";
+    auto gun = "../obj/gun/Cerberus.obj";
+    auto helmet = "../obj/helmet/helmet.obj";
 }
-
 
 constexpr int width  = 2000; // output image size
 constexpr int height = 2000;
@@ -34,10 +37,15 @@ std::vector<std::vector<float>>ZBuffer(width,std::vector<float>(height, std::num
 std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>>ShadowBuffer(width, std::vector<float>(height, 0));
 std::vector<std::vector<float>>PenumbraBuffer(width,std::vector<float>(height, 0));
+std::vector<std::vector<Vec3f>>NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
+
+std::random_device rd;
+std::mt19937 RandomGen(rd());
+std::uniform_real_distribution<float> UniformDis01(0.0f, 1.0f);
 
 int main(int argc, char** argv) {
 
-	std::unique_ptr<Scene> scene = std::make_unique<Scene>();
+    std::unique_ptr<Scene> scene = std::make_unique<Scene>();
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
 	std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
 	scene->Add(model_floor);
@@ -75,7 +83,7 @@ int main(int argc, char** argv) {
 		auto model = model_WeakPtr.lock();
 		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
-                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer);
+                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer, NormalBuffer);
 		for(int i=0;i<model->nfaces();i++)
 		{
 			const std::vector<int>& face = model->getface(i);
@@ -176,20 +184,48 @@ int main(int argc, char** argv) {
 	image2.write_tga_file("output.tga");
 
     //post-process : SSAO
-    for (int x=0; x<width; x++) {
+
+    Mat4x4 WorldSpaceMat2ScreenSpace = ViewPort*Projection*ModelView;
+    Mat4x4 ScreenSpace2WorldSpaceMat = WorldSpaceMat2ScreenSpace.Inverse();
+    auto ans = ScreenSpace2WorldSpaceMat * WorldSpaceMat2ScreenSpace;
+    for (int x=0; x < width; x++) {
         for (int y = 0; y < height; y++) {
-            if(ZBuffer[x][y] < -1e5) continue;
-            float total = 0;
-            for(float angle = 0; angle<M_PI*2.0f-(1e-4); angle += M_PI/4)
+            if(ZBuffer[x][y] > 1e5) continue;
+            Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(Vec3f(x, y, ZBuffer[x][y]));
+            Mat4x1 WorldCoord = ScreenSpace2WorldSpaceMat * ScreenSpaceCoord;
+            Vec3f n = NormalBuffer[x][y];
+            if(n.norm() == 0) continue;
+            Mat3x3 RotateMatrix = {
+                    {n.raw[0], 0, 0},
+                    {0, n.raw[1], 0},
+                    {0, 0, n.raw[2]}
+            };
+            std::vector<Vec3f>RandVectors;
+            int Count = 0;
+            int Total = 64;
+            for(int i = 0; i < Total; i++)
             {
-                total += M_PI/2.0f - max_elevation_angle(ZBuffer, Vec2f(x,y), Vec2f(cos(angle), sin(angle)), width, height);
+                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen)};
+                float randR = 0.001*UniformDis01(RandomGen);
+                Vec3f SampleVec = (RotateMatrix * SamplePoint.ToMatrix()).ToVec3f().normlize() * randR;
+                RandVectors.emplace_back(SampleVec);
+                WorldCoord /= WorldCoord.raw[3][0];
+                WorldCoord.raw[0][0] += SampleVec.raw[0];
+                WorldCoord.raw[1][0] += SampleVec.raw[1];
+                WorldCoord.raw[2][0] += SampleVec.raw[2];
+                Mat4x1 SamplePointInScreenSpace = WorldSpaceMat2ScreenSpace * WorldCoord;
+                SamplePointInScreenSpace /= SamplePointInScreenSpace.raw[3][0];
+                Vec2i ScreenXY(SamplePointInScreenSpace.raw[0][0], SamplePointInScreenSpace.raw[1][0]);
+
+                if (ScreenXY.x<width and ScreenXY.x>=0 and ScreenXY.y>=0 and ScreenXY.y<height and ZBuffer[ScreenXY.x][ScreenXY.y] > SamplePointInScreenSpace.raw[3][0])
+                {
+                    Count ++;
+                }
             }
-            total /= (M_PI/2)*8;
-            total = std::pow(total, 100.0f);
-            image3.set(x, y, TGAColor(total*255, total*255, total*255, 255));
+            image3.set(x,y, TGAColor(255, 255, 255, 255) * (Count / Total));
+
         }
     }
-
 
     image3.flip_vertically();//left-bottom is the origin
     image3.write_tga_file("AO.tga");

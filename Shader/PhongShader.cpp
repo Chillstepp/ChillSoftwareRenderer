@@ -19,7 +19,6 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     gl_vertex /= gl_vertex.raw[3][0];
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
             (ModelViewMat).Inverse().Transpose() * Mat4x1 ::Embed(model->getNormal(iface, nthvert)));
-
     return gl_vertex;
 }
 
@@ -55,6 +54,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv));
     float diff = std::max(0.f, -n * l);
 
+    NormalBuffer[ScreenCoord.x][ScreenCoord.y] = n;
 
     //Shadow
     Vec3f p = ChillMathUtility::TriangleBarycentricInterp(Varying_tri, bar);

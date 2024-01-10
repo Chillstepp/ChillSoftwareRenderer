@@ -14,6 +14,7 @@ private:
     const std::vector<std::vector<float>>&DepthBuffer;
     std::vector<std::vector<float>>&ShadowBuffer;
     std::vector<std::vector<float>>&PenumbraBuffer;
+    std::vector<std::vector<Vec3f>>&NormalBuffer;
     Vec3f LightDir;
     Mat4x4 ProjectionMat;
     Mat4x4 ModelViewMat;
@@ -31,9 +32,11 @@ private:
 
 public:
     explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_, Vec3f LightDir_,
-                         Vec3f Eye_, Vec3f Center_, Mat4x4 Uniform_MShadow_, const std::vector<std::vector<float>>&DepthBuffer_, std::vector<std::vector<float>>&ShadowBuffer_,std::vector<std::vector<float>>&PenumbraBuffer_) :
+                         Vec3f Eye_, Vec3f Center_, Mat4x4 Uniform_MShadow_, const std::vector<std::vector<float>>&DepthBuffer_, std::vector<std::vector<float>>&ShadowBuffer_,
+                         std::vector<std::vector<float>>&PenumbraBuffer_, std::vector<std::vector<Vec3f>>&NormalBuffer_) :
             model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_),
-            Uniform_MShadow(Uniform_MShadow_), DepthBuffer(DepthBuffer_),Eye(Eye_), Center(Center_), ShadowBuffer(ShadowBuffer_), PenumbraBuffer(PenumbraBuffer_)
+            Uniform_MShadow(Uniform_MShadow_), DepthBuffer(DepthBuffer_),Eye(Eye_), Center(Center_), ShadowBuffer(ShadowBuffer_),
+            PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_)
     {
         Uniform_M = ModelViewMat_;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
