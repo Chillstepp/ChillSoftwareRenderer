@@ -85,8 +85,8 @@ std::vector<int> Model::getface(int idx){
 
 Vec2f Model::getuv(int idx) {
     Vec2f uv = uvs.at(idx);
-    uv.u = fmodf(uv.u, 1);
-    uv.v = fmodf(uv.v, 1);
+    uv.u = fmodf(uv.u, 1.0000001);
+    uv.v = fmodf(uv.v, 1.0000001);
     return uv;
 }
 
