@@ -21,11 +21,11 @@ namespace FilePath
     auto helmet = "../obj/helmet/helmet.obj";
 }
 
-constexpr int width  = 2000; // output image size
-constexpr int height = 2000;
+constexpr int width  = 1000; // output image size
+constexpr int height = 1000;
 Vec3f LightDir{-1.5,-1.5,-1.5};
 Vec3f LightSpotLoc = -LightDir;
-Vec3f Eye{0,0,1.5};
+Vec3f Eye{0,0,1.0};
 Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 
@@ -38,6 +38,7 @@ std::vector<std::vector<float>>DepthBuffer(width,std::vector<float>(height, std:
 std::vector<std::vector<float>>ShadowBuffer(width, std::vector<float>(height, 0));
 std::vector<std::vector<float>>PenumbraBuffer(width,std::vector<float>(height, 0));
 std::vector<std::vector<Vec3f>>NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
+std::vector<std::vector<Mat3x3>>TBNBuffer(width, std::vector<Mat3x3>(height, Mat3x3()));
 
 std::random_device rd;
 std::mt19937 RandomGen(rd());
@@ -49,7 +50,7 @@ int main(int argc, char** argv) {
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
 	std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
 	scene->Add(model_floor);
-	scene->Add(model_diablo);
+	//scene->Add(model_diablo);
 
 
 
@@ -83,7 +84,7 @@ int main(int argc, char** argv) {
 		auto model = model_WeakPtr.lock();
 		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
-                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer, NormalBuffer);
+                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer, NormalBuffer, TBNBuffer);
 		for(int i=0;i<model->nfaces();i++)
 		{
 			const std::vector<int>& face = model->getface(i);
@@ -195,19 +196,17 @@ int main(int argc, char** argv) {
             Mat4x1 WorldCoord = ScreenSpace2WorldSpaceMat * ScreenSpaceCoord;
             Vec3f n = NormalBuffer[x][y];
             if(n.norm() == 0) continue;
-            Mat3x3 RotateMatrix = {
-                    {n.raw[0], 0, 0},
-                    {0, n.raw[1], 0},
-                    {0, 0, n.raw[2]}
-            };
+            Mat3x3 RotateMatrix = TBNBuffer[x][y];
             std::vector<Vec3f>RandVectors;
             int Count = 0;
-            int Total = 64;
-            for(int i = 0; i < Total; i++)
+            int Total = 0;
+            for(int i = 0; i < 64; i++)
             {
-                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen)};
-                float randR = 0.001*UniformDis01(RandomGen);
-                Vec3f SampleVec = (RotateMatrix * SamplePoint.ToMatrix()).ToVec3f().normlize() * randR;
+                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen)* 2.0f - 1.0f};
+                float scale = 1.0f * i / 63;
+                scale = ChillMathUtility::Lerp(0.1f, 1.0f, scale*scale);
+                float randR = scale * 0.1f;
+                Vec3f SampleVec = (SamplePoint.ToMatrix()).ToVec3f().normlize() * randR;
                 RandVectors.emplace_back(SampleVec);
                 WorldCoord /= WorldCoord.raw[3][0];
                 WorldCoord.raw[0][0] += SampleVec.raw[0];
@@ -217,13 +216,14 @@ int main(int argc, char** argv) {
                 SamplePointInScreenSpace /= SamplePointInScreenSpace.raw[3][0];
                 Vec2i ScreenXY(SamplePointInScreenSpace.raw[0][0], SamplePointInScreenSpace.raw[1][0]);
 
-                if (ScreenXY.x<width and ScreenXY.x>=0 and ScreenXY.y>=0 and ScreenXY.y<height and ZBuffer[ScreenXY.x][ScreenXY.y] > SamplePointInScreenSpace.raw[3][0])
+                if (ScreenXY.x<width and ScreenXY.x>=0 and ScreenXY.y>=0 and ScreenXY.y<height)
                 {
-                    Count ++;
+                    float z = ZBuffer[ScreenXY.x][ScreenXY.y];
+                    if(ZBuffer[ScreenXY.x][ScreenXY.y] > SamplePointInScreenSpace.raw[2][0]) Count ++;
                 }
             }
-            image3.set(x,y, TGAColor(255, 255, 255, 255) * (Count / Total));
-
+            image3.set(x,y, TGAColor(255, 255, 255, 255) * (1.0f * Count / 64));
+            std::cout<<(1.0f * Count / 64)<<"\n";
         }
     }
 

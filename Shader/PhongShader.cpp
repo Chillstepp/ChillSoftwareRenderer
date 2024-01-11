@@ -46,6 +46,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
             {bn.x,        bn.y,        bn.z},
     };
     Vec3f tangentSpaceNormal = model->getNormal(uv);
+    TBNBuffer[ScreenCoord.x][ScreenCoord.y] = TBN;
     Matrix Mat_n = TBN.Transpose() * tangentSpaceNormal.ToMatrix();//TBN^T is same as TBN^-1
     Vec3f n = Mat_n.ToVec3f().normlize();
     Vec3f l = (Uniform_M.RemoveHomogeneousDim() * LightDir.ToMatrix()).ToVec3f().normlize();

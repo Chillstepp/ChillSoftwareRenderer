@@ -525,6 +525,10 @@ namespace ChillMathUtility {
         return rotateAroundX * rotateAroundY * rotateAroundZ;
     }
 
+    static float Lerp(float from, float to, float t)
+    {
+        return from + (to - from)*t;
+    }
 
 }
 

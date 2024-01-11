@@ -372,7 +372,24 @@ Only SSAO Exist with all white model
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | ![image-20231204200320537](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204200320537.png) | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204201046444.png" alt="image-20231204201046444" style="zoom:85%;" /> |
 
-#### HBAO
+#### HBAO(Image-space Horizon-based Ambient Occlusion)
+
+Only SSAO Exist with all white model 
+
+| With HBAO                                                    | Without HBAO                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20231204200320537](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204200320537.png) | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204201046444.png" alt="image-20231204201046444" style="zoom:85%;" /> |
+
+工作流是:
+
+- 降低分辨率
+- 对每个随机方向进行RayMatching找最大水平角
+- 做Blur
+
+
+
+HBAO(屏幕空间的环境光遮蔽) - YiQiuuu的文章 - 知乎
+https://zhuanlan.zhihu.com/p/103683536
 
 
 
