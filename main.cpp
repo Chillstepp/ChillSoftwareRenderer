@@ -39,6 +39,7 @@ std::vector<std::vector<float>>ShadowBuffer(width, std::vector<float>(height, 0)
 std::vector<std::vector<float>>PenumbraBuffer(width,std::vector<float>(height, 0));
 std::vector<std::vector<Vec3f>>NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
 std::vector<std::vector<Mat3x3>>TBNBuffer(width, std::vector<Mat3x3>(height, Mat3x3()));
+std::vector<std::vector<float>>ScreenPosWBuffer(width, std::vector<float>(height, 0));//归一化坐标
 
 std::random_device rd;
 std::mt19937 RandomGen(rd());
@@ -50,7 +51,7 @@ int main(int argc, char** argv) {
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
 	std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
 	scene->Add(model_floor);
-	//scene->Add(model_diablo);
+	scene->Add(model_diablo);
 
 
 
@@ -84,7 +85,7 @@ int main(int argc, char** argv) {
 		auto model = model_WeakPtr.lock();
 		Mat4x4 Uniform_MShadow = (ViewPort*projection(1.0f/3.0f)*lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
 		std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
-                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer, NormalBuffer, TBNBuffer);
+                                                                        LightDir, Eye, Center, Uniform_MShadow, DepthBuffer, ShadowBuffer, PenumbraBuffer, NormalBuffer, TBNBuffer,ScreenPosWBuffer);
 		for(int i=0;i<model->nfaces();i++)
 		{
 			const std::vector<int>& face = model->getface(i);
@@ -185,45 +186,67 @@ int main(int argc, char** argv) {
 	image2.write_tga_file("output.tga");
 
     //post-process : SSAO
-
     Mat4x4 WorldSpaceMat2ScreenSpace = ViewPort*Projection*ModelView;
-    Mat4x4 ScreenSpace2WorldSpaceMat = WorldSpaceMat2ScreenSpace.Inverse();
-    auto ans = ScreenSpace2WorldSpaceMat * WorldSpaceMat2ScreenSpace;
+    Mat4x4 ScreenSpace2WorldSpaceMat = (Projection*ModelView).Inverse();
     for (int x=0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             if(ZBuffer[x][y] > 1e5) continue;
-            Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(Vec3f(x, y, ZBuffer[x][y]));
+            if(x==110 && y  == 64)
+            {
+                std::cout<<"1"<<std::endl;
+            }
+            Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(
+                    Vec3f((x - 1.0f*width/2)/(1.0f*width/2),
+                          (y - 1.0f*height/2)/(1.0f*height/2),
+                          (ZBuffer[x][y] - 255.0f/2.0f)/(255.0f/2.0f)));
+            float test = ScreenPosWBuffer[x][y];
+            //ScreenSpaceCoord *= ScreenPosWBuffer[x][y];
             Mat4x1 WorldCoord = ScreenSpace2WorldSpaceMat * ScreenSpaceCoord;
+            WorldCoord /= WorldCoord.raw[3][0];
             Vec3f n = NormalBuffer[x][y];
             if(n.norm() == 0) continue;
             Mat3x3 RotateMatrix = TBNBuffer[x][y];
-            std::vector<Vec3f>RandVectors;
+
             int Count = 0;
             int Total = 0;
-            for(int i = 0; i < 64; i++)
+            int SampleTimes = 64;
+            float randR = 0.035f;
+            for(int i = 0; i < SampleTimes; i++)
             {
-                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen)* 2.0f - 1.0f};
-                float scale = 1.0f * i / 63;
-                scale = ChillMathUtility::Lerp(0.1f, 1.0f, scale*scale);
-                float randR = scale * 0.1f;
-                Vec3f SampleVec = (SamplePoint.ToMatrix()).ToVec3f().normlize() * randR;
-                RandVectors.emplace_back(SampleVec);
-                WorldCoord /= WorldCoord.raw[3][0];
-                WorldCoord.raw[0][0] += SampleVec.raw[0];
-                WorldCoord.raw[1][0] += SampleVec.raw[1];
-                WorldCoord.raw[2][0] += SampleVec.raw[2];
-                Mat4x1 SamplePointInScreenSpace = WorldSpaceMat2ScreenSpace * WorldCoord;
+                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen)};
+                Vec3f RandomVec = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f};
+                Vec3f tangent = (RandomVec - NormalBuffer[x][y] * (RandomVec * NormalBuffer[x][y])).normlize();//Gramm-Schmidt Process
+                Vec3f bitangent = NormalBuffer[x][y] ^ tangent;
+                Mat3x3 TBN{
+                    {tangent.x, bitangent.x, NormalBuffer[x][y].x},
+                    {tangent.y, bitangent.y, NormalBuffer[x][y].y},
+                    {tangent.z, bitangent.z, NormalBuffer[x][y].z}
+                };
+
+                Vec3f SampleVec = SamplePoint;
+                SampleVec = (TBN * SampleVec.ToMatrix()).ToVec3f().normlize();
+                float scale = std::lerp(0.1f, 1.0f, (1.0f * i / SampleTimes) * (1.0f * i / SampleTimes));
+                SampleVec *= randR * scale;
+                Mat4x1 SampleWorldCoord{
+                    {WorldCoord.raw[0][0] + SampleVec.raw[0]},
+                    {WorldCoord.raw[1][0] + SampleVec.raw[1]},
+                    {WorldCoord.raw[2][0] + SampleVec.raw[2]},
+                    {1.0f}
+                };
+
+
+                Mat4x1 SamplePointInScreenSpace = WorldSpaceMat2ScreenSpace * SampleWorldCoord;
                 SamplePointInScreenSpace /= SamplePointInScreenSpace.raw[3][0];
                 Vec2i ScreenXY(SamplePointInScreenSpace.raw[0][0], SamplePointInScreenSpace.raw[1][0]);
 
                 if (ScreenXY.x<width and ScreenXY.x>=0 and ScreenXY.y>=0 and ScreenXY.y<height)
                 {
-                    float z = ZBuffer[ScreenXY.x][ScreenXY.y];
-                    if(ZBuffer[ScreenXY.x][ScreenXY.y] > SamplePointInScreenSpace.raw[2][0]) Count ++;
+                    if(ZBuffer[ScreenXY.x][ScreenXY.y] >= SamplePointInScreenSpace.raw[2][0]) Count ++;//occu
+                    Total++;
                 }
             }
-            image3.set(x,y, TGAColor(255, 255, 255, 255) * (1.0f * Count / 64));
-            std::cout<<(1.0f * Count / 64)<<"\n";
+             TGAColor c = TGAColor(255, 255, 255, 255) * (1.0f * Count / SampleTimes);
+            image3.set(x,y, c);
         }
     }
 

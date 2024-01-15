@@ -10,7 +10,7 @@
 #include "iostream"
 #include "TGAImage.h"
 
-template<size_t DimRow, size_t DimCol, typename T>
+template<size_t DimRow, size_t DimCol, typename T> requires std::is_pod_v<T>
 class Matrix;
 
 template<typename T>
@@ -143,8 +143,11 @@ struct Vec3
                                {z}};
     }
 
-    inline Vec3<T> operator*=(const float &f) const {
-        return this->operator*(f);
+    inline Vec3<T> &operator*=(const float &f) {
+        x *= f;
+        y *= f;
+        z *= f;
+        return *this;
     }
 
     inline T operator*(const Vec3<T> &vec) const {
@@ -188,13 +191,15 @@ using Vec3i = Vec3<int>;
 using Vec2i = Vec2<int>;
 
 
-template<size_t DimRow, size_t DimCol, typename T>
+template<size_t DimRow, size_t DimCol, typename T> requires std::is_pod_v<T>
 class Matrix
 {
 public:
-    T raw[DimRow][DimCol];
+    T raw[DimRow][DimCol] = {0};
 
-    Matrix() {};
+    Matrix() {
+
+    };
 
     Matrix(std::initializer_list<std::vector<float>> RowVecs) {
         int RowNumber = 0;
@@ -216,12 +221,23 @@ public:
         return raw[idx];
     }
 
-    Matrix<DimRow, DimCol, float> operator/=(const float d) {
+    Matrix<DimRow, DimCol, float>& operator/=(const float d) {
         for (int i = 0; i < DimRow; i++)
         {
             for (int j = 0; j < DimCol; j++)
             {
                 raw[i][j] /= d;
+            }
+        }
+        return *this;
+    }
+
+    Matrix<DimRow, DimCol, float> &operator*=(const float d) {
+        for (int i = 0; i < DimRow; i++)
+        {
+            for (int j = 0; j < DimCol; j++)
+            {
+                raw[i][j] *= d;
             }
         }
         return *this;
@@ -446,7 +462,7 @@ static Mat4x4 viewport(int x, int y, int w, int h) {
 static Mat4x4 projection(float coeff) {
 
     float near = 1;
-    float far = 5;
+    float far = 1000;
     Mat4x4 Persp2Ortho = Mat4x4::Identity();
     Persp2Ortho[0][0] = 1;
     Persp2Ortho[1][1] = 1;

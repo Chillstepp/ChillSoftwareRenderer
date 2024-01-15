@@ -1,5 +1,7 @@
 # ChillSoftwareRender
 
+![Snipaste_2024-01-15_14-23-30](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/Snipaste_2024-01-15_14-23-30.png)
+
 - [ChillSoftwareRender](#chillsoftwarerender)
   * [Show Case](#show-case)
   * [Tech Roadmap](#tech-roadmap)
@@ -366,7 +368,11 @@ https://learnopengl.com/Guest-Articles/2021/CSM
 - 由于深度图精度问题, 即使本身深度通过的地方, 在相机看来不通过, 产生z-fighting现象.
 - 降噪: 双边滤波
 
-Only SSAO Exist with all white model 
+
+
+工作流：
+
+![image-20240115142822822](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240115142822822.png)
 
 | With SSAO                                                    | Without SSAO                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |

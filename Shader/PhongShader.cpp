@@ -16,7 +16,9 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     gl_vertex = ModelViewMat * gl_vertex;
     Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
     gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
+    Varying_w[nthvert] = gl_vertex.raw[3][0];
     gl_vertex /= gl_vertex.raw[3][0];
+
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
             (ModelViewMat).Inverse().Transpose() * Mat4x1 ::Embed(model->getNormal(iface, nthvert)));
     return gl_vertex;
@@ -25,6 +27,12 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
 bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     //uv interp
     Vec2f uv = ChillMathUtility::TriangleBarycentricInterp(Varying_uv, bar);
+    float w = Varying_w[0] * bar.raw[0] + Varying_w[1] * bar.raw[1] + Varying_w[2] * bar.raw[2];
+    if(ScreenCoord.x == 110 and ScreenCoord.y == 65)
+    {
+        std::cout<<1+1<<std::endl;
+    }
+    ScreenPosWBuffer[ScreenCoord.x][ScreenCoord.y] = w;
 
     //tangent-space-normal-mapping
     Vec3f bn = ChillMathUtility::TriangleBarycentricInterp(Varying_normal, bar).normlize();
