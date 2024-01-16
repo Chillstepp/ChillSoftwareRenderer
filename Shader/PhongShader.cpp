@@ -13,6 +13,7 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Varying_uv[nthvert] = model->getuv(iface, nthvert);
 
     Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
+    Varying_WorldPos[nthvert] = model->getvert(iface, nthvert);
     gl_vertex = ModelViewMat * gl_vertex;
     Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
     gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
@@ -28,11 +29,13 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     //uv interp
     Vec2f uv = ChillMathUtility::TriangleBarycentricInterp(Varying_uv, bar);
     float w = Varying_w[0] * bar.raw[0] + Varying_w[1] * bar.raw[1] + Varying_w[2] * bar.raw[2];
-    if(ScreenCoord.x == 110 and ScreenCoord.y == 65)
+    if(ScreenCoord.x == 500 and ScreenCoord.y == 500)
     {
         std::cout<<1+1<<std::endl;
+
     }
-    ScreenPosWBuffer[ScreenCoord.x][ScreenCoord.y] = w;
+
+    ScreenPosWBuffer[ScreenCoord.x][ScreenCoord.y] = ChillMathUtility::TriangleBarycentricInterp(Varying_WorldPos, bar);
 
     //tangent-space-normal-mapping
     Vec3f bn = ChillMathUtility::TriangleBarycentricInterp(Varying_normal, bar).normlize();

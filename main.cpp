@@ -39,7 +39,7 @@ std::vector<std::vector<float>>ShadowBuffer(width, std::vector<float>(height, 0)
 std::vector<std::vector<float>>PenumbraBuffer(width,std::vector<float>(height, 0));
 std::vector<std::vector<Vec3f>>NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
 std::vector<std::vector<Mat3x3>>TBNBuffer(width, std::vector<Mat3x3>(height, Mat3x3()));
-std::vector<std::vector<float>>ScreenPosWBuffer(width, std::vector<float>(height, 0));//归一化坐标
+std::vector<std::vector<Vec3f>>ScreenPosWBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));//归一化坐标
 
 std::random_device rd;
 std::mt19937 RandomGen(rd());
@@ -48,7 +48,7 @@ std::uniform_real_distribution<float> UniformDis01(0.0f, 1.0f);
 int main(int argc, char** argv) {
 
     std::unique_ptr<Scene> scene = std::make_unique<Scene>();
-    std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
+    std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::helmet);
 	std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
 	scene->Add(model_floor);
 	scene->Add(model_diablo);
@@ -104,6 +104,7 @@ int main(int argc, char** argv) {
             if(tri_normal.normlize() * (WorldCoords[0] - Eye) >= 0) //back face culling
             {
                 triangle(model,ScreenCoords, image2,ZBuffer,Shader);
+                float ttt = 10;
             }
 		}
 
@@ -191,7 +192,7 @@ int main(int argc, char** argv) {
     for (int x=0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             if(ZBuffer[x][y] > 1e5) continue;
-            if(x==110 && y  == 64)
+            if(x==500 && y==500)
             {
                 std::cout<<"1"<<std::endl;
             }
@@ -199,18 +200,15 @@ int main(int argc, char** argv) {
                     Vec3f((x - 1.0f*width/2)/(1.0f*width/2),
                           (y - 1.0f*height/2)/(1.0f*height/2),
                           (ZBuffer[x][y] - 255.0f/2.0f)/(255.0f/2.0f)));
-            float test = ScreenPosWBuffer[x][y];
-            //ScreenSpaceCoord *= ScreenPosWBuffer[x][y];
             Mat4x1 WorldCoord = ScreenSpace2WorldSpaceMat * ScreenSpaceCoord;
             WorldCoord /= WorldCoord.raw[3][0];
             Vec3f n = NormalBuffer[x][y];
             if(n.norm() == 0) continue;
-            Mat3x3 RotateMatrix = TBNBuffer[x][y];
 
             int Count = 0;
             int Total = 0;
             int SampleTimes = 64;
-            float randR = 0.035f;
+            float randR = 0.070f;
             for(int i = 0; i < SampleTimes; i++)
             {
                 Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen)};
@@ -223,9 +221,10 @@ int main(int argc, char** argv) {
                     {tangent.z, bitangent.z, NormalBuffer[x][y].z}
                 };
 
+
                 Vec3f SampleVec = SamplePoint;
                 SampleVec = (TBN * SampleVec.ToMatrix()).ToVec3f().normlize();
-                float scale = std::lerp(0.1f, 1.0f, (1.0f * i / SampleTimes) * (1.0f * i / SampleTimes));
+                float scale = 1.0f;//std::clamp(0.1f, 1.0f, 1.0f * (i+1) / 64);
                 SampleVec *= randR * scale;
                 Mat4x1 SampleWorldCoord{
                     {WorldCoord.raw[0][0] + SampleVec.raw[0]},
@@ -241,11 +240,11 @@ int main(int argc, char** argv) {
 
                 if (ScreenXY.x<width and ScreenXY.x>=0 and ScreenXY.y>=0 and ScreenXY.y<height)
                 {
-                    if(ZBuffer[ScreenXY.x][ScreenXY.y] >= SamplePointInScreenSpace.raw[2][0]) Count ++;//occu
+                    if(ZBuffer[ScreenXY.x][ScreenXY.y] <= SamplePointInScreenSpace.raw[2][0]) Count ++;//occu
                     Total++;
                 }
             }
-             TGAColor c = TGAColor(255, 255, 255, 255) * (1.0f * Count / SampleTimes);
+             TGAColor c = TGAColor(255, 255, 255, 255) * (1 - std::pow(1.0f * Count / SampleTimes, 1));
             image3.set(x,y, c);
         }
     }

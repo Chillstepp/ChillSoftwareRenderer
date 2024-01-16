@@ -16,7 +16,7 @@ private:
     std::vector<std::vector<float>>&PenumbraBuffer;
     std::vector<std::vector<Vec3f>>&NormalBuffer;
     std::vector<std::vector<Mat3x3>>&TBNBuffer;
-    std::vector<std::vector<float>>&ScreenPosWBuffer;
+    std::vector<std::vector<Vec3f>>&ScreenPosWBuffer;
     Vec3f LightDir;
     Mat4x4 ProjectionMat;
     Mat4x4 ModelViewMat;
@@ -27,6 +27,7 @@ private:
 
     std::vector<Vec2f>Varying_uv{3, {0, 0}};
     std::vector<Vec3f>Varying_tri{3, {0, 0, 0}};
+    std::vector<Vec3f>Varying_WorldPos{3, {0, 0, 0}};
     std::vector<Vec3f>Varying_normal{3, {0, 0, 0}};
     std::vector<float>Varying_w{0.0f, 0.0f, 0.0f};
     Mat4x4 Uniform_M;
@@ -37,7 +38,7 @@ public:
     explicit PhongShader(std::shared_ptr<Model>& model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,Mat4x4 ViewPortMat_, Vec3f LightDir_,
                          Vec3f Eye_, Vec3f Center_, Mat4x4 Uniform_MShadow_, const std::vector<std::vector<float>>&DepthBuffer_, std::vector<std::vector<float>>&ShadowBuffer_,
                          std::vector<std::vector<float>>&PenumbraBuffer_, std::vector<std::vector<Vec3f>>&NormalBuffer_, std::vector<std::vector<Mat3x3>>&TBNBuffer_,
-                         std::vector<std::vector<float>>&ScreenPosWBuffer_) :
+                         std::vector<std::vector<Vec3f>>&ScreenPosWBuffer_) :
             model(model_), ProjectionMat(ProjectionMat_),ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_), LightDir(LightDir_),
             Uniform_MShadow(Uniform_MShadow_), DepthBuffer(DepthBuffer_),Eye(Eye_), Center(Center_), ShadowBuffer(ShadowBuffer_),
             PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_), TBNBuffer(TBNBuffer_), ScreenPosWBuffer(ScreenPosWBuffer_)
