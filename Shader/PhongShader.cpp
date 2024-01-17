@@ -28,12 +28,6 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
 bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     //uv interp
     Vec2f uv = ChillMathUtility::TriangleBarycentricInterp(Varying_uv, bar);
-    float w = Varying_w[0] * bar.raw[0] + Varying_w[1] * bar.raw[1] + Varying_w[2] * bar.raw[2];
-    if(ScreenCoord.x == 500 and ScreenCoord.y == 500)
-    {
-        std::cout<<1+1<<std::endl;
-
-    }
 
     ScreenPosWBuffer[ScreenCoord.x][ScreenCoord.y] = ChillMathUtility::TriangleBarycentricInterp(Varying_WorldPos, bar);
 
@@ -66,7 +60,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv));
     float diff = std::max(0.f, -n * l);
 
-    NormalBuffer[ScreenCoord.x][ScreenCoord.y] = n;
+    NormalBuffer[ScreenCoord.x][ScreenCoord.y] =  Mat4x1::Proj(ModelViewMat.Inverse() * Mat4x1::Embed(n));
 
     //Shadow
     Vec3f p = ChillMathUtility::TriangleBarycentricInterp(Varying_tri, bar);

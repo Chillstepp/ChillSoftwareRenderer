@@ -21,11 +21,11 @@ namespace FilePath
     auto helmet = "../obj/helmet/helmet.obj";
 }
 
-constexpr int width  = 1000; // output image size
-constexpr int height = 1000;
+constexpr int width  = 2000; // output image size
+constexpr int height = 2000;
 Vec3f LightDir{-1.5,-1.5,-1.5};
 Vec3f LightSpotLoc = -LightDir;
-Vec3f Eye{0,0,1.0};
+Vec3f Eye{0,0,1.5};
 Vec3f Center{0,0,0};
 Vec3f Up{0,1,0};
 
@@ -48,7 +48,7 @@ std::uniform_real_distribution<float> UniformDis01(0.0f, 1.0f);
 int main(int argc, char** argv) {
 
     std::unique_ptr<Scene> scene = std::make_unique<Scene>();
-    std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::helmet);
+    std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
 	std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
 	scene->Add(model_floor);
 	scene->Add(model_diablo);
@@ -192,10 +192,6 @@ int main(int argc, char** argv) {
     for (int x=0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             if(ZBuffer[x][y] > 1e5) continue;
-            if(x==500 && y==500)
-            {
-                std::cout<<"1"<<std::endl;
-            }
             Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(
                     Vec3f((x - 1.0f*width/2)/(1.0f*width/2),
                           (y - 1.0f*height/2)/(1.0f*height/2),
@@ -224,8 +220,9 @@ int main(int argc, char** argv) {
 
                 Vec3f SampleVec = SamplePoint;
                 SampleVec = (TBN * SampleVec.ToMatrix()).ToVec3f().normlize();
-                float scale = 1.0f;//std::clamp(0.1f, 1.0f, 1.0f * (i+1) / 64);
-                SampleVec *= randR * scale;
+                float scale = 1.0f * i / SampleTimes;
+                scale = std::lerp(0.1f, 1.0f, scale * scale);
+                SampleVec *= scale;
                 Mat4x1 SampleWorldCoord{
                     {WorldCoord.raw[0][0] + SampleVec.raw[0]},
                     {WorldCoord.raw[1][0] + SampleVec.raw[1]},
@@ -244,7 +241,7 @@ int main(int argc, char** argv) {
                     Total++;
                 }
             }
-             TGAColor c = TGAColor(255, 255, 255, 255) * (1 - std::pow(1.0f * Count / SampleTimes, 1));
+            TGAColor c = TGAColor(255, 255, 255, 255) * (1 - std::pow(1.0f * Count / SampleTimes, 1));
             image3.set(x,y, c);
         }
     }

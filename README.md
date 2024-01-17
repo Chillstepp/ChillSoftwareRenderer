@@ -1,46 +1,12 @@
-# ChillSoftwareRender
+# Chill Software Renderer
 
 ![Snipaste_2024-01-15_14-23-30](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/Snipaste_2024-01-15_14-23-30.png)
 
-- [ChillSoftwareRender](#chillsoftwarerender)
-  * [Show Case](#show-case)
-  * [Tech Roadmap](#tech-roadmap)
-    + [Camera](#camera)
-      - [Perspective-Correct Interpolation](#perspective-correct-interpolation)
-      - [Culling](#culling)
-    + [Tangent Space Normal Mapping](#tangent-space-normal-mapping)
-    + [AECS ToneMapping](#aecs-tonemapping)
-    + [Shadow Mapping](#shadow-mapping)
-      - [The Most Basic Method Of Shadow Mapping](#the-most-basic-method-of-shadow-mapping)
-        * [阴影失真](#----)
-        * [阴影悬浮](#----)
-        * [阴影锯齿](#----)
-        * [大场景中ShadowMap找不到对应的点](#----shadowmap-------)
-      - [PCF(Percentage Closer Filtering)](#pcf-percentage-closer-filtering-)
-      - [PCSS(Percentage-Closer Soft Shadows)](#pcss-percentage-closer-soft-shadows-)
-      - [CSM(Cascaded Shadow Mapping)](#csm-cascaded-shadow-mapping-)
-      - [SDF Soft Shadows](#sdf-soft-shadows)
-      - [VSM](#vsm)
-    + [AO(Ambient Occlusion)](#ao-ambient-occlusion-)
-      - [SSAO(Screen-Space Ambient Occlusion)](#ssao-screen-space-ambient-occlusion-)
-      - [HBAO](#hbao)
-    + [Anti-Aliasing](#anti-aliasing)
-      - [TAA](#taa)
-      - [MSAA](#msaa)
-    + [SSR(Screen Space Reflection)](#ssr-screen-space-reflection-)
-    + [PBR](#pbr)
-    + [IBL](#ibl)
-    + [CubeMap](#cubemap)
-    + [Scene Management](#scene-management)
 
 
+## ShowCase
 
-## Show Case
-
-- [ ] G-Buffer like global buffer management
-- [ ] Split current shader to multi shader
-
-![image-20231226204111746](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231226204111746.png)
+![image-20240117211949153](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240117211949153.png)
 
 ## Tech Roadmap
 
@@ -106,7 +72,9 @@ for(int i=0;i<model->nfaces();i++)
 
 项目wiki上的理解/公式推导: [Summary of TagentSpaceNormal, TBN Matrix, TBN Coordinate](https://github.com/Chillstepp/ChillSoftwareRenderer/wiki/Summary-of-TagentSpaceNormal,-TBN-Matrix,--TBN-Coordinate)
 
-### AECS ToneMapping 
+### HDR/AECS ToneMapping 
+
+- HDR: https://learnopengl-cn.github.io/05%20Advanced%20Lighting/06%20HDR/#_1
 
 - [Tone mapping进化论](https://zhuanlan.zhihu.com/p/21983679 ) 
 - [ACES Filmic Tone Mapping Curve](https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/)
@@ -361,12 +329,15 @@ https://learnopengl.com/Guest-Articles/2021/CSM
 
 实现的几个细节：
 
-- 物体相差远的地方, 会在深度图上误认为有AO,实际上不应该有AO
+- 物体相差远的地方, 会在深度图上误认为有AO,实际上不应该有AO，所以要做RangeCheck
 
   <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231205011832980.png" alt="image-20231205011832980" style="zoom: 67%;" />
 
-- 由于深度图精度问题, 即使本身深度通过的地方, 在相机看来不通过, 产生z-fighting现象.
 - 降噪: 双边滤波
+
+- 降采样提升运行效率
+
+- 法向半球采样 + 加速插值函数
 
 
 
@@ -374,13 +345,11 @@ https://learnopengl.com/Guest-Articles/2021/CSM
 
 ![image-20240115142822822](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240115142822822.png)
 
-| With SSAO                                                    | Without SSAO                                                 |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![image-20231204200320537](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204200320537.png) | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231204201046444.png" alt="image-20231204201046444" style="zoom:85%;" /> |
+最后效果:
+
+![image-20240117205040340](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240117205040340.png)
 
 #### HBAO(Image-space Horizon-based Ambient Occlusion)
-
-Only SSAO Exist with all white model 
 
 | With HBAO                                                    | Without HBAO                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
