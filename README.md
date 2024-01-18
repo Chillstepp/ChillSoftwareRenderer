@@ -2,7 +2,34 @@
 
 ![Snipaste_2024-01-15_14-23-30](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/Snipaste_2024-01-15_14-23-30.png)
 
+## Tech
 
+- [x] Back-Face Culling
+- [x] Camera
+- [x] Shading:
+  - [x] Phong
+  - [x] Blinn–Phong
+  - [x] Gouraud
+  - [x] Flat
+- [x] Tangent Space Normal Mapping
+- [ ] Shadow
+  - [x] PCF
+  - [x] PCSS
+  - [ ] CSM
+  - [ ] SDF Soft Shadows
+  - [ ] VSM/VSSM
+  - [ ] ESM
+- [x] AO
+  - [x] SSAO
+  - [x] HBAO
+- [ ] Anti-Aliasing
+  - [ ] MSAA
+  - [ ] FXAA
+  - [ ] TAA
+- [ ] SSR
+- [ ] PBR
+- [ ] IBL
+- [ ] Cubemap
 
 ## ShowCase
 
@@ -18,7 +45,10 @@
 
 #### Perspective-Correct Interpolation
 
-https://zhuanlan.zhihu.com/p/403259571
+- 图形学 - 关于透视矫正插值那些事 - Shawoxo的文章 - 知乎
+  https://zhuanlan.zhihu.com/p/403259571
+- 计算机图形学六：透视矫正插值和图形渲染管线总结 - 孙小磊的文章 - 知乎
+  https://zhuanlan.zhihu.com/p/144331875
 
 #### Culling
 
