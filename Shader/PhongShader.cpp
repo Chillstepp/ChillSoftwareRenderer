@@ -18,7 +18,7 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
     gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
     Varying_w[nthvert] = gl_vertex.raw[3][0];
-    gl_vertex /= gl_vertex.raw[3][0];
+    //gl_vertex /= gl_vertex.raw[3][0];
 
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
             (ModelViewMat).Inverse().Transpose() * Mat4x1 ::Embed(model->getNormal(iface, nthvert)));

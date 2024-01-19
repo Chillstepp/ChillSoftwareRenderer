@@ -5,6 +5,7 @@
 ## Tech
 
 - [x] Back-Face Culling
+- [x] Perspective-Correct Interpolation
 - [x] Camera
 - [x] Shading:
   - [x] Phong

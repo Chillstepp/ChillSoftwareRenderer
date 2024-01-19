@@ -185,10 +185,33 @@ inline Vec3<T> operator+(const float &f, const Vec3<T> &v) {
 }
 
 
+template<typename T>
+class Vec4
+{
+public:
+    union
+    {
+        struct
+        {
+            T x, y, z, w;
+        };
+        T raw[4];
+    };
+
+    Vec4(T x_, T y_, T z_, T w_): x(x_), y(y_), z(z_), w(w_){}
+    Vec4() = default;
+
+    inline Vec3<T> ToVec3()
+    {
+        return Vec3{x, y, z};
+    }
+};
+
 using Vec3f = Vec3<float>;
 using Vec2f = Vec2<float>;
 using Vec3i = Vec3<int>;
 using Vec2i = Vec2<int>;
+using Vec4f = Vec4<float>;
 
 
 template<size_t DimRow, size_t DimCol, typename T> requires std::is_pod_v<T>

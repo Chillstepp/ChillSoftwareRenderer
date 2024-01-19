@@ -70,11 +70,11 @@ int main(int argc, char** argv) {
 		for (int i = 0; i < model->nfaces(); i++)
 		{
 			const std::vector<int>& face = model->getface(i);
-			Vec3f ScreenCoords[3];
+			Vec4f ScreenCoords[3];
 			for (int j = 0; j < 3; j++)
 			{
 				auto Mat4x1_Vertex = Shader_dep->vertex(i, j);
-				ScreenCoords[j] = { Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0] };
+				ScreenCoords[j] = { Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0],  Mat4x1_Vertex.raw[3][0]};
 			}
 			triangle(model, ScreenCoords, image, DepthBuffer, Shader_dep);
 		}
@@ -94,11 +94,11 @@ int main(int argc, char** argv) {
             {
                 WorldCoords[j] = model->getvert(i, j);
             }
-			Vec3f ScreenCoords[3];
+			Vec4f ScreenCoords[3];
 			for(int j=0;j<3;j++)
 			{
 				auto Mat4x1_Vertex = Shader->vertex(i, j);
-				ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
+				ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0], Mat4x1_Vertex.raw[3][0]};
 			}
             Vec3f tri_normal = (WorldCoords[2]-WorldCoords[0])^(WorldCoords[1]-WorldCoords[0]);
             if(tri_normal.normlize() * (WorldCoords[0] - Eye) >= 0) //back face culling
@@ -241,7 +241,7 @@ int main(int argc, char** argv) {
                     Total++;
                 }
             }
-            TGAColor c = TGAColor(255, 255, 255, 255) * (1 - std::pow(1.0f * Count / SampleTimes, 1));
+            TGAColor c = TGAColor(255, 255, 255, 255) * (1 - 1.0f * Count / SampleTimes);
             image3.set(x,y, c);
         }
     }
