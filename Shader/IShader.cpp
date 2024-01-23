@@ -73,9 +73,9 @@ Matrix<4, 1, float> DepthShder::vertex(int iface, int nthvert) {
    // std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
     gl_vertex = ViewPortMat*gl_vertex;
     //std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
-    gl_vertex /= gl_vertex.raw[3][0];
+    //gl_vertex /= gl_vertex.raw[3][0];
     //std::cout<<gl_vertex.raw[0][0]<<" "<<gl_vertex.raw[1][0]<<" "<<gl_vertex.raw[2][0]<<"\n";
-    varying_tri[nthvert] = {gl_vertex.raw[0][0], gl_vertex.raw[1][0], gl_vertex.raw[2][0]};
+    varying_tri[nthvert] = {gl_vertex.raw[0][0]/gl_vertex.raw[3][0], gl_vertex.raw[1][0]/gl_vertex.raw[3][0], gl_vertex.raw[2][0]/gl_vertex.raw[3][0]};
     return gl_vertex;
 }
 

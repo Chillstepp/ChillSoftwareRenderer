@@ -54,6 +54,7 @@ static void triangle(std::shared_ptr<Model>& model ,Vec4f *pts, TGAImage &image,
         for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++) {
             float z = 0;
             Vec3f bc_screen = barycentric(pts_vec3f[0], pts_vec3f[1], pts_vec3f[2], P);
+			Vec3f bc_screen_copy = bc_screen;
             if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0) continue;
             for(int i = 0; i < 3; i++)
             {
@@ -62,7 +63,7 @@ static void triangle(std::shared_ptr<Model>& model ,Vec4f *pts, TGAImage &image,
             float Z_n = 1.0f / (bc_screen.x + bc_screen.y + bc_screen.z);
             bc_screen *= Z_n;
             for (int i = 0; i < 3; i++) {
-                z += pts[i].z * bc_screen.raw[i];//插值得到三角形是某点的z值
+                z += pts_vec3f[i].z * bc_screen_copy.raw[i];//插值得到三角形是某点的z值
             }
             Shader->ScreenCoord = {P.x, P.y};
             //在三角形外部则跳过这个点继续循环
