@@ -2,8 +2,8 @@
 // Created by why on 2023/11/15.
 //
 
-#ifndef TINYRENDERLESSONCODE_RENDER_H
-#define TINYRENDERLESSONCODE_RENDER_H
+#ifndef CHILLSOFTWARERENDERER_RENDER_H
+#define CHILLSOFTWARERENDERER_RENDER_H
 
 #include "Math.h"
 #include "TGAImage.h"
@@ -99,4 +99,6 @@ static void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color
     }
 }
 
-#endif //TINYRENDERLESSONCODE_RENDER_H
+
+
+#endif //CHILLSOFTWARERENDERER_RENDER_H

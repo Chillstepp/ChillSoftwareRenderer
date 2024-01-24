@@ -2,8 +2,8 @@
 // Created by why on 2023/11/13.
 //
 
-#ifndef TINYRENDERLESSONCODE_MODEL_H
-#define TINYRENDERLESSONCODE_MODEL_H
+#ifndef CHILLSOFTWARERENDERER_MODEL_H
+#define CHILLSOFTWARERENDERER_MODEL_H
 
 #include "vector"
 #include "Math.h"
@@ -55,4 +55,4 @@ public:
 };
 
 
-#endif //TINYRENDERLESSONCODE_MODEL_H
+#endif //CHILLSOFTWARERENDERER_MODEL_H

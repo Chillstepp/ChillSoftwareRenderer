@@ -2,8 +2,8 @@
 // Created by why on 2023/11/13.
 //
 
-#ifndef TINYRENDERLESSONCODE_MATH_H
-#define TINYRENDERLESSONCODE_MATH_H
+#ifndef CHILLSOFTWARERENDERER_MATH_H
+#define CHILLSOFTWARERENDERER_MATH_H
 
 #include <cmath>
 #include <vector>
@@ -398,6 +398,11 @@ public:
         return Vec3f{raw[0][0], raw[1][0], raw[2][0]};
     }
 
+    inline Vec4f ToVec4f()
+    requires (DimRow == 4 and DimCol == 1 and std::is_same_v<std::remove_cvref_t<T>, float>) {
+        return Vec4f{raw[0][0], raw[1][0], raw[2][0], raw[3][0]};
+    }
+
     static Matrix<4, 1, T> Embed(const Vec3<T> &InVec, T FillValue = 1) {
         Matrix<4, 1, T> Ret;
         for (int i = 0; i < 4; i++)
@@ -476,10 +481,8 @@ static Mat4x4 viewport(int x, int y, int w, int h) {
     return ViewPortMat;
 }
 
-static Mat4x4 projection(float coeff) {
+static Mat4x4 projection(float near = 1, float far = 1000) {
 
-    float near = 1;
-    float far = 1000;
     Mat4x4 Persp2Ortho = Mat4x4::Identity();
     Persp2Ortho[0][0] = 1;
     Persp2Ortho[1][1] = 1;
@@ -580,4 +583,4 @@ namespace ChillMathUtility {
 
 }
 
-#endif //TINYRENDERLESSONCODE_MATH_H
+#endif //CHILLSOFTWARERENDERER_MATH_H

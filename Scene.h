@@ -2,8 +2,8 @@
 // Created by why on 2023/12/6.
 //
 
-#ifndef TINYRENDERLESSONCODE_SCENE_H
-#define TINYRENDERLESSONCODE_SCENE_H
+#ifndef CHILLSOFTWARERENDERER_SCENE_H
+#define CHILLSOFTWARERENDERER_SCENE_H
 
 #include "memory"
 #include "vector"
@@ -30,4 +30,4 @@ private:
 };
 
 
-#endif //TINYRENDERLESSONCODE_SCENE_H
+#endif //CHILLSOFTWARERENDERER_SCENE_H

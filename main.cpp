@@ -31,7 +31,7 @@ Vec3f Up{0, 1, 0};
 
 Mat4x4 ModelView = lookat(Eye, Center, Up);
 Mat4x4 ViewPort = viewport(0, 0, width, height);
-Mat4x4 Projection = projection(1.0f / 3.0f);
+Mat4x4 Projection = projection();
 std::vector<std::vector<float>> ZBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>> DepthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0));
@@ -60,68 +60,57 @@ int main(int argc, char **argv) {
     TGAImage image{width, height, TGAImage::RGB};
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
+
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
 
         std::shared_ptr<IShader> Shader_dep =
-                std::make_shared<DepthShder>(model, projection(1.0f / 3.0f), lookat(LightSpotLoc, Center, Up),
+                std::make_shared<DepthShder>(model, projection(), lookat(LightSpotLoc, Center, Up),
                                              ViewPort);
         for (int i = 0; i < model->nfaces(); i++) {
             const std::vector<int> &face = model->getface(i);
-            std::vector<Vec4f> ScreenCoords{3, {0, 0, 0, 0}};
+            std::vector<Vec4f> ClipSpaceCoords;
+            ClipSpaceCoords.reserve(3);
             for (int j = 0; j < 3; j++) {
-                auto Mat4x1_Vertex = Shader_dep->vertex(i, j);
-                ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0],
-                                   Mat4x1_Vertex.raw[3][0]};
+                ClipSpaceCoords.push_back(Shader_dep->vertex(i, j).ToVec4f());
             }
-            triangle(model, ScreenCoords, image, DepthBuffer, Shader_dep);
+            triangle(model, ClipSpaceCoords, image, DepthBuffer, Shader_dep);
         }
     }
+
+    image.flip_vertically();
+    image.write_tga_file("lightview_depth.tga");
+
 
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
         Mat4x4 Uniform_MShadow =
-                (ViewPort * projection(1.0f / 3.0f) * lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
+                (ViewPort * projection() * lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
         std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
                                                                         LightDir, Eye, Center, Uniform_MShadow,
                                                                         DepthBuffer, ShadowBuffer, PenumbraBuffer,
                                                                         NormalBuffer, TBNBuffer, ScreenPosWBuffer);
         for (int i = 0; i < model->nfaces(); i++) {
             const std::vector<int> &face = model->getface(i);
+            std::vector<Vec4f> ClipSpaceCoords;
+            ClipSpaceCoords.reserve(3);
+            for (int j = 0; j < 3; j++) {
+                ClipSpaceCoords.push_back(Shader->vertex(i, j).ToVec4f());
+            }
+
             Vec3f WorldCoords[3];
             for (int j = 0; j < 3; j++) {
                 WorldCoords[j] = model->getvert(i, j);
             }
-            std::vector<Vec4f> ScreenCoords{3, {0, 0, 0, 0}};
-            for (int j = 0; j < 3; j++) {
-                auto Mat4x1_Vertex = Shader->vertex(i, j);
-                ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0],
-                                   Mat4x1_Vertex.raw[3][0]};
-            }
             Vec3f tri_normal = (WorldCoords[2] - WorldCoords[0]) ^ (WorldCoords[1] - WorldCoords[0]);
             if (tri_normal.normlize() * (WorldCoords[0] - Eye) >= 0) //back face culling
             {
-                triangle(model, ScreenCoords, image2, ZBuffer, Shader);
+                triangle(model, ClipSpaceCoords, image2, ZBuffer, Shader);
             }
         }
 
 
-//		std::shared_ptr<IShader> AOShader = std::make_shared<SSAOShader>(model, Projection, ModelView, ViewPort);
-//		for(int i=0;i<model->nfaces();i++)
-//		{
-//			const std::vector<int>& face = model->getface(i);
-//			Vec3f ScreenCoords[3];
-//			for(int j=0;j<3;j++)
-//			{
-//				auto Mat4x1_Vertex = AOShader->vertex(i, j);
-//				ScreenCoords[j] = {Mat4x1_Vertex.raw[0][0], Mat4x1_Vertex.raw[1][0], Mat4x1_Vertex.raw[2][0]};
-//			}
-//
-//			triangle(model,ScreenCoords, image3,ZBuffer,AOShader);
-//		}
     }
-    image.flip_vertically();
-    image.write_tga_file("lightview_depth.tga");
 
     //Shadow: PCF
 
@@ -185,10 +174,14 @@ int main(int argc, char **argv) {
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             if (ZBuffer[x][y] > 1e5) continue;
-            Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(
-                    Vec3f((x - 1.0f * width / 2) / (1.0f * width / 2),
-                          (y - 1.0f * height / 2) / (1.0f * height / 2),
-                          (ZBuffer[x][y] - 255.0f / 2.0f) / (255.0f / 2.0f)));
+
+            Vec3f Coord_NDC{
+                (x - 1.0f * width / 2) / (1.0f * width / 2),
+                (y - 1.0f * height / 2) / (1.0f * height / 2),
+                (ZBuffer[x][y] - 255.0f / 2.0f) / (255.0f / 2.0f)
+            };
+
+            Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(Coord_NDC);
             Mat4x1 WorldCoord = ScreenSpace2WorldSpaceMat * ScreenSpaceCoord;
             WorldCoord /= WorldCoord.raw[3][0];
             Vec3f n = NormalBuffer[x][y];
@@ -199,19 +192,22 @@ int main(int argc, char **argv) {
             int SampleTimes = 64;
             float randR = 0.070f;
             for (int i = 0; i < SampleTimes; i++) {
-                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f,
+                Vec3f SamplePoint = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f,
+                                          UniformDis01(RandomGen) * 2.0f - 1.0f,
                                           UniformDis01(RandomGen)};
-                Vec3f RandomVec = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f, UniformDis01(RandomGen) * 2.0f - 1.0f,
+
+                Vec3f RandomVec = Vec3f{UniformDis01(RandomGen) * 2.0f - 1.0f,
+                                        UniformDis01(RandomGen) * 2.0f - 1.0f,
                                         UniformDis01(RandomGen) * 2.0f - 1.0f};
-                Vec3f tangent = (RandomVec - NormalBuffer[x][y] *
-                                             (RandomVec * NormalBuffer[x][y])).normlize();//Gramm-Schmidt Process
+
+                //Gramm-Schmidt Process
+                Vec3f tangent = (RandomVec - NormalBuffer[x][y] * (RandomVec * NormalBuffer[x][y])).normlize();
                 Vec3f bitangent = NormalBuffer[x][y] ^ tangent;
                 Mat3x3 TBN{
                         {tangent.x, bitangent.x, NormalBuffer[x][y].x},
                         {tangent.y, bitangent.y, NormalBuffer[x][y].y},
                         {tangent.z, bitangent.z, NormalBuffer[x][y].z}
                 };
-
 
                 Vec3f SampleVec = SamplePoint;
                 SampleVec = (TBN * SampleVec.ToMatrix()).ToVec3f().normlize();
@@ -224,7 +220,6 @@ int main(int argc, char **argv) {
                         {WorldCoord.raw[2][0] + SampleVec.raw[2]},
                         {1.0f}
                 };
-
 
                 Mat4x1 SamplePointInScreenSpace = WorldSpaceMat2ScreenSpace * SampleWorldCoord;
                 SamplePointInScreenSpace /= SamplePointInScreenSpace.raw[3][0];

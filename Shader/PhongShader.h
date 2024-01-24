@@ -2,8 +2,8 @@
 // Created by why on 2024/1/5.
 //
 
-#ifndef TINYRENDERLESSONCODE_PHONGSHADER_H
-#define TINYRENDERLESSONCODE_PHONGSHADER_H
+#ifndef CHILLSOFTWARERENDERER_PHONGSHADER_H
+#define CHILLSOFTWARERENDERER_PHONGSHADER_H
 
 #include "IShader.h"
 
@@ -11,8 +11,8 @@ class PhongShader : public IShader {
 private:
     std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
     const std::vector<std::vector<float>> &DepthBuffer;
-    std::vector<std::vector<float>> &ShadowBuffer;
-    std::vector<std::vector<float>> &PenumbraBuffer;
+    std::vector<std::vector<float>> &ShadowBuffer;// Depth in light-view space
+    std::vector<std::vector<float>> &PenumbraBuffer;//PCSS Penumbra Buffer
     std::vector<std::vector<Vec3f>> &NormalBuffer;
     std::vector<std::vector<Mat3x3>> &TBNBuffer;
     std::vector<std::vector<Vec3f>> &ScreenPosWBuffer;
@@ -40,7 +40,8 @@ public:
                          const std::vector<std::vector<float>> &DepthBuffer_,
                          std::vector<std::vector<float>> &ShadowBuffer_,
                          std::vector<std::vector<float>> &PenumbraBuffer_,
-                         std::vector<std::vector<Vec3f>> &NormalBuffer_, std::vector<std::vector<Mat3x3>> &TBNBuffer_,
+                         std::vector<std::vector<Vec3f>> &NormalBuffer_,
+                         std::vector<std::vector<Mat3x3>> &TBNBuffer_,
                          std::vector<std::vector<Vec3f>> &ScreenPosWBuffer_) :
             model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_),
             LightDir(LightDir_),
@@ -61,4 +62,4 @@ public:
     virtual bool fragment(Vec3f bar, TGAColor &color) override;
 };
 
-#endif //TINYRENDERLESSONCODE_PHONGSHADER_H
+#endif //CHILLSOFTWARERENDERER_PHONGSHADER_H

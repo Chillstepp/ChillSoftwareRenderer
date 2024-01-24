@@ -2,8 +2,8 @@
 // Created by Chillstep on 2023/12/10.
 //
 
-#ifndef TINYRENDERLESSONCODE__OBJECT_H_
-#define TINYRENDERLESSONCODE__OBJECT_H_
+#ifndef CHILLSOFTWARERENDERER__OBJECT_H_
+#define CHILLSOFTWARERENDERER__OBJECT_H_
 
 #include "Math.h"
 #include "memory"
@@ -28,4 +28,4 @@ public:
 
 };
 
-#endif //TINYRENDERLESSONCODE__OBJECT_H_
+#endif //CHILLSOFTWARERENDERER__OBJECT_H_

@@ -80,17 +80,4 @@ bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
     return true;
 }
 
-Matrix<4, 1, float> SSAOShader::vertex(int iface, int nthvert) {
-    const std::vector<int> &Face = model->getface(iface);
-    Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face[nthvert * 3]));
-    gl_vertex = ViewPortMat * ProjectionMat * ModelViewMat * gl_vertex;
-    gl_vertex /= gl_vertex.raw[3][0];
-    varying_tri[nthvert] = {gl_vertex.raw[0][0], gl_vertex.raw[1][0], gl_vertex.raw[2][0]};
-    return gl_vertex;
-}
 
-bool SSAOShader::fragment(Vec3f bar, TGAColor &color) {
-    color = TGAColor(255, 255, 255, 255);
-
-    return true;
-}
