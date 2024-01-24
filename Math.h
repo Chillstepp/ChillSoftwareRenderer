@@ -10,20 +10,17 @@
 #include "iostream"
 #include "TGAImage.h"
 
-template<size_t DimRow, size_t DimCol, typename T> requires std::is_pod_v<T>
+template<size_t DimRow, size_t DimCol, typename T>
+requires std::is_pod_v<T>
 class Matrix;
 
 template<typename T>
-struct Vec2
-{
-    union
-    {
-        struct
-        {
+struct Vec2 {
+    union {
+        struct {
             T u, v;
         };
-        struct
-        {
+        struct {
             T x, y;
         };
         T raw[2];
@@ -70,17 +67,16 @@ std::ostream &operator<<(std::ostream &s, Vec2<T> &v) {
 
 
 template<typename T>
-struct Vec3
-{
-    union
-    {
-        struct
-        {
+struct Vec3 {
+    union {
+        struct {
             T x, y, z;
         };
-        struct
-        {
+        struct {
             T ivert, iuv, inorm;
+        };
+        struct {
+            T alpha, beta, gamma;
         };
         T raw[3];
     };
@@ -186,23 +182,20 @@ inline Vec3<T> operator+(const float &f, const Vec3<T> &v) {
 
 
 template<typename T>
-class Vec4
-{
+class Vec4 {
 public:
-    union
-    {
-        struct
-        {
+    union {
+        struct {
             T x, y, z, w;
         };
         T raw[4];
     };
 
-    Vec4(T x_, T y_, T z_, T w_): x(x_), y(y_), z(z_), w(w_){}
+    Vec4(T x_, T y_, T z_, T w_) : x(x_), y(y_), z(z_), w(w_) {}
+
     Vec4() = default;
 
-    inline Vec3<T> ToVec3()
-    {
+    inline Vec3<T> ToVec3() const {
         return Vec3{x, y, z};
     }
 };
@@ -214,9 +207,9 @@ using Vec2i = Vec2<int>;
 using Vec4f = Vec4<float>;
 
 
-template<size_t DimRow, size_t DimCol, typename T> requires std::is_pod_v<T>
-class Matrix
-{
+template<size_t DimRow, size_t DimCol, typename T>
+requires std::is_pod_v<T>
+class Matrix {
 public:
     T raw[DimRow][DimCol] = {0};
 
@@ -244,7 +237,7 @@ public:
         return raw[idx];
     }
 
-    Matrix<DimRow, DimCol, float>& operator/=(const float d) {
+    Matrix<DimRow, DimCol, float> &operator/=(const float d) {
         for (int i = 0; i < DimRow; i++)
         {
             for (int j = 0; j < DimCol; j++)
@@ -400,7 +393,8 @@ public:
         return Ret;
     }
 
-    inline Vec3f ToVec3f() requires (DimRow == 3 and DimCol == 1 and std::is_same_v<std::remove_cvref_t<T>, float>) {
+    inline Vec3f ToVec3f()
+    requires (DimRow == 3 and DimCol == 1 and std::is_same_v<std::remove_cvref_t<T>, float>) {
         return Vec3f{raw[0][0], raw[1][0], raw[2][0]};
     }
 
@@ -520,7 +514,8 @@ max_elevation_angle(std::vector<std::vector<float>> &zbuffer, Vec2f p, Vec2f dir
 
 
 namespace ChillMathUtility {
-    static Vec3f TriangleBarycentricInterp(const std::vector<Vec3f> &TriangleVertices3D, const Vec3f &BarycentricCoord) {
+    static Vec3f
+    TriangleBarycentricInterp(const std::vector<Vec3f> &TriangleVertices3D, const Vec3f &BarycentricCoord) {
         Vec3f p(0, 0, 0);
         for (int i = 0; i < 3; i++)
         {
@@ -529,7 +524,8 @@ namespace ChillMathUtility {
         return p;
     }
 
-    static Vec2f TriangleBarycentricInterp(const std::vector<Vec2f> &TriangleVertices2D, const Vec3f &BarycentricCoord) {
+    static Vec2f
+    TriangleBarycentricInterp(const std::vector<Vec2f> &TriangleVertices2D, const Vec3f &BarycentricCoord) {
         Vec2f p(0, 0);
         for (int i = 0; i < 3; i++)
         {
@@ -564,10 +560,23 @@ namespace ChillMathUtility {
         return rotateAroundX * rotateAroundY * rotateAroundZ;
     }
 
-    static float Lerp(float from, float to, float t)
-    {
-        return from + (to - from)*t;
+    static float Lerp(float from, float to, float t) {
+        return from + (to - from) * t;
     }
+
+    static Vec3f
+    PerspectiveCorrectInterpolation(const std::vector<Vec4f> &HomogeneousCoord, Vec3f LinearInterpBaryCoord) {
+        Vec3f CorrectBaryCoord;
+        for (int i = 0; i < 3; i++)
+        {
+            CorrectBaryCoord.raw[i] = LinearInterpBaryCoord.raw[i] / HomogeneousCoord[i].w;
+        }
+
+        float Z_n = 1.0f / (CorrectBaryCoord.x + CorrectBaryCoord.y + CorrectBaryCoord.z);
+        CorrectBaryCoord *= Z_n;
+
+        return CorrectBaryCoord;
+    };
 
 }
 

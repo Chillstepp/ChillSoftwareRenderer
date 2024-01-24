@@ -12,20 +12,19 @@
 class Scene {
 public:
     Scene() = default;
-    Scene(std::initializer_list<std::shared_ptr<Model>>ModelList)
-    {
-        for(const auto& model: ModelList)
-        {
+
+    Scene(std::initializer_list<std::shared_ptr<Model>> ModelList) {
+        for (const auto &model: ModelList) {
             Models.push_back(model);
         }
     }
 
-    void Add(const std::shared_ptr<Model>& AddModel);
+    void Add(const std::shared_ptr<Model> &AddModel);
 
-	decltype(auto) GetAllModels()
-	{
-		return Models;
-	}
+    decltype(auto) GetAllModels() {
+        return Models;
+    }
+
 private:
     std::vector<std::weak_ptr<Model>> Models;
 };

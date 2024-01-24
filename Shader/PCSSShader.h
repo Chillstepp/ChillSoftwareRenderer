@@ -8,7 +8,7 @@
 #include "IShader.h"
 
 
-class PCSSShader: IShader {
+class PCSSShader : IShader {
 
 };
 

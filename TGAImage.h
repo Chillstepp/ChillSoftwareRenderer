@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-#pragma pack(push,1)
+#pragma pack(push, 1)
 struct TGA_Header {
     char idlength;
     char colormaptype;
@@ -18,11 +18,10 @@ struct TGA_Header {
     short y_origin;
     short width;
     short height;
-    char  bitsperpixel;
-    char  imagedescriptor;
+    char bitsperpixel;
+    char imagedescriptor;
 };
 #pragma pack(pop)
-
 
 
 struct TGAColor {
@@ -48,12 +47,12 @@ struct TGAColor {
     }
 
     TGAColor(const unsigned char *p, int bpp) : val(0), bytespp(bpp) {
-        for (int i=0; i<bpp; i++) {
+        for (int i = 0; i < bpp; i++) {
             raw[i] = p[i];
         }
     }
 
-    TGAColor & operator =(const TGAColor &c) {
+    TGAColor &operator=(const TGAColor &c) {
         if (this != &c) {
             bytespp = c.bytespp;
             val = c.val;
@@ -61,42 +60,60 @@ struct TGAColor {
         return *this;
     }
 
-    TGAColor operator *(const float &val) {
-        return TGAColor(r*val, g*val, b*val, a);
+    TGAColor operator*(const float &val) {
+        return TGAColor(r * val, g * val, b * val, a);
     }
 };
 
 
 class TGAImage {
 protected:
-    unsigned char* data;
+    unsigned char *data;
     int width;
     int height;
     int bytespp;
 
-    bool   load_rle_data(std::ifstream &in);
+    bool load_rle_data(std::ifstream &in);
+
     bool unload_rle_data(std::ofstream &out);
+
 public:
     enum Format {
-        GRAYSCALE=1, RGB=3, RGBA=4
+        GRAYSCALE = 1, RGB = 3, RGBA = 4
     };
 
     TGAImage();
+
     TGAImage(int w, int h, int bpp);
+
     TGAImage(const TGAImage &img);
+
     bool read_tga_file(const char *filename);
-    bool write_tga_file(const char *filename, bool rle=true);
+
+    bool write_tga_file(const char *filename, bool rle = true);
+
     bool flip_horizontally();
+
     bool flip_vertically();
+
     bool scale(int w, int h);
+
     TGAColor get(int x, int y);
+
     bool set(int x, int y, TGAColor c);
+
     ~TGAImage();
-    TGAImage & operator =(const TGAImage &img);
+
+    TGAImage &operator=(const TGAImage &img);
+
     int get_width();
+
     int get_height();
+
     int get_bytespp();
+
     unsigned char *buffer();
+
     void clear();
 };
 

@@ -21,7 +21,7 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     //gl_vertex /= gl_vertex.raw[3][0];
 
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
-            (ModelViewMat).Inverse().Transpose() * Mat4x1 ::Embed(model->getNormal(iface, nthvert)));
+            (ModelViewMat).Inverse().Transpose() * Mat4x1::Embed(model->getNormal(iface, nthvert)));
     return gl_vertex;
 }
 
@@ -60,7 +60,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv));
     float diff = std::max(0.f, -n * l);
 
-    NormalBuffer[ScreenCoord.x][ScreenCoord.y] =  Mat4x1::Proj(ModelViewMat.Inverse() * Mat4x1::Embed(n));
+    NormalBuffer[ScreenCoord.x][ScreenCoord.y] = Mat4x1::Proj(ModelViewMat.Inverse() * Mat4x1::Embed(n));
 
     //Shadow
     Vec3f p = ChillMathUtility::TriangleBarycentricInterp(Varying_tri, bar);
@@ -80,14 +80,11 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         if (overEdge) return 0.0f;
         int totalSampleTimes = 0;
         float totalBlockerDis = 0;
-        for (int dx = -sampleRadius; dx <= sampleRadius; dx++)
-        {
-            for (int dy = -sampleRadius; dy <= sampleRadius; dy++)
-            {
+        for (int dx = -sampleRadius; dx <= sampleRadius; dx++) {
+            for (int dy = -sampleRadius; dy <= sampleRadius; dy++) {
 
                 float ClosetDis = depthBufferInLightView[point.x + dx][point.y + dy];
-                if (ClosetDis < receiverDis - shadowBias)
-                {
+                if (ClosetDis < receiverDis - shadowBias) {
                     totalBlockerDis += ClosetDis;
                     ++totalSampleTimes;
                 }
@@ -96,11 +93,9 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         return totalBlockerDis / static_cast<float>(totalSampleTimes);
     };
     if ((int) CorrespondingPoint.x < DepthBuffer.size() &&
-        (int) CorrespondingPoint.y < DepthBuffer[(int) CorrespondingPoint.x].size())
-    {
+        (int) CorrespondingPoint.y < DepthBuffer[(int) CorrespondingPoint.x].size()) {
         bool bBlock = false;
-        if (DepthBuffer[(int) CorrespondingPoint.x][(int) CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias)
-        {
+        if (DepthBuffer[(int) CorrespondingPoint.x][(int) CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias) {
             bBlock = true;
         }
         ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = bBlock ? 1 : 0;
