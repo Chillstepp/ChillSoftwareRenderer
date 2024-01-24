@@ -10,8 +10,10 @@
 #include "iostream"
 #include "TGAImage.h"
 
+
+
 template<size_t DimRow, size_t DimCol, typename T>
-requires std::is_pod_v<T>
+requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 class Matrix;
 
 template<typename T>
@@ -208,7 +210,7 @@ using Vec4f = Vec4<float>;
 
 
 template<size_t DimRow, size_t DimCol, typename T>
-requires std::is_pod_v<T>
+requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 class Matrix {
 public:
     T raw[DimRow][DimCol] = {0};

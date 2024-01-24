@@ -9,6 +9,7 @@
 #include "Window.h"
 #include "Scene.h"
 #include "Shader/GBuffer.h"
+#include "Camera.h"
 #include "random"
 
 namespace FilePath {

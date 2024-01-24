@@ -7,7 +7,7 @@
 
 Matrix<4, 1, float> FlatShader::vertex(int iface, int nthvert) {
     std::vector<int> Face = model->getface(iface);
-    Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(Face.at(nthvert * 2)));
+    Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
     gl_vertex = ProjectionMat * ModelViewMat * gl_vertex;
     for (int i = 0; i < 3; i++) {
         Varying_tri.raw[i][nthvert] = gl_vertex.raw[i][0] / gl_vertex.raw[3][0];

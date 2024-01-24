@@ -25,6 +25,16 @@ public:
         return Models;
     }
 
+    //@todo: Wrap Light class.
+    Vec3f LightDir{-1.5, -1.5, -1.5};
+    Vec3f LightPos{1.5, 1.5, 1.5};
+
+    //@todo: Distinguish spot light and sky light
+    void SetLightDir(Vec3f LightDir_)
+    {
+        LightDir = LightDir_;
+        LightPos = -LightDir_;
+    }
 private:
     std::vector<std::weak_ptr<Model>> Models;
 };

@@ -133,7 +133,7 @@ float Model::getSpecular(Vec2f uvf) {
     return specular_color.raw[0] / 1.0f;
 }
 
-Vec3f Model::getSpecularV2(Vec2f uvf) {
+Vec3f Model::getSpecular_RGB(Vec2f uvf) {
     Vec2i uv(uvf.u * specularmap_.get_width(), uvf.v * specularmap_.get_height());
     TGAColor specular_color = specularmap_.get(uv.u, uv.v);
     Vec3f res;

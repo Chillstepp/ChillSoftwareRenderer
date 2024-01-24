@@ -30,28 +30,30 @@ public:
 
     int nfaces();
 
-    Vec3f getvert(int i);
-
     Vec3f getvert(int iface, int nthvert);
 
     std::vector<int> getface(int idx);
 
-    Vec2f getuv(int idx);
-
     Vec2f getuv(int iface, int nthvert);
 
+    //Get vertex-normal in obj file
     Vec3f getNormal(int iface, int nthvert);
 
-    //法线贴图中拿法线
+    //Get normal in normal map
     Vec3f getNormal(Vec2f uvf);
 
-    //高光
+    //Specular Map
     float getSpecular(Vec2f uvf);
 
-    //高光贴图第二种
-    Vec3f getSpecularV2(Vec2f uvf);
+    //Specular Map: Return RGB Color(Color from 0.0 to 1.0)
+    Vec3f getSpecular_RGB(Vec2f uvf);
 
     TGAColor diffuse(Vec2f uv);
+
+private:
+    Vec2f getuv(int idx);
+
+    Vec3f getvert(int i);
 };
 
 
