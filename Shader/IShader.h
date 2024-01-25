@@ -9,6 +9,8 @@
 #include "../Math.h"
 #include "../TGAImage.h"
 #include "../Model.h"
+#include "../Camera.h"
+
 
 class IShader {
 public:
@@ -16,8 +18,20 @@ public:
 
     virtual ~IShader() = default;
 
+    /*!
+     * @brief Vertex Shader
+     * @param iface
+     * @param nthvert
+     * @return Clip Space Coordinate with Homogeneous term
+     */
     virtual Matrix<4, 1, float> vertex(int iface, int nthvert) = 0;
 
+    /*!
+     * @brief Fragment Shader
+     * @param bar - Barycentric coordinates after perspective-correct
+     * @param color - Out color
+     * @return Success or not
+     */
     virtual bool fragment(Vec3f bar, TGAColor &color) = 0;
 };
 

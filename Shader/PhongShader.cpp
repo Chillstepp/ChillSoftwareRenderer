@@ -14,22 +14,20 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
 
     Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
     Varying_WorldPos[nthvert] = model->getvert(iface, nthvert);
-    gl_vertex = ModelViewMat * gl_vertex;
+    gl_vertex = camera.ViewMatrix * gl_vertex;
     Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
-    gl_vertex = ViewPortMat * ProjectionMat * gl_vertex;
+    gl_vertex = camera.ViewportMatrix * camera.ProjectionMatrix * gl_vertex;
     Varying_w[nthvert] = gl_vertex.raw[3][0];
-    //gl_vertex /= gl_vertex.raw[3][0];
 
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
-            (ModelViewMat).Inverse().Transpose() * Mat4x1::Embed(model->getNormal(iface, nthvert)));
+        Uniform_MIT.Inverse().Transpose() * Mat4x1::Embed(model->getNormal(iface, nthvert))
+    );
     return gl_vertex;
 }
 
 bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     //uv interp
     Vec2f uv = ChillMathUtility::TriangleBarycentricInterp(Varying_uv, bar);
-
-    ScreenPosWBuffer[ScreenCoord.x][ScreenCoord.y] = ChillMathUtility::TriangleBarycentricInterp(Varying_WorldPos, bar);
 
     //tangent-space-normal-mapping
     Vec3f bn = ChillMathUtility::TriangleBarycentricInterp(Varying_normal, bar).normlize();
@@ -54,13 +52,13 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     TBNBuffer[ScreenCoord.x][ScreenCoord.y] = TBN;
     Matrix Mat_n = TBN.Transpose() * tangentSpaceNormal.ToMatrix();//TBN^T is same as TBN^-1
     Vec3f n = Mat_n.ToVec3f().normlize();
-    Vec3f l = (Uniform_M.RemoveHomogeneousDim() * LightDir.ToMatrix()).ToVec3f().normlize();
-    Vec3f r = (l - n * (n * l * 2.f)).normlize(); // reflected light
-    Vec3f Center2Eye = (Uniform_M.RemoveHomogeneousDim() * (Eye - Center).normlize().ToMatrix()).ToVec3f();
+    Vec3f l = (Uniform_M.RemoveHomogeneousDim() * scene->LightDir.ToMatrix()).ToVec3f().normlize();
+    Vec3f r = ChillMathUtility::ReflectedVec(l, n); // reflected light
+    Vec3f Center2Eye = (Uniform_M.RemoveHomogeneousDim() * (camera.Location - camera.LookTo).normlize().ToMatrix()).ToVec3f();
     float spec = std::pow(std::max(r * Center2Eye, 0.0f), 20 + model->getSpecular(uv));
     float diff = std::max(0.f, -n * l);
 
-    NormalBuffer[ScreenCoord.x][ScreenCoord.y] = Mat4x1::Proj(ModelViewMat.Inverse() * Mat4x1::Embed(n));
+    NormalBuffer[ScreenCoord.x][ScreenCoord.y] = Mat4x1::Proj(camera.ViewMatrix.Inverse() * Mat4x1::Embed(n));
 
     //Shadow
     Vec3f p = ChillMathUtility::TriangleBarycentricInterp(Varying_tri, bar);

@@ -569,8 +569,7 @@ namespace ChillMathUtility {
         return from + (to - from) * t;
     }
 
-    static Vec3f
-    PerspectiveCorrectInterpolation(const std::vector<Vec4f> &HomogeneousCoord, Vec3f LinearInterpBaryCoord) {
+    static Vec3f PerspectiveCorrectInterpolation(const std::vector<Vec4f> &HomogeneousCoord, Vec3f LinearInterpBaryCoord) {
         Vec3f CorrectBaryCoord;
         for (int i = 0; i < 3; i++)
         {
@@ -582,6 +581,12 @@ namespace ChillMathUtility {
 
         return CorrectBaryCoord;
     };
+
+    static Vec3f ReflectedVec(Vec3f InVec, Vec3f Normal)
+    {
+        return (InVec - Normal * (Normal * InVec * 2.f)).normlize();
+    }
+    
 
 }
 

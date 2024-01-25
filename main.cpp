@@ -39,7 +39,8 @@ std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0
 std::vector<std::vector<float>> PenumbraBuffer(width, std::vector<float>(height, 0));
 std::vector<std::vector<Vec3f>> NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
 std::vector<std::vector<Mat3x3>> TBNBuffer(width, std::vector<Mat3x3>(height, Mat3x3()));
-std::vector<std::vector<Vec3f>> ScreenPosWBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));//归一化坐标
+
+Camera camera(Eye, Center, Up, Vec2i(width, height), 0.1, 100);
 
 std::random_device rd;
 std::mt19937 RandomGen(rd());
@@ -47,7 +48,8 @@ std::uniform_real_distribution<float> UniformDis01(0.0f, 1.0f);
 
 int main(int argc, char **argv) {
 
-    std::unique_ptr<Scene> scene = std::make_unique<Scene>();
+    std::shared_ptr<Scene> scene = std::make_unique<Scene>();
+    scene->SetLightDir(LightDir);
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
     std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
     scene->Add(model_floor);
@@ -87,10 +89,8 @@ int main(int argc, char **argv) {
         auto model = model_WeakPtr.lock();
         Mat4x4 Uniform_MShadow =
                 (ViewPort * projection() * lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
-        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, Projection, ModelView, ViewPort,
-                                                                        LightDir, Eye, Center, Uniform_MShadow,
-                                                                        DepthBuffer, ShadowBuffer, PenumbraBuffer,
-                                                                        NormalBuffer, TBNBuffer, ScreenPosWBuffer);
+        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene, DepthBuffer, ShadowBuffer,
+                                                                        PenumbraBuffer, NormalBuffer, TBNBuffer);
         for (int i = 0; i < model->nfaces(); i++) {
             const std::vector<int> &face = model->getface(i);
             std::vector<Vec4f> ClipSpaceCoords;

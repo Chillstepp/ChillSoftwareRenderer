@@ -4,7 +4,7 @@
 
 #include "Camera.h"
 
-void Camera::SetCameraParam(Vec3f Location_, Vec3f LookTo_, Vec3f Up_) {
+void Camera::SetCameraCoreParam(Vec3f Location_, Vec3f LookTo_, Vec3f Up_) {
     Location = Location_;
     LookTo   = LookTo_;
     Up       = Up_;
@@ -14,5 +14,6 @@ void Camera::SetCameraParam(Vec3f Location_, Vec3f LookTo_, Vec3f Up_) {
 
 void Camera::Update() {
     ViewMatrix = lookat(Location, LookTo, Up);
-    ProjectionMatrix = projection();
+    ProjectionMatrix = projection(Near, Far);
+    ViewportMatrix = viewport(0, 0, ViewportSize.x, ViewportSize.y);
 }

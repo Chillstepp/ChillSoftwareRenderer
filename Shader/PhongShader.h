@@ -6,22 +6,20 @@
 #define CHILLSOFTWARERENDERER_PHONGSHADER_H
 
 #include "IShader.h"
+#include "../Scene.h"
 
 class PhongShader : public IShader {
 private:
     std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
+    std::shared_ptr<Scene> scene;
+    Camera camera;
+
     const std::vector<std::vector<float>> &DepthBuffer;
     std::vector<std::vector<float>> &ShadowBuffer;// Depth in light-view space
     std::vector<std::vector<float>> &PenumbraBuffer;//PCSS Penumbra Buffer
     std::vector<std::vector<Vec3f>> &NormalBuffer;
     std::vector<std::vector<Mat3x3>> &TBNBuffer;
-    std::vector<std::vector<Vec3f>> &ScreenPosWBuffer;
-    Vec3f LightDir;
-    Mat4x4 ProjectionMat;
-    Mat4x4 ModelViewMat;
-    Mat4x4 ViewPortMat;
-    Vec3f Eye;
-    Vec3f Center;
+
 
 
     std::vector<Vec2f> Varying_uv{3, {0, 0}};
@@ -34,24 +32,18 @@ private:
     Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
 
 public:
-    explicit PhongShader(std::shared_ptr<Model> &model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
-                         Mat4x4 ViewPortMat_, Vec3f LightDir_,
-                         Vec3f Eye_, Vec3f Center_, Mat4x4 Uniform_MShadow_,
+    explicit PhongShader(std::shared_ptr<Model> &model_,
+                         const Camera& camera_,
+                         const std::shared_ptr<Scene>& scene_,
                          const std::vector<std::vector<float>> &DepthBuffer_,
                          std::vector<std::vector<float>> &ShadowBuffer_,
                          std::vector<std::vector<float>> &PenumbraBuffer_,
                          std::vector<std::vector<Vec3f>> &NormalBuffer_,
-                         std::vector<std::vector<Mat3x3>> &TBNBuffer_,
-                         std::vector<std::vector<Vec3f>> &ScreenPosWBuffer_) :
-            model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_),
-            LightDir(LightDir_),
-            Uniform_MShadow(Uniform_MShadow_), DepthBuffer(DepthBuffer_), Eye(Eye_), Center(Center_),
-            ShadowBuffer(ShadowBuffer_),
-            PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_), TBNBuffer(TBNBuffer_),
-            ScreenPosWBuffer(ScreenPosWBuffer_) {
-        Uniform_M = ModelViewMat_;
+                         std::vector<std::vector<Mat3x3>> &TBNBuffer_) :
+            model(model_), camera(camera_), scene(scene_), DepthBuffer(DepthBuffer_),ShadowBuffer(ShadowBuffer_),
+            PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_), TBNBuffer(TBNBuffer_){
+        Uniform_M = camera.ViewMatrix;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
-        // framebuffer screen coordinates -> world coordinates -> shadowbuffer screen coordinates
 
     }
 
