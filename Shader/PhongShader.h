@@ -17,16 +17,12 @@ private:
     const std::vector<std::vector<float>> &DepthBuffer;
     std::vector<std::vector<float>> &ShadowBuffer;// Depth in light-view space
     std::vector<std::vector<float>> &PenumbraBuffer;//PCSS Penumbra Buffer
-    std::vector<std::vector<Vec3f>> &NormalBuffer;
-    std::vector<std::vector<Mat3x3>> &TBNBuffer;
-
+    std::vector<std::vector<Vec3f>> &NormalBuffer;// Vertex normal
 
 
     std::vector<Vec2f> Varying_uv{3, {0, 0}};
     std::vector<Vec3f> Varying_tri{3, {0, 0, 0}};
-    std::vector<Vec3f> Varying_WorldPos{3, {0, 0, 0}};
     std::vector<Vec3f> Varying_normal{3, {0, 0, 0}};
-    std::vector<float> Varying_w{0.0f, 0.0f, 0.0f};
     Mat4x4 Uniform_M;
     Mat4x4 Uniform_MIT;
     Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
@@ -38,10 +34,9 @@ public:
                          const std::vector<std::vector<float>> &DepthBuffer_,
                          std::vector<std::vector<float>> &ShadowBuffer_,
                          std::vector<std::vector<float>> &PenumbraBuffer_,
-                         std::vector<std::vector<Vec3f>> &NormalBuffer_,
-                         std::vector<std::vector<Mat3x3>> &TBNBuffer_) :
+                         std::vector<std::vector<Vec3f>> &NormalBuffer_) :
             model(model_), camera(camera_), scene(scene_), DepthBuffer(DepthBuffer_),ShadowBuffer(ShadowBuffer_),
-            PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_), TBNBuffer(TBNBuffer_){
+            PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_){
         Uniform_M = camera.ViewMatrix;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
 		Uniform_MShadow = (camera.ViewportMatrix * camera.ProjectionMatrix * lookat(scene->LightPos, camera.LookTo, camera.Up)) * camera.ViewMatrix.Inverse();

@@ -99,6 +99,31 @@ static void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color
     }
 }
 
+namespace ChillRender{
+	enum class EFaceCulling : uint8_t {
+		BackFacingCulling = 0,
+		FrontFacingCulling = 1,
+		DisableFacingCulling = 2
+	};
 
+	static bool FaceCulling(const std::vector<Vec3f>& WorldCoords, const Camera& Camera, EFaceCulling FaceCullingType = EFaceCulling::BackFacingCulling)
+	{
+		Vec3f TriangleFaceNormal;
+		switch (FaceCullingType)
+		{
+		case EFaceCulling::BackFacingCulling:
+			TriangleFaceNormal = (WorldCoords[2] - WorldCoords[0]) ^ (WorldCoords[1] - WorldCoords[0]);
+			return TriangleFaceNormal.normlize() * (WorldCoords[0] - Camera.Location) >= 0;
+		case EFaceCulling::FrontFacingCulling:
+			TriangleFaceNormal = (WorldCoords[2] - WorldCoords[0]) ^ (WorldCoords[1] - WorldCoords[0]);
+			return TriangleFaceNormal.normlize() * (WorldCoords[0] - Camera.Location) < 0;
+		case EFaceCulling::DisableFacingCulling:
+			return true;
+		}
+		return true;
+	}
+
+
+}
 
 #endif //CHILLSOFTWARERENDERER_RENDER_H

@@ -38,7 +38,7 @@ std::vector<std::vector<float>> DepthBuffer(width, std::vector<float>(height, st
 std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0));
 std::vector<std::vector<float>> PenumbraBuffer(width, std::vector<float>(height, 0));
 std::vector<std::vector<Vec3f>> NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
-std::vector<std::vector<Mat3x3>> TBNBuffer(width, std::vector<Mat3x3>(height, Mat3x3()));
+
 
 Camera camera(Eye, Center, Up, Vec2i(width, height), 1, 1000);
 
@@ -68,12 +68,12 @@ int main(int argc, char **argv) {
         auto model = model_WeakPtr.lock();
 
         std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(), lookat(LightSpotLoc, Center, Up), ViewPort);
-        for (int i = 0; i < model->nfaces(); i++) {
-            const std::vector<int> &face = model->getface(i);
+        for (int iFace = 0; iFace < model->nfaces(); iFace++) {
+            const std::vector<int> &face = model->getface(iFace);
             std::vector<Vec4f> ClipSpaceCoords;
             ClipSpaceCoords.reserve(3);
-            for (int j = 0; j < 3; j++) {
-                ClipSpaceCoords.push_back(Shader_dep->vertex(i, j).ToVec4f());
+            for (int nVertex = 0; nVertex < 3; nVertex++) {
+                ClipSpaceCoords.push_back(Shader_dep->vertex(iFace, nVertex).ToVec4f());
             }
             triangle(model, ClipSpaceCoords, image, DepthBuffer, Shader_dep);
         }
@@ -85,24 +85,19 @@ int main(int argc, char **argv) {
 
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
-//        Mat4x4 Uniform_MShadow =
-//                (ViewPort * projection() * lookat(LightSpotLoc, Center, Up)) * (ModelView).Inverse();
         std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene, DepthBuffer, ShadowBuffer,
-                                                                        PenumbraBuffer, NormalBuffer, TBNBuffer);
-        for (int i = 0; i < model->nfaces(); i++) {
-            const std::vector<int> &face = model->getface(i);
+                                                                        PenumbraBuffer, NormalBuffer);
+        for (int iFace = 0; iFace < model->nfaces(); iFace++) {
             std::vector<Vec4f> ClipSpaceCoords;
             ClipSpaceCoords.reserve(3);
-            for (int j = 0; j < 3; j++) {
-                ClipSpaceCoords.push_back(Shader->vertex(i, j).ToVec4f());
-            }
+			std::vector<Vec3f> WorldCoords;
+			WorldCoords.reserve(3);
 
-            Vec3f WorldCoords[3];
-            for (int j = 0; j < 3; j++) {
-                WorldCoords[j] = model->getvert(i, j);
+            for (int nVertex = 0; nVertex < 3; nVertex++) {
+                ClipSpaceCoords[nVertex] = Shader->vertex(iFace, nVertex).ToVec4f();
+				WorldCoords[nVertex] = model->getvert(iFace, nVertex);
             }
-            Vec3f tri_normal = (WorldCoords[2] - WorldCoords[0]) ^ (WorldCoords[1] - WorldCoords[0]);
-            if (tri_normal.normlize() * (WorldCoords[0] - Eye) >= 0) //back face culling
+            if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
             {
                 triangle(model, ClipSpaceCoords, image2, ZBuffer, Shader);
             }

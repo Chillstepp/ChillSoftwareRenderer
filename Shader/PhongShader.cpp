@@ -13,11 +13,9 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Varying_uv[nthvert] = model->getuv(iface, nthvert);
 
     Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
-    Varying_WorldPos[nthvert] = model->getvert(iface, nthvert);
     gl_vertex = camera.ViewMatrix * gl_vertex;
     Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
     gl_vertex = camera.ViewportMatrix * camera.ProjectionMatrix * gl_vertex;
-    Varying_w[nthvert] = gl_vertex.raw[3][0];
 
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
         Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))
@@ -49,7 +47,6 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
             {bn.x,        bn.y,        bn.z},
     };
     Vec3f tangentSpaceNormal = model->getNormal(uv);
-    TBNBuffer[ScreenCoord.x][ScreenCoord.y] = TBN;
     Matrix Mat_n = TBN.Transpose() * tangentSpaceNormal.ToMatrix();//TBN^T is same as TBN^-1
     Vec3f n = Mat_n.ToVec3f().normlize();
     Vec3f l = (Uniform_M.RemoveHomogeneousDim() * scene->LightDir.ToMatrix()).ToVec3f().normlize();
