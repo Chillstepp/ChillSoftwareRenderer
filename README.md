@@ -34,7 +34,7 @@
 
 ## ShowCase
 
-![image-20240117211949153](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240117211949153.png)
+<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240125220750615.png" alt="image-20240125220750615" style="zoom: 67%;" />
 
 ## Tech Roadmap
 
@@ -139,7 +139,7 @@ Here we use DepthShader to get Depth Buffer
 | ------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231129161027212.png" alt="image-20231129161027212" style="zoom: 25%;" /> |
 
-​ For a point, We transform it form FrameBuffer screen coordinates to DepthBuffer screen coordinates.If a point's depth
+ For a point, We transform it form FrameBuffer screen coordinates to DepthBuffer screen coordinates.If a point's depth
 is deeper than DepthBuffer, then this point should be a shadow point. We let the `color*ShadowFactor`, and ShadowFactor
 is between 0 to 1 to make this point's color dark.
 
@@ -163,13 +163,13 @@ is between 0 to 1 to make this point's color dark.
 
 ![image-20231224202314452](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202314452.png)
 
-​ 以方向光源为例，一般认为方向光是平行光，在光源处渲染时使用正交投影。因为Shadow Map的分辨率有限，Shadow Map上面的**一个片段**对应场景中的**一块区域**
+ 以方向光源为例，一般认为方向光是平行光，在光源处渲染时使用正交投影。因为Shadow Map的分辨率有限，Shadow Map上面的**一个片段**对应场景中的**一块区域**
 ，又因为很多情况下光源与物体存在夹角，因此记录的深度通常与物体的实际深度存在偏差。
 
-​ 上图中蓝色片段即为Shadow
+ 上图中蓝色片段即为Shadow
 Map中记录的深度。在纹理中像素为最小单位，一个像素只能记录一个值，图中每个像素记录的是箭头处的深度。这就导致了明明本该整块被照亮的地板，会出现明暗相间的条纹：黑线处的地板由于在光源视角中深度小于记录的值，因此不在阴影中。红线处的地板深度大于记录的值，没有通过阴影测试。
 
-​ 解决办法有些trick，我们可以用一个叫做**阴影偏移**（shadow bias）的技巧来解决这个问题，我们简单的对表面的深度（或深度贴图）应用一个偏移量，这样片元就不会被错误地认为在表面之下了。
+ 解决办法有些trick，我们可以用一个叫做**阴影偏移**（shadow bias）的技巧来解决这个问题，我们简单的对表面的深度（或深度贴图）应用一个偏移量，这样片元就不会被错误地认为在表面之下了。
 
 ![image-20231224202630631](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224202630631.png)
 
@@ -312,7 +312,7 @@ Reference:
 
 #### CSM(Cascaded Shadow Mapping)
 
-​ 一个常见的疑问是为什么有的叫它CSM，有的叫他PSSM（Parallel-Split Shadow Map）。实际上原论文是把它叫做PSSM，工业界实现的时候选择了个更广泛的名字CSM。从名字本身来说，只要是一系列层级关系的shadow
+ 一个常见的疑问是为什么有的叫它CSM，有的叫他PSSM（Parallel-Split Shadow Map）。实际上原论文是把它叫做PSSM，工业界实现的时候选择了个更广泛的名字CSM。从名字本身来说，只要是一系列层级关系的shadow
 map，就能叫CSM，而只有平行切分视锥的才叫做PSSM。换句话说，CSM是个种类，PSSM是具体方法。
 
 ​    ![image-20231224214449007](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224214449007.png)

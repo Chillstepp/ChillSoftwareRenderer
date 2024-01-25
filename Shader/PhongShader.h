@@ -44,7 +44,7 @@ public:
             PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_), TBNBuffer(TBNBuffer_){
         Uniform_M = camera.ViewMatrix;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
-
+		Uniform_MShadow = (camera.ViewportMatrix * camera.ProjectionMatrix * lookat(scene->LightPos, camera.LookTo, camera.Up)) * camera.ViewMatrix.Inverse();
     }
 
     ~PhongShader() override;

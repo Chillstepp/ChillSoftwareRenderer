@@ -20,7 +20,7 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Varying_w[nthvert] = gl_vertex.raw[3][0];
 
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
-        Uniform_MIT.Inverse().Transpose() * Mat4x1::Embed(model->getNormal(iface, nthvert))
+        Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))
     );
     return gl_vertex;
 }

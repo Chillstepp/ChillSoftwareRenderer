@@ -71,7 +71,6 @@ Matrix<4, 1, float> DepthShder::vertex(int iface, int nthvert) {
 bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
     Vec3f p(0, 0, 0);
     for (int i = 0; i < 3; i++) {
-
         p = p + varying_tri[i] * bar.raw[i];
     }
     float factor = p.z;
