@@ -25,6 +25,9 @@ struct Vec2 {
         struct {
             T x, y;
         };
+		struct {
+			T width, height;
+		};
         T raw[2];
     };
 

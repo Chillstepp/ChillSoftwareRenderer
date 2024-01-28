@@ -6,55 +6,58 @@
 #define CHILLSOFTWARERENDERER_GBUFFER_H
 
 #include "../Math.h"
+#include <map>
 
+template<typename T>
+class Buffer
+{
+ public:
+	int Width;
+	int Height;
+	T* Data;
+
+ public:
+	Buffer(Vec2i Size)
+	{
+		Width = Size.width;
+		Height = Size.height;
+		Data = new T[Width * Height];
+	}
+	~Buffer()
+	{
+		delete[] Data;
+		Data = nullptr;
+	}
+
+	T* operator [](int k)
+	{
+		return &Data[k * Width];
+	}
+
+};
 
 class GBuffer {
 private:
-    static GBuffer *Buffer;
-    int width = 0;
-    int height = 0;
-    std::vector<float> DepthBuffer;
-    std::vector<Vec3f> NormalBuffer;
+	GBuffer() {};
+	~GBuffer() {};
+	GBuffer(const GBuffer&) {};
+	GBuffer& operator=(const GBuffer&){};
+
+	std::map<std::string, void*>Buffers;
 
 public:
-    GBuffer(int width_, int height_) : width(width_), height(height_) {
-        DepthBuffer.resize(width_ * height_);
-        NormalBuffer.resize(width_ * height_);
-        Buffer = this;
-    }
-
-    inline float GetWidth() const {
-        return width;
-    }
-
-    inline float GetHeight() const {
-        return height;
-    }
-
-    inline Vec2i GetSize() const {
-        return Vec2i{width, height};
-    }
-
-    inline float GetDepth(int x, int y) {
-        return DepthBuffer[x * width + y];
-    }
-
-    inline Vec3f GetNormal(int x, int y) {
-        return NormalBuffer[x * width + y];
-    }
-
-    inline float SetDepth(int x, int y, float depth) {
-        return DepthBuffer[x * width + y];
-    }
-
-    inline Vec3f SetNormal(int x, int y, Vec3f normal) {
-        return NormalBuffer[x * width + y];
-    }
-
-    static GBuffer *GetGBuffer() {
-        return Buffer;
-    }
-
+	static GBuffer Get()
+	{
+		static GBuffer Instance;
+		return Instance;
+	}
+	template<typename BufferDataType>
+	Buffer<BufferDataType>* GetBuffer(const std::string& BufferName) const
+	{
+		auto BufferFound = Buffers.find(BufferName);
+		if(BufferFound == Buffers.end()) return nullptr;
+		return BufferFound;
+	}
 };
 
 
