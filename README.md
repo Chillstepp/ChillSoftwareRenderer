@@ -4,7 +4,8 @@
 
 ## Tech
 
-- [x] Back-Face Culling
+- [x] Shader-based programmable pipeline
+- [x] Switchable Back/Front-face culling
 - [x] Perspective-Correct Interpolation
 - [x] Camera
 - [x] Shading:
@@ -28,9 +29,9 @@
     - [ ] FXAA
     - [ ] TAA
 - [ ] SSR
-- [ ] PBR
+- [ ] PBR Metallic-Roughness Workflow
+- [ ] Cubemap and Skybox
 - [ ] IBL
-- [ ] Cubemap
 
 ## ShowCase
 
