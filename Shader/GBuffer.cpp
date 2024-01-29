@@ -3,3 +3,14 @@
 //
 
 #include "GBuffer.h"
+
+GBuffer::~GBuffer() {
+    for(auto [KeyName, BufferPtr]: Buffers)
+    {
+        delete BufferPtr;
+    }
+}
+
+
+
+

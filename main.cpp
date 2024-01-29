@@ -54,7 +54,9 @@ int main(int argc, char **argv) {
     std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
     scene->Add(model_floor);
     scene->Add(model_diablo);
-
+    GBuffer::Get().AddBuffer<float>("ShadowBuffer", Vec2i{width, height});
+    GBuffer::Get().AddBuffer<float>("PenumbraBuffer", Vec2i{width, height});
+    GBuffer::Get().AddBuffer<Vec3f>("NormalBuffer", Vec2i{width, height});
 
 
     //FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);

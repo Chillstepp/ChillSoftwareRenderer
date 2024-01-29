@@ -8,12 +8,17 @@
 #include "../Math.h"
 #include <map>
 
+class BufferBase
+{
+public:
+    int Width;
+    int Height;
+};
+
 template<typename T>
-class Buffer
+class Buffer : public BufferBase
 {
  public:
-	int Width;
-	int Height;
 	T* Data;
 
  public:
@@ -38,26 +43,40 @@ class Buffer
 
 class GBuffer {
 private:
-	GBuffer() {};
-	~GBuffer() {};
-	GBuffer(const GBuffer&) {};
-	GBuffer& operator=(const GBuffer&){};
+	GBuffer() = default;
+	~GBuffer();
+	GBuffer(const GBuffer&) = default;
+	GBuffer& operator = (const GBuffer&) = delete;
 
-	std::map<std::string, void*>Buffers;
+	std::map<std::string, BufferBase*>Buffers;
 
 public:
-	static GBuffer Get()
+	static GBuffer& Get()
 	{
 		static GBuffer Instance;
 		return Instance;
 	}
+
 	template<typename BufferDataType>
-	Buffer<BufferDataType>* GetBuffer(const std::string& BufferName) const
-	{
-		auto BufferFound = Buffers.find(BufferName);
-		if(BufferFound == Buffers.end()) return nullptr;
-		return BufferFound;
-	}
+	Buffer<BufferDataType>* GetBuffer(const std::string& BufferName) const{
+        auto BufferFound = Buffers.find(BufferName);
+        if(BufferFound == Buffers.end()) return nullptr;
+
+        return BufferFound;
+    }
+
+    template<typename BufferDataType>
+    void AddBuffer(const std::string& BufferName, Vec2i BufferSize) {
+        BufferBase* BufferPtr = new Buffer<BufferDataType>(BufferSize);
+        Buffers.insert({BufferName, BufferPtr});
+
+    }
+
+    template<typename BufferDataType>
+    BufferDataType GetBufferElement(const std::string &BufferName, Vec2i BufferLocation) const{
+        Buffer<BufferDataType>& Buffer = *GetBuffer<BufferDataType>(BufferName);
+        return *Buffer[BufferLocation.x][BufferLocation.y];
+    }
 };
 
 
