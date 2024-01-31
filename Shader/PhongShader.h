@@ -7,6 +7,7 @@
 
 #include "IShader.h"
 #include "../Scene.h"
+#include "GBuffer.h"
 
 class PhongShader : public IShader {
 private:
@@ -15,9 +16,9 @@ private:
     Camera camera;
 
     const std::vector<std::vector<float>> &DepthBuffer;
-    std::vector<std::vector<float>> &ShadowBuffer;// Depth in light-view space
-    std::vector<std::vector<float>> &PenumbraBuffer;//PCSS Penumbra Buffer
-    std::vector<std::vector<Vec3f>> &NormalBuffer;// Vertex normal
+    Buffer<float>& ShadowBuffer;// Depth in light-view space
+    Buffer<float>& PenumbraBuffer;//PCSS Penumbra Buffer
+    Buffer<Vec3f>& NormalBuffer;// Vertex normal
 
 
     std::vector<Vec2f> Varying_uv{3, {0, 0}};
@@ -31,12 +32,12 @@ public:
     explicit PhongShader(std::shared_ptr<Model> &model_,
                          const Camera& camera_,
                          const std::shared_ptr<Scene>& scene_,
-                         const std::vector<std::vector<float>> &DepthBuffer_,
-                         std::vector<std::vector<float>> &ShadowBuffer_,
-                         std::vector<std::vector<float>> &PenumbraBuffer_,
-                         std::vector<std::vector<Vec3f>> &NormalBuffer_) :
-            model(model_), camera(camera_), scene(scene_), DepthBuffer(DepthBuffer_),ShadowBuffer(ShadowBuffer_),
-            PenumbraBuffer(PenumbraBuffer_), NormalBuffer(NormalBuffer_){
+                         const std::vector<std::vector<float>> &DepthBuffer_) :
+            model(model_), camera(camera_), scene(scene_),
+            DepthBuffer(DepthBuffer_),
+            ShadowBuffer(*GBuffer::Get().GetBuffer<float>("ShadowBuffer")),
+            PenumbraBuffer(*GBuffer::Get().GetBuffer<float>("PenumbraBuffer")),
+            NormalBuffer(*GBuffer::Get().GetBuffer<Vec3f>("NormalBuffer")){
         Uniform_M = camera.ViewMatrix;
         Uniform_MIT = Uniform_M.Inverse().Transpose();
 		Uniform_MShadow = (camera.ViewportMatrix * camera.ProjectionMatrix * lookat(scene->LightPos, camera.LookTo, camera.Up)) * camera.ViewMatrix.Inverse();

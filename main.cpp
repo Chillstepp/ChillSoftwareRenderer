@@ -35,9 +35,9 @@ Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection();
 std::vector<std::vector<float>> ZBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
 std::vector<std::vector<float>> DepthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
-std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0));
-std::vector<std::vector<float>> PenumbraBuffer(width, std::vector<float>(height, 0));
-std::vector<std::vector<Vec3f>> NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
+//std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0));
+//std::vector<std::vector<float>> PenumbraBuffer(width, std::vector<float>(height, 0));
+//std::vector<std::vector<Vec3f>> NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
 
 
 Camera camera(Eye, Center, Up, Vec2i(width, height), 1, 1000);
@@ -54,9 +54,11 @@ int main(int argc, char **argv) {
     std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
     scene->Add(model_floor);
     scene->Add(model_diablo);
-    GBuffer::Get().AddBuffer<float>("ShadowBuffer", Vec2i{width, height});
-    GBuffer::Get().AddBuffer<float>("PenumbraBuffer", Vec2i{width, height});
-    GBuffer::Get().AddBuffer<Vec3f>("NormalBuffer", Vec2i{width, height});
+    auto& ShadowBuffer = *GBuffer::Get().AddBuffer<float>("ShadowBuffer", Vec2i{width, height});
+    auto& PenumbraBuffer = *GBuffer::Get().AddBuffer<float>("PenumbraBuffer", Vec2i{width, height});
+    auto& NormalBuffer = *GBuffer::Get().AddBuffer<Vec3f>("NormalBuffer", Vec2i{width, height});
+    GBuffer::Get().AddBuffer<float>("DepthBuffer", Vec2i{width, height});
+    GBuffer::Get().AddBuffer<float>("ZBuffer", Vec2i{width, height});
 
 
     //FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
@@ -87,8 +89,7 @@ int main(int argc, char **argv) {
 
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
-        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene, DepthBuffer, ShadowBuffer,
-                                                                        PenumbraBuffer, NormalBuffer);
+        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene, DepthBuffer);
         for (int iFace = 0; iFace < model->nfaces(); iFace++) {
             std::vector<Vec4f> ClipSpaceCoords;
             ClipSpaceCoords.reserve(3);
@@ -130,7 +131,6 @@ int main(int argc, char **argv) {
 //            image2.set(i ,j, image2.get(i,j) * PCFShadowFactor);
 //        }
 //    }
-
 
     //Shadow: PCSS
     for (int i = 0; i < width; i++) {

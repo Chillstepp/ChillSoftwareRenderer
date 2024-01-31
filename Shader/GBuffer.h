@@ -58,18 +58,17 @@ public:
 	}
 
 	template<typename BufferDataType>
-	Buffer<BufferDataType>* GetBuffer(const std::string& BufferName) const{
+	Buffer<BufferDataType>* GetBuffer(const std::string& BufferName) {
         auto BufferFound = Buffers.find(BufferName);
         if(BufferFound == Buffers.end()) return nullptr;
-
-        return BufferFound;
+        return static_cast<Buffer<BufferDataType>*>(BufferFound->second);
     }
 
     template<typename BufferDataType>
-    void AddBuffer(const std::string& BufferName, Vec2i BufferSize) {
+    Buffer<BufferDataType>* AddBuffer(const std::string& BufferName, Vec2i BufferSize) {
         BufferBase* BufferPtr = new Buffer<BufferDataType>(BufferSize);
         Buffers.insert({BufferName, BufferPtr});
-
+        return static_cast<Buffer<BufferDataType>*>(BufferPtr);
     }
 
     template<typename BufferDataType>
