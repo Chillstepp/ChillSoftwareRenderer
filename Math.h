@@ -589,7 +589,82 @@ namespace ChillMathUtility {
     {
         return (InVec - Normal * (Normal * InVec * 2.f)).normlize();
     }
-    
+
+    /*!
+     * @brief
+     * @tparam T: DataType
+     * @tparam Dim: AABB Dimension
+     * @param pts： pts of 2D-Shape/3D-Volume to get AABB
+     * @return AABB (std::pair<<Vec2/Vec3<T>, <Vec2/Vec3<T>>)
+     */
+    template<typename T, int Dim>
+    requires (Dim >= 2) && (Dim <= 3)
+    static auto GetAABB(const std::vector<typename std::conditional_t<Dim == 2, Vec2<T>, Vec3<T>>>& pts)
+    {
+        if constexpr(Dim == 2) {
+            using VecType = Vec2<T>;
+            VecType bboxmin(std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
+            VecType bboxmax(std::numeric_limits<T>::lowest(), std::numeric_limits<T>::lowest());
+            for (int i = 0; i < pts.size(); i++) {
+                bboxmin.x = std::min(bboxmin.x, pts[i].x);
+                bboxmin.y = std::min(bboxmin.y, pts[i].y);
+
+                bboxmax.x = std::max(bboxmax.x, pts[i].x);
+                bboxmax.y = std::max(bboxmax.y, pts[i].y);
+            }
+            return std::pair<VecType, VecType>(bboxmin, bboxmax);
+        }
+        else if constexpr(Dim == 3) {
+            using VecType = Vec3<T>;
+            VecType bboxmin(std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
+            VecType bboxmax(std::numeric_limits<T>::lowest(), std::numeric_limits<T>::lowest());
+            for (int i = 0; i < pts.size(); i++) {
+                bboxmin.x = std::min(bboxmin.x, pts[i].x);
+                bboxmin.y = std::min(bboxmin.y, pts[i].y);
+                bboxmin.z = std::min(bboxmin.z, pts[i].z);
+
+                bboxmax.x = std::max(bboxmax.x, pts[i].x);
+                bboxmax.y = std::max(bboxmax.y, pts[i].y);
+                bboxmax.z = std::max(bboxmax.z, pts[i].z);
+            }
+            return std::pair<VecType, VecType>(bboxmin, bboxmax);
+        }
+    }
+
+    namespace AABBHelper
+    {
+        template<typename T, int Dim>
+        using BoxDataType = std::conditional_t<Dim == 2, Vec2<T>, Vec3<T>>;
+
+        template<typename T, int Dim>
+        using BoxType = std::pair<BoxDataType<T, Dim>, BoxDataType<T, Dim>>;
+    }
+
+    /*!
+     * @brief Clamp AABB out of ClampAABB, usually used for clamp pixel that out of screen
+     * @tparam T
+     * @tparam Dim
+     * @param AABB
+     * @param ClampAABB
+     * @return
+     */
+    template<typename T, int Dim>
+    requires (Dim >= 2) && (Dim <= 3)
+    static auto GetAABB_Intersect(const AABBHelper::BoxType<T, Dim>& AABB1, const AABBHelper::BoxType<T, Dim>& AABB2, bool& bIntersect)
+    {
+        AABBHelper::BoxType<T, Dim> ResultBox;
+        for(int i = 0; i < Dim; i++)
+        {
+            ResultBox.first.raw[i] = std::max(AABB1.first.raw[i], AABB2.first.raw[i]);
+            ResultBox.second.raw[i] = std::min(AABB1.second.raw[i], AABB2.second.raw[i]);
+        }
+        bIntersect = true;
+        for(int i = 0; i < Dim; i++)
+        {
+            bIntersect &= (ResultBox.first.raw[i] > ResultBox.second.raw[i]);
+        }
+        return ResultBox;
+    }
 
 }
 
