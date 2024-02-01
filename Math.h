@@ -661,7 +661,7 @@ namespace ChillMathUtility {
         bIntersect = true;
         for(int i = 0; i < Dim; i++)
         {
-            bIntersect &= (ResultBox.first.raw[i] > ResultBox.second.raw[i]);
+            bIntersect &= (ResultBox.first.raw[i] < ResultBox.second.raw[i]);
         }
         return ResultBox;
     }
