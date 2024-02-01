@@ -11,6 +11,7 @@
 #include "memory"
 #include "Model.h"
 #include "Shader/IShader.h"
+#include "Shader/GBuffer.h"
 
 static TGAColor ACESToneMapping(Vec3f color, float adapted_lum = 1.0f) {
 
@@ -32,13 +33,13 @@ static TGAColor ACESToneMapping(Vec3f color, float adapted_lum = 1.0f) {
 
 
 static void triangle(std::shared_ptr<Model> &model, const std::vector<Vec4f> &pts, TGAImage &image,
-                     std::vector<std::vector<float>> &ZBuffer, std::shared_ptr<IShader> &Shader) {
+                     Buffer<float> &ZBuffer, std::shared_ptr<IShader> &Shader) {
     std::vector<Vec3f> PointsCoord
-            {
-                    pts[0].ToVec3() / pts[0].w,
-                    pts[1].ToVec3() / pts[1].w,
-                    pts[2].ToVec3() / pts[2].w,
-            };
+    {
+        pts[0].ToVec3() / pts[0].w,
+        pts[1].ToVec3() / pts[1].w,
+        pts[2].ToVec3() / pts[2].w,
+    };
     Vec2f bboxmin(image.get_width() - 1, image.get_height() - 1);
     Vec2f bboxmax(0, 0);
     Vec2f clamp(image.get_width() - 1, image.get_height() - 1);

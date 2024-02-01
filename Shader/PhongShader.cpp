@@ -68,10 +68,10 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     float shadowBias = shadowK * (1.0f - n * l);
     //PCSS
     auto findAverageBlockerDis = [&shadowBias](const Vec2i &point, const float receiverDis,
-                                               const std::vector<std::vector<float>> &depthBufferInLightView,
+                                               const Buffer<float>& depthBufferInLightView,
                                                const int sampleRadius = 1) {
-        bool overEdge = point.x - sampleRadius < 0 or point.x + sampleRadius >= depthBufferInLightView.size()
-                        or point.y - sampleRadius < 0 or point.y + sampleRadius >= depthBufferInLightView[0].size();
+        bool overEdge = point.x - sampleRadius < 0 or point.x + sampleRadius >= depthBufferInLightView.Width
+                        or point.y - sampleRadius < 0 or point.y + sampleRadius >= depthBufferInLightView.Height;
         if (overEdge) return 0.0f;
         int totalSampleTimes = 0;
         float totalBlockerDis = 0;
@@ -87,8 +87,8 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         }
         return totalBlockerDis / static_cast<float>(totalSampleTimes);
     };
-    if ((int) CorrespondingPoint.x < DepthBuffer.size() &&
-        (int) CorrespondingPoint.y < DepthBuffer[(int) CorrespondingPoint.x].size()) {
+    if ((int) CorrespondingPoint.x < DepthBuffer.Width &&
+        (int) CorrespondingPoint.y < DepthBuffer.Height) {
         bool bBlock = false;
         if (DepthBuffer[(int) CorrespondingPoint.x][(int) CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias) {
             bBlock = true;
@@ -96,7 +96,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = bBlock ? 1 : 0;
 
         float averageBlockerDis = findAverageBlockerDis({(int) CorrespondingPoint.x, (int) CorrespondingPoint.y},
-                                                        CorrespondingPoint.z, DepthBuffer, 40);
+                                                       CorrespondingPoint.z, DepthBuffer, 40);
         float RecevierDisatance = CorrespondingPoint.z;
         constexpr float lightRadius = 50.0f;
         float Penumbra = (RecevierDisatance - averageBlockerDis) * lightRadius / averageBlockerDis;

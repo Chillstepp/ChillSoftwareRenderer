@@ -28,6 +28,13 @@ class Buffer : public BufferBase
 		Height = Size.height;
 		Data = new T[Width * Height];
 	}
+    Buffer(Vec2i Size, T InitValue)
+    {
+        Width = Size.width;
+        Height = Size.height;
+        Data = new T[Width * Height];
+        std::fill(Data, Data + Width * Height, InitValue);
+    }
 	~Buffer()
 	{
 		delete[] Data;
@@ -38,6 +45,11 @@ class Buffer : public BufferBase
 	{
 		return &Data[k * Width];
 	}
+
+    const T* operator [](int k) const
+    {
+        return &Data[k * Width];
+    }
 
 };
 
@@ -67,6 +79,13 @@ public:
     template<typename BufferDataType>
     Buffer<BufferDataType>* AddBuffer(const std::string& BufferName, Vec2i BufferSize) {
         BufferBase* BufferPtr = new Buffer<BufferDataType>(BufferSize);
+        Buffers.insert({BufferName, BufferPtr});
+        return static_cast<Buffer<BufferDataType>*>(BufferPtr);
+    }
+
+    template<typename BufferDataType>
+    Buffer<BufferDataType>* AddBuffer(const std::string& BufferName, Vec2i BufferSize, BufferDataType InitValue) {
+        BufferBase* BufferPtr = new Buffer<BufferDataType>(BufferSize, InitValue);
         Buffers.insert({BufferName, BufferPtr});
         return static_cast<Buffer<BufferDataType>*>(BufferPtr);
     }

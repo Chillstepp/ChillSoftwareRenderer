@@ -15,9 +15,9 @@ private:
     std::shared_ptr<Scene> scene;
     Camera camera;
 
-    const std::vector<std::vector<float>> &DepthBuffer;
-    Buffer<float>& ShadowBuffer;// Depth in light-view space
-    Buffer<float>& PenumbraBuffer;//PCSS Penumbra Buffer
+    const Buffer<float>& DepthBuffer;
+    Buffer<float>& ShadowBuffer;// Record which pixels are occluded
+    Buffer<float>& PenumbraBuffer;//PCSS Method Penumbra
     Buffer<Vec3f>& NormalBuffer;// Vertex normal
 
 
@@ -31,10 +31,9 @@ private:
 public:
     explicit PhongShader(std::shared_ptr<Model> &model_,
                          const Camera& camera_,
-                         const std::shared_ptr<Scene>& scene_,
-                         const std::vector<std::vector<float>> &DepthBuffer_) :
+                         const std::shared_ptr<Scene>& scene_) :
             model(model_), camera(camera_), scene(scene_),
-            DepthBuffer(DepthBuffer_),
+            DepthBuffer(*GBuffer::Get().GetBuffer<float>("DepthBuffer")),
             ShadowBuffer(*GBuffer::Get().GetBuffer<float>("ShadowBuffer")),
             PenumbraBuffer(*GBuffer::Get().GetBuffer<float>("PenumbraBuffer")),
             NormalBuffer(*GBuffer::Get().GetBuffer<Vec3f>("NormalBuffer")){

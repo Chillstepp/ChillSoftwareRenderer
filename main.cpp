@@ -33,8 +33,8 @@ Vec3f Up{0, 1, 0};
 Mat4x4 ModelView = lookat(Eye, Center, Up);
 Mat4x4 ViewPort = viewport(0, 0, width, height);
 Mat4x4 Projection = projection();
-std::vector<std::vector<float>> ZBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
-std::vector<std::vector<float>> DepthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
+//std::vector<std::vector<float>> ZBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
+//std::vector<std::vector<float>> DepthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
 //std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0));
 //std::vector<std::vector<float>> PenumbraBuffer(width, std::vector<float>(height, 0));
 //std::vector<std::vector<Vec3f>> NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
     auto& ShadowBuffer = *GBuffer::Get().AddBuffer<float>("ShadowBuffer", Vec2i{width, height});
     auto& PenumbraBuffer = *GBuffer::Get().AddBuffer<float>("PenumbraBuffer", Vec2i{width, height});
     auto& NormalBuffer = *GBuffer::Get().AddBuffer<Vec3f>("NormalBuffer", Vec2i{width, height});
-    GBuffer::Get().AddBuffer<float>("DepthBuffer", Vec2i{width, height});
-    GBuffer::Get().AddBuffer<float>("ZBuffer", Vec2i{width, height});
+    auto& DepthBuffer = *GBuffer::Get().AddBuffer<float>("DepthBuffer", Vec2i{width, height}, std::numeric_limits<float>::max());
+    auto& ZBuffer = *GBuffer::Get().AddBuffer<float>("ZBuffer", Vec2i{width, height}, std::numeric_limits<float>::max());
 
 
     //FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
-        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene, DepthBuffer);
+        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene);
         for (int iFace = 0; iFace < model->nfaces(); iFace++) {
             std::vector<Vec4f> ClipSpaceCoords;
             ClipSpaceCoords.reserve(3);
