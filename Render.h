@@ -40,19 +40,23 @@ static void triangle(std::shared_ptr<Model> &model, const std::vector<Vec4f> &pt
         pts[1].ToVec3() / pts[1].w,
         pts[2].ToVec3() / pts[2].w,
     };
-    Vec2f bboxmin(image.get_width() - 1, image.get_height() - 1);
-    Vec2f bboxmax(0, 0);
-    Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
-    for (int i = 0; i < 3; i++) {
-        bboxmin.x = std::max(0.0f, std::min(bboxmin.x, PointsCoord[i].x));
-        bboxmin.y = std::max(0.0f, std::min(bboxmin.y, PointsCoord[i].y));
+    std::vector<Vec2f>ScreenPointsCoord
+    {
+        Vec2f{PointsCoord[0].x, PointsCoord[0].y},
+        Vec2f{PointsCoord[1].x, PointsCoord[1].y},
+        Vec2f{PointsCoord[2].x, PointsCoord[2].y}
+    };
+    ChillMathUtility::AABBHelper::BoxType<float, 2> Triangle_AABB = ChillMathUtility::GetAABB<float, 2>(ScreenPointsCoord);
+    ChillMathUtility::AABBHelper::BoxType<float, 2> Screen_AABB{Vec2f(0.f, 0.f), Vec2f(image.get_width() - 1, image.get_height() - 1)};
+    bool bAABBIntersect;
+    ChillMathUtility::AABBHelper::BoxType<float, 2> ResultAABB = ChillMathUtility::GetAABB_Intersect<float, 2>(Triangle_AABB, Screen_AABB, bAABBIntersect);
+    if(!bAABBIntersect) return;
 
-        bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, PointsCoord[i].x));
-        bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, PointsCoord[i].y));
-    }
+    const Vec2i AABBMin(static_cast<int>(ResultAABB.first.x), static_cast<int>(ResultAABB.first.y));
+    const Vec2i AABBMax(static_cast<int>(ResultAABB.second.x), static_cast<int>(ResultAABB.second.y));
     Vec3i P;
-    for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x++) {
-        for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y++) {
+    for (P.x = AABBMin.x; P.x <= AABBMax.x; P.x++) {
+        for (P.y = AABBMin.y; P.y <= AABBMax.y; P.y++) {
             Vec3f LinearInterpBaryCoord = barycentric(PointsCoord[0], PointsCoord[1], PointsCoord[2], P);
             if (LinearInterpBaryCoord.x < 0 || LinearInterpBaryCoord.y < 0 || LinearInterpBaryCoord.z < 0) continue;
             float z = ChillMathUtility::TriangleBarycentricInterp(PointsCoord, LinearInterpBaryCoord).z;
