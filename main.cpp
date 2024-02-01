@@ -25,21 +25,12 @@ constexpr int width = 2000; // output image size
 constexpr int height = 2000;
 Vec3f LightDir{-1.5, -1.5, -1.5};
 Vec3f LightSpotLoc = -LightDir;
+
+
+
 Vec3f Eye{0, 0, 1.5};
 Vec3f Center{0, 0, 0};
 Vec3f Up{0, 1, 0};
-
-
-Mat4x4 ModelView = lookat(Eye, Center, Up);
-Mat4x4 ViewPort = viewport(0, 0, width, height);
-Mat4x4 Projection = projection();
-//std::vector<std::vector<float>> ZBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
-//std::vector<std::vector<float>> DepthBuffer(width, std::vector<float>(height, std::numeric_limits<float>::max()));
-//std::vector<std::vector<float>> ShadowBuffer(width, std::vector<float>(height, 0));
-//std::vector<std::vector<float>> PenumbraBuffer(width, std::vector<float>(height, 0));
-//std::vector<std::vector<Vec3f>> NormalBuffer(width, std::vector<Vec3f>(height, Vec3f(0, 0, 0)));
-
-
 Camera camera(Eye, Center, Up, Vec2i(width, height), 1, 1000);
 
 std::random_device rd;
@@ -47,13 +38,17 @@ std::mt19937 RandomGen(rd());
 std::uniform_real_distribution<float> UniformDis01(0.0f, 1.0f);
 
 int main(int argc, char **argv) {
-
-    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
-    scene->SetLightDir(LightDir);
+    /*Model*/
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
     std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
+
+    /*Scene*/
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+    scene->SetLightDir(LightDir);
     scene->Add(model_floor);
     scene->Add(model_diablo);
+
+    /*GBuffer Create*/
     auto& ShadowBuffer = *GBuffer::Get().AddBuffer<float>("ShadowBuffer", Vec2i{width, height});
     auto& PenumbraBuffer = *GBuffer::Get().AddBuffer<float>("PenumbraBuffer", Vec2i{width, height});
     auto& NormalBuffer = *GBuffer::Get().AddBuffer<Vec3f>("NormalBuffer", Vec2i{width, height});
@@ -61,9 +56,7 @@ int main(int argc, char **argv) {
     auto& ZBuffer = *GBuffer::Get().AddBuffer<float>("ZBuffer", Vec2i{width, height}, std::numeric_limits<float>::max());
 
 
-    //FlatShader* Shader = new FlatShader(model, Projection, ModelView, ViewPort, LightDir);
-    //GouraudShader* Shader = new GouraudShader(model, Projection, ModelView, ViewPort, LightDir);
-
+    /*Render*/
     TGAImage image{width, height, TGAImage::RGB};
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
@@ -71,7 +64,7 @@ int main(int argc, char **argv) {
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
 
-        std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, projection(), lookat(LightSpotLoc, Center, Up), ViewPort);
+        std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, camera.ProjectionMatrix, lookat(LightSpotLoc, Center, Up), camera.ViewportMatrix);
         for (int iFace = 0; iFace < model->nfaces(); iFace++) {
             const std::vector<int> &face = model->getface(iFace);
             std::vector<Vec4f> ClipSpaceCoords;
@@ -132,7 +125,7 @@ int main(int argc, char **argv) {
 //        }
 //    }
 
-    //Shadow: PCSS
+    /*Shadow: PCSS*/
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             int sampleHalfSize = PenumbraBuffer[i][j];
@@ -153,7 +146,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //Post-process : ACES ToneMapping
+    /* Post-process : ACES ToneMapping */
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             TGAColor color = image2.get(x, y);
@@ -164,9 +157,9 @@ int main(int argc, char **argv) {
     image2.flip_vertically();//left-bottom is the origin
     image2.write_tga_file("output.tga");
 
-    //post-process : SSAO
-    Mat4x4 WorldSpaceMat2ScreenSpace = ViewPort * Projection * ModelView;
-    Mat4x4 ScreenSpace2WorldSpaceMat = (Projection * ModelView).Inverse();
+    /* Post-process : SSAO */
+    Mat4x4 WorldSpaceMat2ScreenSpace = camera.ViewportMatrix * camera.ProjectionMatrix * camera.ViewMatrix;
+    Mat4x4 ScreenSpace2WorldSpaceMat = (camera.ProjectionMatrix * camera.ViewportMatrix).Inverse();
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             if (ZBuffer[x][y] > 1e5) continue;
