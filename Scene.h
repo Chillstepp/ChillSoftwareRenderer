@@ -19,6 +19,7 @@ public:
         }
     }
 
+	std::shared_ptr<Model>SkyBox = nullptr;
     void Add(const std::shared_ptr<Model> &AddModel);
 
     decltype(auto) GetAllModels() {
@@ -35,6 +36,11 @@ public:
         LightDir = LightDir_;
         LightPos = -LightDir_;
     }
+
+	void SetSkyBox(const std::shared_ptr<Model>& InSkyBox)
+	{
+		SkyBox = InSkyBox;
+	}
 private:
     std::vector<std::weak_ptr<Model>> Models;
 };

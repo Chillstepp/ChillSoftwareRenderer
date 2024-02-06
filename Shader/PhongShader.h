@@ -13,7 +13,7 @@ class PhongShader : public IShader {
 private:
     std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
     std::shared_ptr<Scene> scene;
-    Camera camera;
+    const Camera& camera;
 
     const Buffer<float>& DepthBuffer;
     Buffer<float>& ShadowBuffer;// Record which pixels are occluded

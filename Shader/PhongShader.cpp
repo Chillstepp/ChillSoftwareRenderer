@@ -58,6 +58,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     NormalBuffer[ScreenCoord.x][ScreenCoord.y] = Mat4x1::Proj(camera.ViewMatrix.Inverse() * Mat4x1::Embed(n));
 
     //Shadow
+	//@todo: ? no projection but why use interp?
     Vec3f p = ChillMathUtility::TriangleBarycentricInterp(Varying_tri, bar);
     Matrix<4, 1, float> CorrespondingPointInShadowBuffer = Uniform_MShadow * Matrix<4, 1, float>::Embed(p);
     CorrespondingPointInShadowBuffer /= CorrespondingPointInShadowBuffer.raw[3][0];

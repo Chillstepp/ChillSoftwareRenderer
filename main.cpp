@@ -11,6 +11,7 @@
 #include "Shader/GBuffer.h"
 #include "Camera.h"
 #include "random"
+#include "Shader/SkyBoxShader.h"
 
 namespace FilePath {
     auto head = "../obj/african_head/african_head.obj";
@@ -19,6 +20,7 @@ namespace FilePath {
     auto floor = "../obj/floor.obj";
     auto gun = "../obj/gun/Cerberus.obj";
     auto helmet = "../obj/helmet/helmet.obj";
+	auto skybox = "../obj/skybox1/box.obj";
 }
 
 constexpr int width = 2000; // output image size
@@ -42,11 +44,15 @@ int main(int argc, char **argv) {
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
     std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
 
+	/*SkyBox*/
+	std::shared_ptr<Model> model_skybox = std::make_shared<Model>(FilePath::skybox);
+
     /*Scene*/
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
     scene->SetLightDir(LightDir);
     scene->Add(model_floor);
     scene->Add(model_diablo);
+	scene->SetSkyBox(model_skybox);
 
     /*GBuffer Create*/
     auto& ShadowBuffer = *GBuffer::Get().AddBuffer<float>("ShadowBuffer", Vec2i{width, height});
@@ -60,6 +66,24 @@ int main(int argc, char **argv) {
     TGAImage image{width, height, TGAImage::RGB};
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
+
+	std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
+	for (int iFace = 0; iFace < model_skybox->nfaces(); iFace++) {
+		const std::vector<int> &face = model_skybox->getface(iFace);
+		std::vector<Vec4f> ClipSpaceCoords;
+		ClipSpaceCoords.reserve(3);
+		std::vector<Vec3f> WorldCoords;
+		WorldCoords.reserve(3);
+
+		for (int nVertex = 0; nVertex < 3; nVertex++) {
+			ClipSpaceCoords[nVertex] = Shader_SkyBox->vertex(iFace, nVertex).ToVec4f();
+			WorldCoords[nVertex] = model_skybox->getvert(iFace, nVertex);
+		}
+		if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
+		{
+			triangle(model_skybox, ClipSpaceCoords, image2, ZBuffer, Shader_SkyBox);
+		}
+	}
 
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
@@ -98,8 +122,6 @@ int main(int argc, char **argv) {
                 triangle(model, ClipSpaceCoords, image2, ZBuffer, Shader);
             }
         }
-
-
     }
 
     //Shadow: PCF

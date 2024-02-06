@@ -8,8 +8,10 @@
 #include "vector"
 #include "Math.h"
 #include "TGAImage.h"
+#include "unordered_map"
 
 enum class EFaceOrientation : uint8_t {
+	Unknown,
     Right,
     Left,
     Top,
@@ -27,8 +29,11 @@ private:
     TGAImage diffusemap_;
     TGAImage normalmap_;
     TGAImage specularmap_;
+	std::unordered_map<EFaceOrientation, TGAImage> SkyBoxDiffuseMaps;
 
     void load_texture(std::string filename, const char *suffix, TGAImage &img);
+
+	void loadSkyboxTexture(const std::string& filename);
 
 public:
     Model(const char *filename);

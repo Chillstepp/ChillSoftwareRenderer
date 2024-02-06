@@ -71,8 +71,9 @@ static void triangle(std::shared_ptr<Model> &model, const std::vector<Vec4f> &pt
             }
         }
     }
-
 }
+
+
 
 static void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     bool steep = false;

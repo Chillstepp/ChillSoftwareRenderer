@@ -278,7 +278,7 @@ public:
     }
 
     template<size_t DimCol2>
-    inline Matrix<DimRow, DimCol2, T> operator*(Matrix<DimCol, DimCol2, T> rhs) {
+    inline Matrix<DimRow, DimCol2, T> operator*(Matrix<DimCol, DimCol2, T> rhs) const{
         Matrix<DimRow, DimCol2, T> Ret;
         for (size_t i = 0; i < DimRow; i++)
         {
@@ -328,8 +328,8 @@ public:
         return RetMat;
     }
 
-    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-6)
-    requires (DimRow == DimCol) {
+    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-6) const
+	requires (DimRow == DimCol) {
         //[augmentedMatrix, inverseMatrix]构成增广矩阵
         Matrix<DimRow, DimRow, T> augmentedMatrix = *this;
         Matrix<DimRow, DimRow, T> inverseMatrix = Matrix<DimRow, DimRow, T>::Identity();

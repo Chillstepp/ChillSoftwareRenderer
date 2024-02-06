@@ -109,6 +109,18 @@ void Model::load_texture(std::string filename, const char *suffix, TGAImage &img
     }
 }
 
+void Model::loadSkyboxTexture(const std::string& filename)
+{
+	std::string textfile(filename);
+	size_t dot = textfile.find_last_of(".");
+//	if (dot != std::string::npos) {
+//
+//		textfile = textfile.substr(0, dot) + std::string(suffix);
+//		img.read_tga_file(textfile.c_str());
+//		img.flip_vertically();
+//	}
+}
+
 Vec3f Model::getNormal(int iface, int nthvert) {
 
     const std::vector<int> &face = getface(iface);
@@ -144,8 +156,9 @@ Vec3f Model::getSpecular_RGB(Vec2f uvf) {
 }
 
 TGAColor Model::diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation) {
-
-    return TGAColor();
+	Vec2i uvwh(uv.u * diffusemap_.get_width(), uv.v * diffusemap_.get_height());
+	return diffusemap_.get(uvwh.raw[0], uvwh.raw[1]);
 }
+
 
 
