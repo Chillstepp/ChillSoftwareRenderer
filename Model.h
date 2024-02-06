@@ -9,6 +9,15 @@
 #include "Math.h"
 #include "TGAImage.h"
 
+enum class EFaceOrientation : uint8_t {
+    Right,
+    Left,
+    Top,
+    Bottom,
+    Front,
+    Back
+};
+
 class Model {
 private:
     std::vector<Vec3f> Verts;
@@ -49,6 +58,9 @@ public:
     Vec3f getSpecular_RGB(Vec2f uvf);
 
     TGAColor diffuse(Vec2f uv);
+
+    TGAColor diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation);
+
 
 private:
     Vec2f getuv(int idx);

@@ -143,4 +143,9 @@ Vec3f Model::getSpecular_RGB(Vec2f uvf) {
     return res;
 }
 
+TGAColor Model::diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation) {
+
+    return TGAColor();
+}
+
 
