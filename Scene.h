@@ -31,13 +31,13 @@ public:
     Vec3f LightPos{1.5, 1.5, 1.5};
 
     //@todo: Distinguish spot light and sky light
-    void SetLightDir(Vec3f LightDir_)
+    inline void SetLightDir(Vec3f LightDir_)
     {
         LightDir = LightDir_;
         LightPos = -LightDir_;
     }
 
-	void SetSkyBox(const std::shared_ptr<Model>& InSkyBox)
+	inline void SetSkyBox(const std::shared_ptr<Model>& InSkyBox)
 	{
 		SkyBox = InSkyBox;
 	}

@@ -30,7 +30,7 @@ Vec3f LightSpotLoc = -LightDir;
 
 
 
-Vec3f Eye{0, 0, 1.5};
+Vec3f Eye{0, -1.5, -1.5};
 Vec3f Center{0, 0, 0};
 Vec3f Up{0, 1, 0};
 Camera camera(Eye, Center, Up, Vec2i(width, height), 1, 1000);
@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
 
 	/*SkyBox*/
 	std::shared_ptr<Model> model_skybox = std::make_shared<Model>(FilePath::skybox);
+    model_skybox->loadSkyboxTexture(FilePath::skybox);
 
     /*Scene*/
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
@@ -71,20 +72,23 @@ int main(int argc, char **argv) {
 	for (int iFace = 0; iFace < model_skybox->nfaces(); iFace++) {
 		const std::vector<int> &face = model_skybox->getface(iFace);
 		std::vector<Vec4f> ClipSpaceCoords;
-		ClipSpaceCoords.reserve(3);
+		ClipSpaceCoords.resize(3);
 		std::vector<Vec3f> WorldCoords;
-		WorldCoords.reserve(3);
+		WorldCoords.resize(3);
 
 		for (int nVertex = 0; nVertex < 3; nVertex++) {
 			ClipSpaceCoords[nVertex] = Shader_SkyBox->vertex(iFace, nVertex).ToVec4f();
 			WorldCoords[nVertex] = model_skybox->getvert(iFace, nVertex);
 		}
-		if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
-		{
+		//if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
+
 			triangle(model_skybox, ClipSpaceCoords, image2, ZBuffer, Shader_SkyBox);
-		}
+
 	}
 
+    image2.flip_vertically();//left-bottom is the origin
+    image2.write_tga_file("output.tga");
+    return 0;
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
 
@@ -109,9 +113,9 @@ int main(int argc, char **argv) {
         std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene);
         for (int iFace = 0; iFace < model->nfaces(); iFace++) {
             std::vector<Vec4f> ClipSpaceCoords;
-            ClipSpaceCoords.reserve(3);
+            ClipSpaceCoords.resize(3);
 			std::vector<Vec3f> WorldCoords;
-			WorldCoords.reserve(3);
+			WorldCoords.resize(3);
 
             for (int nVertex = 0; nVertex < 3; nVertex++) {
                 ClipSpaceCoords[nVertex] = Shader->vertex(iFace, nVertex).ToVec4f();

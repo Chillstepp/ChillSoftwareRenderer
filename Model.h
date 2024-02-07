@@ -29,11 +29,10 @@ private:
     TGAImage diffusemap_;
     TGAImage normalmap_;
     TGAImage specularmap_;
-	std::unordered_map<EFaceOrientation, TGAImage> SkyBoxDiffuseMaps;
+	std::unordered_map<EFaceOrientation, TGAImage*> SkyBoxDiffuseMaps;
 
     void load_texture(std::string filename, const char *suffix, TGAImage &img);
 
-	void loadSkyboxTexture(const std::string& filename);
 
 public:
     Model(const char *filename);
@@ -65,6 +64,8 @@ public:
     TGAColor diffuse(Vec2f uv);
 
     TGAColor diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation);
+
+    void loadSkyboxTexture(const std::string& filename);
 
 
 private:

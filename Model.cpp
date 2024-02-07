@@ -113,12 +113,50 @@ void Model::loadSkyboxTexture(const std::string& filename)
 {
 	std::string textfile(filename);
 	size_t dot = textfile.find_last_of(".");
-//	if (dot != std::string::npos) {
-//
-//		textfile = textfile.substr(0, dot) + std::string(suffix);
-//		img.read_tga_file(textfile.c_str());
-//		img.flip_vertically();
-//	}
+	if (dot != std::string::npos) {
+        TGAImage* img_top = new TGAImage;
+        std::string suffix = "_top.tga";
+		textfile = textfile.substr(0, dot) + suffix;
+        img_top->read_tga_file(textfile.c_str());
+        img_top->flip_vertically();
+        SkyBoxDiffuseMaps[EFaceOrientation::Top] = img_top;
+
+        TGAImage* img_bottom = new TGAImage;
+        suffix = "_bottom.tga";
+        textfile = textfile.substr(0, dot) + suffix;
+        img_bottom->read_tga_file(textfile.c_str());
+        img_bottom->flip_vertically();
+        SkyBoxDiffuseMaps[EFaceOrientation::Bottom] = img_bottom;
+
+        TGAImage* img_left = new TGAImage;
+        suffix = "_left.tga";
+        textfile = textfile.substr(0, dot) + suffix;
+        img_left->read_tga_file(textfile.c_str());
+        img_left->flip_vertically();
+        SkyBoxDiffuseMaps[EFaceOrientation::Left] = img_left;
+
+        TGAImage* img_right = new TGAImage;
+        suffix = "_right.tga";
+        textfile = textfile.substr(0, dot) + suffix;
+        img_right->read_tga_file(textfile.c_str());
+        img_right->flip_vertically();
+        SkyBoxDiffuseMaps[EFaceOrientation::Right] = img_right;
+
+        TGAImage* img_front = new TGAImage;
+        suffix = "_front.tga";
+        textfile = textfile.substr(0, dot) + suffix;
+        img_front->read_tga_file(textfile.c_str());
+        img_front->flip_vertically();
+        SkyBoxDiffuseMaps[EFaceOrientation::Front] = img_front;
+
+        TGAImage* img_back = new TGAImage;
+        suffix = "_back.tga";
+        textfile = textfile.substr(0, dot) + suffix;
+        img_back->read_tga_file(textfile.c_str());
+        img_back->flip_vertically();
+        SkyBoxDiffuseMaps[EFaceOrientation::Back] = img_back;
+
+	}
 }
 
 Vec3f Model::getNormal(int iface, int nthvert) {
@@ -156,8 +194,13 @@ Vec3f Model::getSpecular_RGB(Vec2f uvf) {
 }
 
 TGAColor Model::diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation) {
-	Vec2i uvwh(uv.u * diffusemap_.get_width(), uv.v * diffusemap_.get_height());
-	return diffusemap_.get(uvwh.raw[0], uvwh.raw[1]);
+    if(FaceOrientation == EFaceOrientation::Unknown)
+    {
+        std::cout<<"why"<<"\n";
+    }
+    TGAImage* DiffMap = SkyBoxDiffuseMaps[FaceOrientation];
+	Vec2i uvwh(uv.u * DiffMap->get_width(), uv.v * DiffMap->get_height());
+	return DiffMap->get(uvwh.raw[0], uvwh.raw[1]);
 }
 
 
