@@ -445,7 +445,7 @@ using Mat3x1 = Matrix<3, 1, float>;
 // so we can (PA_x,AB_x,AC_x) × (PA_y,AB_y,AC_y) => (U_x,U_y,U_z)
 // so (1,β,γ) =  (1,U_y/U_x,U_z/U_x), We can easily get (1,alpha,beta) from cross above two vec
 
-static Vec3f barycentric(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3, Vec3i p) {
+static Vec3f barycentric(const Vec2f &point1, const Vec2f &point2, const Vec2f &point3, Vec2i p) {
     Vec3f U = Vec3f{point1.x - p.x, point2.x - point1.x, point3.x - point1.x} ^
               Vec3f{point1.y - p.y, point2.y - point1.y, point3.y - point1.y};
     if (std::abs(U.x) == 0) //三角形退化为直线

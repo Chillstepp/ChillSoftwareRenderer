@@ -62,7 +62,7 @@ bool GouraudShader::fragment(Vec3f bar, TGAColor &color) {
 Matrix<4, 1, float> DepthShder::vertex(int iface, int nthvert) {
     const std::vector<int> &Face = model->getface(iface);
     Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
-    gl_vertex = ViewPortMat * ProjectionMat * ModelViewMat * gl_vertex;
+    gl_vertex = ProjectionMat * ModelViewMat * gl_vertex;
     varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
 
     return gl_vertex;
@@ -73,7 +73,7 @@ bool DepthShder::fragment(Vec3f bar, TGAColor &color) {
     for (int i = 0; i < 3; i++) {
         p = p + varying_tri[i] * bar.raw[i];
     }
-    float factor = p.z;
+	float factor = p.z * 255.0f / 2.0f + 255.0f / 2.0f;
     color = TGAColor((int) (factor), (int) (factor), (int) (factor), 255);
 
     return true;

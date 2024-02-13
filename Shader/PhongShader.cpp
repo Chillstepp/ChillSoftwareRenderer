@@ -15,7 +15,7 @@ Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert) {
     Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
     gl_vertex = camera.ViewMatrix * gl_vertex;
     Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
-    gl_vertex = camera.ViewportMatrix * camera.ProjectionMatrix * gl_vertex;
+    gl_vertex = camera.ProjectionMatrix * gl_vertex;
 
     Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
         Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))
@@ -78,7 +78,7 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
         for (int dx = -sampleRadius; dx <= sampleRadius; dx++) {
             for (int dy = -sampleRadius; dy <= sampleRadius; dy++) {
 
-                float ClosetDis = depthBufferInLightView[point.x + dx][point.y + dy];
+                float ClosetDis = depthBufferInLightView[point.x + dx][point.y + dy] * 255.0f/2.0f + 255.0f/2.0f;
                 if (ClosetDis < receiverDis - shadowBias) {
                     totalBlockerDis += ClosetDis;
                     ++totalSampleTimes;
@@ -90,11 +90,11 @@ bool PhongShader::fragment(Vec3f bar, TGAColor &color) {
     if ((int) CorrespondingPoint.x < DepthBuffer.Width &&
         (int) CorrespondingPoint.y < DepthBuffer.Height) {
         bool bBlock = false;
-        if (DepthBuffer[(int) CorrespondingPoint.x][(int) CorrespondingPoint.y] < CorrespondingPoint.z - shadowBias) {
+		float DepthAfterViewport = DepthBuffer[(int) CorrespondingPoint.x][(int) CorrespondingPoint.y] * 255.0f/2.0f + 255.0f/2.0f;
+        if (DepthAfterViewport < CorrespondingPoint.z - shadowBias) {
             bBlock = true;
         }
         ShadowBuffer[ScreenCoord.x][ScreenCoord.y] = bBlock ? 1 : 0;
-
         float averageBlockerDis = findAverageBlockerDis({(int) CorrespondingPoint.x, (int) CorrespondingPoint.y},
                                                        CorrespondingPoint.z, DepthBuffer, 40);
         float RecevierDisatance = CorrespondingPoint.z;

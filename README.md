@@ -8,6 +8,8 @@
 - [x] Switchable Back/Front-face culling
 - [x] Perspective-Correct Interpolation
 - [x] Camera
+    - [x] Sutherland-Hodgeman Clipping 
+
 - [x] Shading:
     - [x] Phong
     - [x] Blinn–Phong
@@ -83,7 +85,9 @@ for(int i=0;i<model->nfaces();i++)
 }
 ```
 
-#### Clipping
+#### Sutherland-Hodgeman Clipping 
+
+
 
 - 如何写一个软渲染(4)-Clipping - 拳四郎的文章 - 知乎 https://zhuanlan.zhihu.com/p/43586784
 
@@ -227,8 +231,7 @@ Reference:
 
 1.其实bias设置合理一点即可，不要太大。
 
-2.也可以当渲染深度贴图时候使用正面剔除（front face culling），我们只利用背面，这样阴影失真也解决了，不再需要bias的辅助。使用这个方法可以免去反复调整bias，并且也不会导致悬浮的问题。但使用该方法的前提是**
-场景中的物体必须是一个体（有正面和反面）而非原先的一个面**。
+2.也可以当渲染深度贴图时候使用正面剔除（front face culling），我们只利用背面，这样阴影失真也解决了，不再需要bias的辅助。使用这个方法可以免去反复调整bias，并且也不会导致悬浮的问题。但使用该方法的前提是**场景中的物体必须是一个体（有正面和反面）而非原先的一个面**。
 
 ##### Shadow Aliasing
 

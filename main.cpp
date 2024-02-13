@@ -30,7 +30,7 @@ Vec3f LightSpotLoc = -LightDir;
 
 
 
-Vec3f Eye{0, -1.5, -1.5};
+Vec3f Eye{0, 0, 1.5};
 Vec3f Center{0, 0, 0};
 Vec3f Up{0, 1, 0};
 Camera camera(Eye, Center, Up, Vec2i(width, height), 1, 1000);
@@ -82,13 +82,13 @@ int main(int argc, char **argv) {
 		}
 		//if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
 
-			triangle(model_skybox, ClipSpaceCoords, image2, ZBuffer, Shader_SkyBox);
+			//triangle(model_skybox, ClipSpaceCoords, image2, ZBuffer, Shader_SkyBox);
 
 	}
 
-    image2.flip_vertically();//left-bottom is the origin
-    image2.write_tga_file("output.tga");
-    return 0;
+//    image2.flip_vertically();//left-bottom is the origin
+//    image2.write_tga_file("output.tga");
+//    return 0;
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
 
@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
 
     /* Post-process : SSAO */
     Mat4x4 WorldSpaceMat2ScreenSpace = camera.ViewportMatrix * camera.ProjectionMatrix * camera.ViewMatrix;
-    Mat4x4 ScreenSpace2WorldSpaceMat = (camera.ProjectionMatrix * camera.ViewportMatrix).Inverse();
+    Mat4x4 ScreenSpace2WorldSpaceMat = (camera.ProjectionMatrix * camera.ViewMatrix).Inverse();
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             if (ZBuffer[x][y] > 1e5) continue;
@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
             Vec3f Coord_NDC{
                 (x - 1.0f * width / 2) / (1.0f * width / 2),
                 (y - 1.0f * height / 2) / (1.0f * height / 2),
-                (ZBuffer[x][y] - 255.0f / 2.0f) / (255.0f / 2.0f)
+                ZBuffer[x][y]
             };
 
             Mat4x1 ScreenSpaceCoord = Mat4x1::Embed(Coord_NDC);
@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
                 Vec2i ScreenXY(SamplePointInScreenSpace.raw[0][0], SamplePointInScreenSpace.raw[1][0]);
 
                 if (ScreenXY.x < width and ScreenXY.x >= 0 and ScreenXY.y >= 0 and ScreenXY.y < height) {
-                    if (ZBuffer[ScreenXY.x][ScreenXY.y] <= SamplePointInScreenSpace.raw[2][0]) Count++;//occu
+                    if (ZBuffer[ScreenXY.x][ScreenXY.y]*255.0f/2.0f + 255.0f/2.0f <= SamplePointInScreenSpace.raw[2][0]) Count++;//occu
                     Total++;
                 }
             }
