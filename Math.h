@@ -12,6 +12,7 @@
 
 
 
+
 template<size_t DimRow, size_t DimCol, typename T>
 requires std::is_standard_layout_v<T> && std::is_trivial_v<T>
 class Matrix;
@@ -55,6 +56,10 @@ struct Vec2 {
         return Vec2<T>{u * f, v * f};
     }
 
+	inline Vec2<T> operator*=(const float &f) const {
+		return Vec2<T>{u * f, v * f};
+	}
+
     inline float norm() {
         return std::sqrt(x * x + y * y);
     }
@@ -89,6 +94,8 @@ struct Vec3 {
     Vec3() : x(0), y(0), z(0) {}
 
     Vec3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
+
+	Vec3(const Vec3<T>& v): x(v.x), y(v.y), z(v.z) {}
 
     explicit Vec3(TGAColor color) : x(color.raw[0]), y(color.raw[1]), z(color.raw[2]) {}
 
@@ -164,6 +171,10 @@ struct Vec3 {
         return *this;
     }
 
+	Vec3<T> normlize(T l = 1) const {
+		return (*this) * (l / norm());
+	}
+
     template<class>
     friend std::ostream &operator<<(std::ostream &s, Vec3<T> &v);
 
@@ -199,6 +210,16 @@ public:
     Vec4(T x_, T y_, T z_, T w_) : x(x_), y(y_), z(z_), w(w_) {}
 
     Vec4() = default;
+
+	Vec4<T> operator* (float f) const
+	{
+		return Vec4<T>{x*f, y*f, z*f, w*f};
+	}
+
+	Vec4<T> operator+ (Vec4<T> v)
+	{
+		return Vec4<T>{x + v.x, y + v.y, z + v.z, w + v.w};
+	}
 
     inline Vec3<T> ToVec3() const {
         return Vec3{x, y, z};
@@ -328,7 +349,7 @@ public:
         return RetMat;
     }
 
-    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-6) const
+    inline Matrix<DimRow, DimCol, T> Inverse(float eps = 1e-7) const
 	requires (DimRow == DimCol) {
         //[augmentedMatrix, inverseMatrix]构成增广矩阵
         Matrix<DimRow, DimRow, T> augmentedMatrix = *this;
@@ -520,6 +541,78 @@ max_elevation_angle(std::vector<std::vector<float>> &zbuffer, Vec2f p, Vec2f dir
     return maxangle;
 }
 
+struct VertexOut
+{
+ public:
+	Vec3f WorldSpaceCoord;
+	Vec3f CameraSpaceCoord;
+	Vec4f ClipSpaceCoord;
+	Vec2f ScreenSpaceCoord;
+	Vec3f NDC;
+
+	Vec3f TangentSpaceNormal;
+	Vec2f UV;
+	Vec3f VertexNormal;
+
+	VertexOut()
+	{
+		WorldSpaceCoord = {0, 0, 0};
+		CameraSpaceCoord = {0, 0, 0};
+		ClipSpaceCoord = {0, 0, 0, 0};
+		ScreenSpaceCoord = {0, 0};
+		NDC = {0, 0, 0};
+		UV = {0, 0};
+		VertexNormal = {0, 0, 0};
+	}
+
+	VertexOut(
+				const Vec3f& WorldSpaceCoord_,
+				const Vec3f& CameraSpaceCoord_,
+				const Vec4f& ClipSpaceCoord_,
+				const Vec2f& ScreenSpaceCoord_,
+				const Vec3f& NDC_,
+				const Vec2f& UV_,
+				const Vec3f& VertexNormal_
+			):
+			WorldSpaceCoord(WorldSpaceCoord_),
+			CameraSpaceCoord(CameraSpaceCoord_),
+			ClipSpaceCoord(ClipSpaceCoord_),
+			ScreenSpaceCoord(ScreenSpaceCoord_),
+			NDC(NDC_),
+			UV(UV_),
+			VertexNormal(VertexNormal_)
+	{
+
+	}
+
+	VertexOut operator* (const float f) const
+	{
+		return VertexOut
+		{
+			WorldSpaceCoord * f,
+			CameraSpaceCoord * f,
+			ClipSpaceCoord * f,
+			ScreenSpaceCoord * f,
+			NDC * f,
+			UV * f,
+			VertexNormal * f
+		};
+	}
+
+	VertexOut operator+ (const VertexOut& v)
+	{
+		return VertexOut
+		{
+			WorldSpaceCoord + v.WorldSpaceCoord,
+			CameraSpaceCoord + v.CameraSpaceCoord,
+			ClipSpaceCoord + v.ClipSpaceCoord,
+			ScreenSpaceCoord + v.ScreenSpaceCoord,
+			NDC + v.NDC,
+			UV + v.UV,
+			VertexNormal + v.VertexNormal
+		};
+	}
+};
 
 namespace ChillMathUtility {
     static Vec3f
@@ -541,6 +634,16 @@ namespace ChillMathUtility {
         }
         return p;
     }
+
+	static VertexOut
+	TriangleBarycentricInterp(const std::vector<VertexOut> &TriangleVertices, const Vec3f &BarycentricCoord) {
+		VertexOut Point;
+		for (int i = 0; i < 3; i++)
+		{
+			Point = Point + TriangleVertices[i] * BarycentricCoord.raw[i];
+		}
+		return Point;
+	}
 
     //x,y,z -> roll,pitch,yaw: roll/pitch/yaw rotate around x/y/z
     static Mat4x4 RotationMatrix(float roll, float pitch, float yaw) {
@@ -666,6 +769,10 @@ namespace ChillMathUtility {
         return ResultBox;
     }
 
+	static Vec3f PerspectiveDivide(const Vec4f& ClipSpaceCoord)
+	{
+		return ClipSpaceCoord.ToVec3() / ClipSpaceCoord.w;
+	}
 }
 
 #endif //CHILLSOFTWARERENDERER_MATH_H

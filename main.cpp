@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
 
-	std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
+/*	std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
 	for (int iFace = 0; iFace < model_skybox->nfaces(); iFace++) {
 		const std::vector<int> &face = model_skybox->getface(iFace);
 		std::vector<Vec4f> ClipSpaceCoords;
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 
 			//triangle(model_skybox, ClipSpaceCoords, image2, ZBuffer, Shader_SkyBox);
 
-	}
+	}*/
 
 //    image2.flip_vertically();//left-bottom is the origin
 //    image2.write_tga_file("output.tga");
@@ -93,39 +93,17 @@ int main(int argc, char **argv) {
         auto model = model_WeakPtr.lock();
 
         std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, camera.ProjectionMatrix, lookat(LightSpotLoc, Center, Up), camera.ViewportMatrix);
-        for (int iFace = 0; iFace < model->nfaces(); iFace++) {
-            const std::vector<int> &face = model->getface(iFace);
-            std::vector<Vec4f> ClipSpaceCoords;
-            ClipSpaceCoords.reserve(3);
-            for (int nVertex = 0; nVertex < 3; nVertex++) {
-                ClipSpaceCoords.push_back(Shader_dep->vertex(iFace, nVertex).ToVec4f());
-            }
-            triangle(model, ClipSpaceCoords, image, DepthBuffer, Shader_dep);
-        }
+
+		ChillRender::Render(model, Shader_dep, camera, image, DepthBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
     }
 
     image.flip_vertically();
     image.write_tga_file("lightview_depth.tga");
 
-
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
         std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene);
-        for (int iFace = 0; iFace < model->nfaces(); iFace++) {
-            std::vector<Vec4f> ClipSpaceCoords;
-            ClipSpaceCoords.resize(3);
-			std::vector<Vec3f> WorldCoords;
-			WorldCoords.resize(3);
-
-            for (int nVertex = 0; nVertex < 3; nVertex++) {
-                ClipSpaceCoords[nVertex] = Shader->vertex(iFace, nVertex).ToVec4f();
-				WorldCoords[nVertex] = model->getvert(iFace, nVertex);
-            }
-            if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
-            {
-                triangle(model, ClipSpaceCoords, image2, ZBuffer, Shader);
-            }
-        }
+		ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::BackFacingCulling);
     }
 
     //Shadow: PCF

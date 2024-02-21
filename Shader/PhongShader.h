@@ -20,10 +20,6 @@ private:
     Buffer<float>& PenumbraBuffer;//PCSS Method Penumbra
     Buffer<Vec3f>& NormalBuffer;// Vertex normal
 
-
-    std::vector<Vec2f> Varying_uv{3, {0, 0}};
-    std::vector<Vec3f> Varying_tri{3, {0, 0, 0}};
-    std::vector<Vec3f> Varying_normal{3, {0, 0, 0}};
     Mat4x4 Uniform_M;
     Mat4x4 Uniform_MIT;
     Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
@@ -44,9 +40,9 @@ public:
 
     ~PhongShader() override;
 
-    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+    virtual Matrix<4, 1, float> vertex(int iface, int nthvert, VertexOut& Vertex) override;
 
-    virtual bool fragment(Vec3f bar, TGAColor &color) override;
+    virtual bool fragment(VertexOut Vertex, TGAColor &color) override;
 };
 
 #endif //CHILLSOFTWARERENDERER_PHONGSHADER_H

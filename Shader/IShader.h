@@ -12,6 +12,7 @@
 #include "../Camera.h"
 
 
+
 class IShader {
 public:
     Vec2i ScreenCoord;
@@ -24,7 +25,7 @@ public:
      * @param nthvert
      * @return Clip Space Coordinate with Homogeneous term
      */
-    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) = 0;
+    virtual Matrix<4, 1, float> vertex(int iface, int nthvert, VertexOut& Vertex) = 0;
 
     /*!
      * @brief Fragment Shader
@@ -32,71 +33,74 @@ public:
      * @param color - Out color
      * @return Success or not
      */
-    virtual bool fragment(Vec3f bar, TGAColor &color) = 0;
+    virtual bool fragment(VertexOut Vertex, TGAColor &color) = 0;
 };
-
-class FlatShader : public IShader {
-private:
-    Matrix<3, 3, float> Varying_tri;
-    Model *model = nullptr;
-    Mat4x4 ProjectionMat;
-    Mat4x4 ModelViewMat;
-    Mat4x4 ViewPortMat;
-    Vec3f LightDir{0, 0, -1};
-
-public:
-    explicit FlatShader(Model *model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
-                        Mat4x4 ViewPortMat_, Vec3f LightDir_) : model(model_), ProjectionMat(ProjectionMat_),
-                                                                ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_),
-                                                                LightDir(LightDir_) {}
-
-    ~FlatShader() override;
-
-    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
-
-    virtual bool fragment(Vec3f bar, TGAColor &color) override;
-};
-
-
-class GouraudShader : public IShader {
-private:
-    Vec3f Varying_intensity;
-    std::shared_ptr<Model> model = nullptr;
-    Mat4x4 ProjectionMat;
-    Mat4x4 ModelViewMat;
-    Mat4x4 ViewPortMat;
-    Vec3f LightDir;
-
-public:
-    explicit GouraudShader(std::shared_ptr<Model> &model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
-                           Mat4x4 ViewPortMat_, Vec3f LightDir_) : model(model_), ProjectionMat(ProjectionMat_),
-                                                                   ModelViewMat(ModelViewMat_),
-                                                                   ViewPortMat(ViewPortMat_), LightDir(LightDir_) {}
-
-    ~GouraudShader() override;
-
-    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
-
-    virtual bool fragment(Vec3f bar, TGAColor &color) override;
-};
-
+//
+//class FlatShader : public IShader {
+//private:
+//    Matrix<3, 3, float> Varying_tri;
+//    Model *model = nullptr;
+//    Mat4x4 ProjectionMat;
+//    Mat4x4 ModelViewMat;
+//    Mat4x4 ViewPortMat;
+//    Vec3f LightDir{0, 0, -1};
+//
+//public:
+//    explicit FlatShader(Model *model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
+//                        Mat4x4 ViewPortMat_, Vec3f LightDir_) : model(model_), ProjectionMat(ProjectionMat_),
+//                                                                ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_),
+//                                                                LightDir(LightDir_) {}
+//
+//    ~FlatShader() override;
+//
+//    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+//
+//    virtual bool fragment(Vec3f bar, TGAColor &color) override;
+//};
+//
+//
+//class GouraudShader : public IShader {
+//private:
+//    Vec3f Varying_intensity;
+//    std::shared_ptr<Model> model = nullptr;
+//    Mat4x4 ProjectionMat;
+//    Mat4x4 ModelViewMat;
+//    Mat4x4 ViewPortMat;
+//    Vec3f LightDir;
+//
+//public:
+//    explicit GouraudShader(std::shared_ptr<Model> &model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_,
+//                           Mat4x4 ViewPortMat_, Vec3f LightDir_) : model(model_), ProjectionMat(ProjectionMat_),
+//                                                                   ModelViewMat(ModelViewMat_),
+//                                                                   ViewPortMat(ViewPortMat_), LightDir(LightDir_) {}
+//
+//    ~GouraudShader() override;
+//
+//    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+//
+//    virtual bool fragment(Vec3f bar, TGAColor &color) override;
+//};
+//
 
 class DepthShder : public IShader {
 public:
     std::shared_ptr<Model> model = nullptr;//@todo: use weak ptr plz.
-    std::vector<Vec3f> varying_tri;
     Mat4x4 ProjectionMat;
     Mat4x4 ModelViewMat;
     Mat4x4 ViewPortMat;
 
+	Mat4x4 Uniform_M;
+	Mat4x4 Uniform_MIT;
+
     DepthShder(std::shared_ptr<Model> &model_, Mat4x4 ProjectionMat_, Mat4x4 ModelViewMat_, Mat4x4 ViewPortMat_) :
             model(model_), ProjectionMat(ProjectionMat_), ModelViewMat(ModelViewMat_), ViewPortMat(ViewPortMat_) {
-        varying_tri.reserve(3);
+		Uniform_M = ModelViewMat_;
+		Uniform_MIT = Uniform_M.Inverse().Transpose();
     }
 
-    virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+    virtual Matrix<4, 1, float> vertex(int iface, int nthvert, VertexOut& Vertex) override;
 
-    virtual bool fragment(Vec3f bar, TGAColor &color) override;
+    virtual bool fragment(VertexOut Vertex, TGAColor &color) override;
 };
 
 

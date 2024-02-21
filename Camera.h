@@ -32,6 +32,11 @@ public:
     /* Update Camera Param and Update matrix related */
     void SetCameraCoreParam(Vec3f Location_, Vec3f LookTo_, Vec3f Up_);
 
+	Vec2f NDC2ScreenSpaceCoord(const Vec3f& NDC)
+	{
+		return Vec2f{NDC.x * ViewportSize.x/2.0f + ViewportSize.x/2.0f,
+					 NDC.y * ViewportSize.y/2.0f + ViewportSize.y/2.0f};
+	}
 private:
     /* Update matrix related */
     void Update();

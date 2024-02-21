@@ -7,7 +7,7 @@ SkyBoxShader::~SkyBoxShader()
 {
 
 }
-Matrix<4, 1, float> SkyBoxShader::vertex(int iface, int nthvert)
+Matrix<4, 1, float> SkyBoxShader::vertex(int iface, int nthvert, VertexOut& Point)
 {
 	Varying_uv[nthvert] = model->getuv(iface, nthvert);
 
@@ -20,9 +20,9 @@ Matrix<4, 1, float> SkyBoxShader::vertex(int iface, int nthvert)
 	);
 	return gl_vertex;
 }
-bool SkyBoxShader::fragment(Vec3f bar, TGAColor& color)
+bool SkyBoxShader::fragment(VertexOut Point, TGAColor& color)
 {
-	Vec2f uv = ChillMathUtility::TriangleBarycentricInterp(Varying_uv, bar);
+	Vec2f uv = Point.UV;
 	EFaceOrientation CurrentFaceOri = EFaceOrientation::Unknown;
 	if(std::all_of(Varying_tri.begin(), Varying_tri.end(), [](const Vec3f& In){return In.x > 0;}))
 	{

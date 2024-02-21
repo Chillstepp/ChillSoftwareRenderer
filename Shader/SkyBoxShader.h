@@ -30,9 +30,9 @@ class SkyBoxShader : public IShader
 
 	~SkyBoxShader() override;
 
-	virtual Matrix<4, 1, float> vertex(int iface, int nthvert) override;
+	virtual Matrix<4, 1, float> vertex(int iface, int nthvert, VertexOut& Point) override;
 
-	virtual bool fragment(Vec3f bar, TGAColor &color) override;
+	virtual bool fragment(VertexOut Point, TGAColor &color) override;
 };
 
 #endif //CHILLSOFTWARERENDERER_SHADER_SKYBOXSHADER_H_
