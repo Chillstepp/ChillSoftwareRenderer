@@ -68,27 +68,10 @@ int main(int argc, char **argv) {
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
 
-/*	std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
-	for (int iFace = 0; iFace < model_skybox->nfaces(); iFace++) {
-		const std::vector<int> &face = model_skybox->getface(iFace);
-		std::vector<Vec4f> ClipSpaceCoords;
-		ClipSpaceCoords.resize(3);
-		std::vector<Vec3f> WorldCoords;
-		WorldCoords.resize(3);
+    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
+    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
 
-		for (int nVertex = 0; nVertex < 3; nVertex++) {
-			ClipSpaceCoords[nVertex] = Shader_SkyBox->vertex(iFace, nVertex).ToVec4f();
-			WorldCoords[nVertex] = model_skybox->getvert(iFace, nVertex);
-		}
-		//if (ChillRender::FaceCulling(WorldCoords, camera, ChillRender::EFaceCulling::BackFacingCulling)) //back face culling
 
-			//triangle(model_skybox, ClipSpaceCoords, image2, ZBuffer, Shader_SkyBox);
-
-	}*/
-
-//    image2.flip_vertically();//left-bottom is the origin
-//    image2.write_tga_file("output.tga");
-//    return 0;
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
 

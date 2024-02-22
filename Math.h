@@ -216,10 +216,15 @@ public:
 		return Vec4<T>{x*f, y*f, z*f, w*f};
 	}
 
-	Vec4<T> operator+ (Vec4<T> v)
+	Vec4<T> operator+ (Vec4<T> v) const
 	{
 		return Vec4<T>{x + v.x, y + v.y, z + v.z, w + v.w};
 	}
+
+    Vec4<T> operator- (Vec4<T> v) const
+    {
+        return Vec4<T>{x - v.x, y - v.y, z - v.z, w - v.w};
+    }
 
     inline Vec3<T> ToVec3() const {
         return Vec3{x, y, z};
@@ -585,7 +590,7 @@ struct VertexOut
 
 	}
 
-	VertexOut operator* (const float f) const
+	VertexOut operator* (float f) const
 	{
 		return VertexOut
 		{
@@ -599,7 +604,7 @@ struct VertexOut
 		};
 	}
 
-	VertexOut operator+ (const VertexOut& v)
+	VertexOut operator+ (const VertexOut& v) const
 	{
 		return VertexOut
 		{
@@ -612,6 +617,20 @@ struct VertexOut
 			VertexNormal + v.VertexNormal
 		};
 	}
+
+    VertexOut operator- (const VertexOut& v) const
+    {
+        return VertexOut
+                {
+                        WorldSpaceCoord - v.WorldSpaceCoord,
+                        CameraSpaceCoord - v.CameraSpaceCoord,
+                        ClipSpaceCoord - v.ClipSpaceCoord,
+                        ScreenSpaceCoord - v.ScreenSpaceCoord,
+                        NDC - v.NDC,
+                        UV - v.UV,
+                        VertexNormal - v.VertexNormal
+                };
+    }
 };
 
 namespace ChillMathUtility {

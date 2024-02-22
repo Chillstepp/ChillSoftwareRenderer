@@ -15,9 +15,7 @@ class SkyBoxShader : public IShader
 	std::shared_ptr<Scene> scene;
 	const Camera& camera;
 
-	std::vector<Vec2f> Varying_uv{3, {0, 0}};
 	std::vector<Vec3f> Varying_tri{3, {0, 0, 0}};
-	std::vector<Vec3f> Varying_normal{3, {0, 0, 0}};
 
 	Mat4x4 Uniform_M;
 	Mat4x4 Uniform_MIT;

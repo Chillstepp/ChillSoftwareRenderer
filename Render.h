@@ -87,6 +87,85 @@ namespace ChillRender{
 		return true;
 	}
 
+    static bool ClipSpaceCull(const Vec4f& v1, const Vec4f& v2, const Vec4f& v3, const Camera& camera) {
+        float near = camera.Near, far = camera.Far;
+        if (v1.w < near && v2.w < near && v3.w < near)
+            return false;
+        if (v1.w > far && v1.w > far && v3.w > far)
+            return false;
+        if (fabs(v1.x) <= fabs(v1.w) || fabs(v1.y) <= fabs(v1.w) || fabs(v1.z) <= fabs(v1.w))
+            return true;
+        if (fabs(v2.x) <= fabs(v2.w) || fabs(v2.y) <= fabs(v2.w) || fabs(v2.z) <= fabs(v2.w))
+            return true;
+        if (fabs(v3.x) <= fabs(v3.w) || fabs(v3.y) <= fabs(v3.w) || fabs(v3.z) <= fabs(v3.w))
+            return true;
+        return false;
+    }
+
+
+    static std::vector<VertexOut> SutherlandHodmanClip(const std::vector<VertexOut>& InVertex)
+    {
+        bool AllVertexInsideOfCVV = std::all_of(InVertex.begin(), InVertex.end(), [](const VertexOut& In){
+            return std::abs(In.ClipSpaceCoord.x) <= std::abs(In.ClipSpaceCoord.w)
+                && std::abs(In.ClipSpaceCoord.y) <= std::abs(In.ClipSpaceCoord.w)
+                && std::abs(In.ClipSpaceCoord.z) <= std::abs(In.ClipSpaceCoord.w);}
+        );
+        constexpr float EPSILON = 1e-6;
+        auto Inside = [](const Vec4f& line, const Vec4f& p) -> bool
+        {
+            return line.x * p.x + line.y * p.y + line.z * p.z + line.w * p.w > -EPSILON;
+        };
+        auto Intersect = [](const VertexOut& v1, const VertexOut& v2, const Vec4f& line) -> VertexOut
+        {
+            float da = v1.ClipSpaceCoord.x * line.x + v1.ClipSpaceCoord.y * line.y + v1.ClipSpaceCoord.z *line.z + v1.ClipSpaceCoord.w * line.w;
+            float db = v2.ClipSpaceCoord.x * line.x + v2.ClipSpaceCoord.y * line.y + v2.ClipSpaceCoord.z *line.z + v2.ClipSpaceCoord.w * line.w;
+            float weight = da / (da - db);
+            return v1 + (v2 - v1) * weight;
+        };
+        const std::vector<Vec4f> ViewPlanes = {
+                //Near
+                Vec4f(0,0,1,1),
+                //far
+                Vec4f(0,0,-1,1),
+                //left
+                Vec4f(1,0,0,1),
+                //top
+                Vec4f(0,1,0,1),
+                //right
+                Vec4f(-1,0,0,1),
+                //bottom
+                Vec4f(0,-1,0,1)
+        };
+        if(AllVertexInsideOfCVV) return InVertex;
+        std::vector<VertexOut> OutVertex = InVertex;
+        for(const auto& ViewPlane : ViewPlanes)
+        {
+            std::vector<VertexOut> input(OutVertex);
+            OutVertex.clear();
+            for(int j = 0; j < input.size(); j++)
+            {
+                VertexOut current = input[j];
+                VertexOut last = input[(j + input.size() - 1) % input.size()];
+                if (Inside(ViewPlane, current.ClipSpaceCoord))
+                {
+                    if(!Inside(ViewPlane, last.ClipSpaceCoord))
+                    {
+                        VertexOut intersecting = Intersect(last, current, ViewPlane);
+                        OutVertex.push_back(intersecting);
+                    }
+                    OutVertex.push_back(current);
+                }
+                else if(Inside(ViewPlane, last.ClipSpaceCoord))
+                {
+                    VertexOut intersecting = Intersect(last, current, ViewPlane);
+                    OutVertex.push_back(intersecting);
+                }
+            }
+        }
+
+        return OutVertex;
+    }
+
 	static Vec3f GetNormalInCameraSpace(const std::vector<VertexOut>& Vertex, const VertexOut& Point)
 	{
 		Vec3f bn = Point.VertexNormal.normlize();
@@ -151,7 +230,8 @@ namespace ChillRender{
 				if (LinearInterpBaryCoord.x < 0 || LinearInterpBaryCoord.y < 0 || LinearInterpBaryCoord.z < 0) continue;
 				float z = ChillMathUtility::TriangleBarycentricInterp(NDCCoords, LinearInterpBaryCoord).z;
 				Vec3f CorrectBaryCoord = ChillMathUtility::PerspectiveCorrectInterpolation(ClipSpaceCoords, LinearInterpBaryCoord);
-				VertexOut Point = ChillMathUtility::TriangleBarycentricInterp(Vertex, CorrectBaryCoord);
+
+                VertexOut Point = ChillMathUtility::TriangleBarycentricInterp(Vertex, CorrectBaryCoord);
 				Point.TangentSpaceNormal = Model->getNormal(Point.UV);
 				Vec3f Normal = ChillRender::GetNormalInCameraSpace(Vertex, Point);
 				Point.VertexNormal = Normal;
@@ -179,15 +259,27 @@ namespace ChillRender{
 				Vertex[nVertex].ClipSpaceCoord = Shader->vertex(iFace, nVertex, V).ToVec4f();
 				Vertex[nVertex].WorldSpaceCoord = Model->getvert(iFace, nVertex);
 				Vertex[nVertex].UV = Model->getuv(iFace, nVertex);
-				Vertex[nVertex].NDC = ChillMathUtility::PerspectiveDivide(Vertex[nVertex].ClipSpaceCoord);
-				Vertex[nVertex].ScreenSpaceCoord = Camera.NDC2ScreenSpaceCoord(Vertex[nVertex].NDC);
 
 				WorldCoords[nVertex] = Vertex[nVertex].WorldSpaceCoord;
 			}
+            if(!ChillRender::ClipSpaceCull(Vertex[0].ClipSpaceCoord, Vertex[1].ClipSpaceCoord, Vertex[2].ClipSpaceCoord, Camera))
+            {
+                return;
+            }
+
+            std::vector<VertexOut> ClippingVertex = ChillRender::SutherlandHodmanClip(Vertex);
+            for(auto& V: ClippingVertex)
+            {
+                V.NDC = ChillMathUtility::PerspectiveDivide(V.ClipSpaceCoord);
+                V.ScreenSpaceCoord = Camera.NDC2ScreenSpaceCoord(V.NDC);
+            }
 
 			if (ChillRender::FaceCulling(WorldCoords, Camera, FaceCulling)) //back face culling
 			{
-				ChillRender::DrawTriangle(Vertex, Model, Image, ZBuffer, Shader);
+                for(int i = 0; i < ClippingVertex.size() - 2; i++)
+                {
+                    ChillRender::DrawTriangle({ClippingVertex[i], ClippingVertex[i + 1], ClippingVertex[i + 2]}, Model, Image, ZBuffer, Shader);
+                }
 			}
 
 		}

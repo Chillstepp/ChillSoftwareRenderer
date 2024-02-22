@@ -7,17 +7,16 @@ SkyBoxShader::~SkyBoxShader()
 {
 
 }
-Matrix<4, 1, float> SkyBoxShader::vertex(int iface, int nthvert, VertexOut& Point)
+Matrix<4, 1, float> SkyBoxShader::vertex(int iface, int nthvert, VertexOut& Vertex)
 {
-	Varying_uv[nthvert] = model->getuv(iface, nthvert);
-
 	Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
 	Varying_tri[nthvert] = Mat4x1::Proj(gl_vertex, true);
 	gl_vertex = camera.ViewMatrix * gl_vertex;
-	gl_vertex = camera.ViewportMatrix * camera.ProjectionMatrix * gl_vertex;
-	Varying_normal[nthvert] = Matrix<4, 1, float>::Proj(
-		Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))
-	);
+    Vertex.CameraSpaceCoord = Mat4x1::Proj(gl_vertex, true);
+	gl_vertex = camera.ProjectionMatrix * gl_vertex;
+    Vertex.VertexNormal = Matrix<4, 1, float>::Proj(
+            Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))
+    );
 	return gl_vertex;
 }
 bool SkyBoxShader::fragment(VertexOut Point, TGAColor& color)
