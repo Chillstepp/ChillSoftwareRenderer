@@ -113,7 +113,8 @@ namespace ChillRender{
         constexpr float EPSILON = 1e-6;
         auto Inside = [](const Vec4f& line, const Vec4f& p) -> bool
         {
-            return line.x * p.x + line.y * p.y + line.z * p.z + line.w * p.w > -EPSILON;
+			float d = line.x * p.x + line.y * p.y + line.z * p.z + line.w * p.w;
+            return d > -EPSILON;
         };
         auto Intersect = [](const VertexOut& v1, const VertexOut& v2, const Vec4f& line) -> VertexOut
         {
@@ -124,9 +125,9 @@ namespace ChillRender{
         };
         const std::vector<Vec4f> ViewPlanes = {
                 //Near
-                Vec4f(0,0,1,1),
-                //far
                 Vec4f(0,0,-1,1),
+                //far
+                Vec4f(0,0,1,1),
                 //left
                 Vec4f(1,0,0,1),
                 //top
@@ -137,7 +138,7 @@ namespace ChillRender{
                 Vec4f(0,-1,0,1)
         };
         if(AllVertexInsideOfCVV) return InVertex;
-        std::vector<VertexOut> OutVertex = InVertex;
+        std::vector<VertexOut> OutVertex{InVertex[0], InVertex[1], InVertex[2]};
         for(const auto& ViewPlane : ViewPlanes)
         {
             std::vector<VertexOut> input(OutVertex);
@@ -259,6 +260,8 @@ namespace ChillRender{
 				Vertex[nVertex].ClipSpaceCoord = Shader->vertex(iFace, nVertex, V).ToVec4f();
 				Vertex[nVertex].WorldSpaceCoord = Model->getvert(iFace, nVertex);
 				Vertex[nVertex].UV = Model->getuv(iFace, nVertex);
+				Vertex[nVertex].NDC = ChillMathUtility::PerspectiveDivide(Vertex[nVertex].ClipSpaceCoord);
+				Vertex[nVertex].ScreenSpaceCoord = Camera.NDC2ScreenSpaceCoord(Vertex[nVertex].NDC);
 
 				WorldCoords[nVertex] = Vertex[nVertex].WorldSpaceCoord;
 			}
@@ -268,6 +271,7 @@ namespace ChillRender{
             }
 
             std::vector<VertexOut> ClippingVertex = ChillRender::SutherlandHodmanClip(Vertex);
+
             for(auto& V: ClippingVertex)
             {
                 V.NDC = ChillMathUtility::PerspectiveDivide(V.ClipSpaceCoord);
@@ -278,7 +282,7 @@ namespace ChillRender{
 			{
                 for(int i = 0; i < ClippingVertex.size() - 2; i++)
                 {
-                    ChillRender::DrawTriangle({ClippingVertex[i], ClippingVertex[i + 1], ClippingVertex[i + 2]}, Model, Image, ZBuffer, Shader);
+                    ChillRender::DrawTriangle({ClippingVertex[i], ClippingVertex[i+1], ClippingVertex[i+2] }, Model, Image, ZBuffer, Shader);
                 }
 			}
 

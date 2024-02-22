@@ -11,8 +11,8 @@ PhongShader::~PhongShader() {
 
 Matrix<4, 1, float> PhongShader::vertex(int iface, int nthvert, VertexOut& Vertex) {
 
-    Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(Vertex.WorldSpaceCoord);
-    gl_vertex = camera.ViewMatrix * gl_vertex;
+	Matrix<4, 1, float> gl_vertex = Matrix<4, 1, float>::Embed(model->getvert(iface, nthvert));
+	gl_vertex = camera.ViewMatrix * gl_vertex;
     Vertex.CameraSpaceCoord = Mat4x1::Proj(gl_vertex, true);
     gl_vertex = camera.ProjectionMatrix * gl_vertex;
 	Vertex.VertexNormal = Matrix<4, 1, float>::Proj(

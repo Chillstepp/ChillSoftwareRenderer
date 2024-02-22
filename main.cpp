@@ -33,7 +33,7 @@ Vec3f LightSpotLoc = -LightDir;
 Vec3f Eye{0, 0, 1.5};
 Vec3f Center{0, 0, 0};
 Vec3f Up{0, 1, 0};
-Camera camera(Eye, Center, Up, Vec2i(width, height), 1, 1000);
+Camera camera(Eye, Center, Up, Vec2i(width, height), 0.0001, 1000);
 
 std::random_device rd;
 std::mt19937 RandomGen(rd());
@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
     /*Scene*/
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
     scene->SetLightDir(LightDir);
-    scene->Add(model_floor);
-    scene->Add(model_diablo);
+    //scene->Add(model_floor);
+    //scene->Add(model_diablo);
 	scene->SetSkyBox(model_skybox);
 
     /*GBuffer Create*/
