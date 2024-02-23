@@ -133,14 +133,14 @@ void Model::loadSkyboxTexture(const std::string& filename)
         textfile = textfile.substr(0, dot) + suffix;
         img_left->read_tga_file(textfile.c_str());
         img_left->flip_vertically();
-        SkyBoxDiffuseMaps[EFaceOrientation::Left] = img_left;
+        SkyBoxDiffuseMaps[EFaceOrientation::Right] = img_left;
 
         TGAImage* img_right = new TGAImage;
         suffix = "_right.tga";
         textfile = textfile.substr(0, dot) + suffix;
         img_right->read_tga_file(textfile.c_str());
         img_right->flip_vertically();
-        SkyBoxDiffuseMaps[EFaceOrientation::Right] = img_right;
+        SkyBoxDiffuseMaps[EFaceOrientation::Left] = img_right;
 
         TGAImage* img_front = new TGAImage;
         suffix = "_front.tga";

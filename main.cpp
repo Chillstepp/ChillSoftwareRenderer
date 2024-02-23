@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
     /*Scene*/
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
     scene->SetLightDir(LightDir);
-    //scene->Add(model_floor);
-    //scene->Add(model_diablo);
+    scene->Add(model_floor);
+    scene->Add(model_diablo);
 	scene->SetSkyBox(model_skybox);
 
     /*GBuffer Create*/

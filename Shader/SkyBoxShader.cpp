@@ -28,11 +28,12 @@ bool SkyBoxShader::fragment(VertexOut Point, TGAColor& color)
 		CurrentFaceOri = EFaceOrientation::Right;
         std::swap(uv.u, uv.v);
         uv.v = 1 - uv.v;
-       // uv.u = 1 - uv.u;
+        uv.u = 1 - uv.u;
 	}
 	else if(std::all_of(Varying_tri.begin(), Varying_tri.end(), [](const Vec3f& In){return In.y > 0;}))
 	{
 		CurrentFaceOri = EFaceOrientation::Top;
+        uv.u = 1 - uv.u;
 	}
 	else if(std::all_of(Varying_tri.begin(), Varying_tri.end(), [](const Vec3f& In){return In.z > 0;}))
 	{
@@ -43,12 +44,11 @@ bool SkyBoxShader::fragment(VertexOut Point, TGAColor& color)
 		CurrentFaceOri = EFaceOrientation::Left;
         std::swap(uv.u, uv.v);
         uv.v = 1 - uv.v;
-        uv.u = 1 - uv.u;
 	}
 	else if(std::all_of(Varying_tri.begin(), Varying_tri.end(), [](const Vec3f& In){return In.y < 0;}))
 	{
 		CurrentFaceOri = EFaceOrientation::Bottom;
-        uv.v = 1 - uv.v;
+//        uv.v = 1 - uv.v;
 	}
 	else if(std::all_of(Varying_tri.begin(), Varying_tri.end(), [](const Vec3f& In){return In.z < 0;}))
 	{

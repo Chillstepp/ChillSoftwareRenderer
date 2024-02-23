@@ -125,9 +125,9 @@ namespace ChillRender{
         };
         const std::vector<Vec4f> ViewPlanes = {
                 //Near
-                Vec4f(0,0,-1,1),
-                //far
                 Vec4f(0,0,1,1),
+                //far
+                Vec4f(0,0,-1,1),
                 //left
                 Vec4f(1,0,0,1),
                 //top
@@ -267,7 +267,7 @@ namespace ChillRender{
 			}
             if(!ChillRender::ClipSpaceCull(Vertex[0].ClipSpaceCoord, Vertex[1].ClipSpaceCoord, Vertex[2].ClipSpaceCoord, Camera))
             {
-                return;
+                continue;
             }
 
             std::vector<VertexOut> ClippingVertex = ChillRender::SutherlandHodmanClip(Vertex);
@@ -280,9 +280,9 @@ namespace ChillRender{
 
 			if (ChillRender::FaceCulling(WorldCoords, Camera, FaceCulling)) //back face culling
 			{
-                for(int i = 0; i < ClippingVertex.size() - 2; i++)
+                for(int i = 0; i < (int)ClippingVertex.size() - 2; i++) // Tips: Notice that Size_t is not negative
                 {
-                    ChillRender::DrawTriangle({ClippingVertex[i], ClippingVertex[i+1], ClippingVertex[i+2] }, Model, Image, ZBuffer, Shader);
+                    ChillRender::DrawTriangle({ClippingVertex[0], ClippingVertex[i+1], ClippingVertex[i+2] }, Model, Image, ZBuffer, Shader);
                 }
 			}
 
