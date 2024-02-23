@@ -5,11 +5,10 @@
 ## Tech
 
 - [x] Shader-based programmable pipeline
-- [x] Switchable Back/Front-face culling
 - [x] Perspective-Correct Interpolation
-- [x] Camera
+- [x] Culling/Clipping
     - [x] Sutherland-Hodgeman Clipping 
-
+    - [x] Switchable Back/Front-Face Culling
 - [x] Shading:
     - [x] Phong
     - [x] Blinn–Phong
@@ -37,7 +36,7 @@
 
 ## ShowCase
 
-<img src="https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240125220750615.png" alt="image-20240125220750615" style="zoom: 67%;" />
+![image-20240223183212808](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240223183212808.png)
 
 ## Tech Roadmap
 
@@ -86,8 +85,6 @@ for(int i=0;i<model->nfaces();i++)
 ```
 
 #### Sutherland-Hodgeman Clipping 
-
-
 
 - 如何写一个软渲染(4)-Clipping - 拳四郎的文章 - 知乎 https://zhuanlan.zhihu.com/p/43586784
 
