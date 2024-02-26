@@ -86,6 +86,10 @@ for(int i=0;i<model->nfaces();i++)
 
 #### Sutherland-Hodgeman Clipping 
 
+Suherland-Hodeman多边形裁剪算法，依次对六个面进行裁剪即可。
+
+实现裁剪后，天空盒即可显示正常。
+
 - 如何写一个软渲染(4)-Clipping - 拳四郎的文章 - 知乎 https://zhuanlan.zhihu.com/p/43586784
 
 ### Tangent Space Normal Mapping
@@ -393,6 +397,8 @@ https://zhuanlan.zhihu.com/p/103683536
 - [图形学基础|屏幕空间反射(SSR)](https://blog.csdn.net/qjh5606/article/details/120102582#SSR_0)
 
 ### PBR
+
+
 
 ### IBL
 

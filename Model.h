@@ -29,6 +29,13 @@ private:
     TGAImage diffusemap_;
     TGAImage normalmap_;
     TGAImage specularmap_;
+
+	//pbr use
+	TGAImage AO;
+	TGAImage Metallic;
+	TGAImage Roughness;
+	TGAImage Albedo;
+
 	std::unordered_map<EFaceOrientation, TGAImage*> SkyBoxDiffuseMaps;
 
     void load_texture(std::string filename, const char *suffix, TGAImage &img);

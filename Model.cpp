@@ -52,6 +52,12 @@ Model::Model(const char *filename) {
     load_texture(filename, "_diffuse.tga", diffusemap_);
     load_texture(filename, "_nm_tangent.tga", normalmap_);
     load_texture(filename, "_spec.tga", specularmap_);
+
+	//PBR  @todo: use material.
+	load_texture(filename, "_metalness.tga", Metallic);
+	load_texture(filename, "_occlusion.tga", AO);
+	load_texture(filename, "_albedo.tga", Albedo);
+	load_texture(filename, "_roughness.tga", Roughness);
 }
 
 Model::~Model() {
