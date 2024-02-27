@@ -44,6 +44,15 @@ class PBRShader : public IShader
 	virtual Matrix<4, 1, float> vertex(int iface, int nthvert, VertexOut& Vertex) override;
 
 	virtual bool fragment(VertexOut Vertex, TGAColor &color) override;
+
+	Vec3f fresnelSchlick(float cosTheta, const Vec3f& F0);
+
+	float DistributionGGX(Vec3f N, Vec3f H, float roughness);
+
+	float GeometrySchlickGGX(float NdotV, float roughness);
+
+	float GeometrySmith(Vec3f N, Vec3f V, Vec3f L, float roughness);
+
 };
 
 #endif //CHILLSOFTWARERENDERER_SHADER_PBRSHADER_H_

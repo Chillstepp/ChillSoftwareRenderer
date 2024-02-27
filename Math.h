@@ -97,6 +97,8 @@ struct Vec3 {
 
 	Vec3(const Vec3<T>& v): x(v.x), y(v.y), z(v.z) {}
 
+	static const Vec3<T> One;
+
     explicit Vec3(TGAColor color) : x(color.raw[0]), y(color.raw[1]), z(color.raw[2]) {}
 
     inline Vec3<T> operator^(const Vec3<T> &vec) {
@@ -179,6 +181,8 @@ struct Vec3 {
     friend std::ostream &operator<<(std::ostream &s, Vec3<T> &v);
 
 };
+
+template<typename  T> const Vec3<T> Vec3<T>::One(1, 1, 1);
 
 template<class T>
 std::ostream &operator<<(std::ostream &s, Vec3<T> &v) {
@@ -634,6 +638,12 @@ struct VertexOut
 };
 
 namespace ChillMathUtility {
+	static Vec3f Vec3fLerp(Vec3f from, Vec3f to, float alpha)
+	{
+		return from + (to - from) * alpha;
+	}
+
+
     static Vec3f
     TriangleBarycentricInterp(const std::vector<Vec3f> &TriangleVertices3D, const Vec3f &BarycentricCoord) {
         Vec3f p(0, 0, 0);

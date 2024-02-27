@@ -209,5 +209,53 @@ TGAColor Model::diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation) {
 	return DiffMap->get(uvwh.raw[0], uvwh.raw[1]);
 }
 
+Vec3f Model::getAO(Vec2f uvf)
+{
+	Vec2i uv(uvf.u * AOMap.get_width(), uvf.v * AOMap.get_height());
+	TGAColor AO_color = AOMap.get(uv.u, uv.v);
+	Vec3f res;
+	//TGAColor is bgra, and in byte
+	for (int i = 0; i < 3; i++) {
+		res.raw[2 - i] = AO_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+	}
+	return res;
+}
+
+Vec3f Model::getMetallic(Vec2f uvf)
+{
+	Vec2i uv(uvf.u * MetallicMap.get_width(), uvf.v * MetallicMap.get_height());
+	TGAColor Metallic_color = MetallicMap.get(uv.u, uv.v);
+	Vec3f res;
+	//TGAColor is bgra, and in byte
+	for (int i = 0; i < 3; i++) {
+		res.raw[2 - i] = Metallic_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+	}
+	return res;
+}
+
+Vec3f Model::getRoughness(Vec2f uvf)
+{
+	Vec2i uv(uvf.u * RoughnessMap.get_width(), uvf.v * MetallicMap.get_height());
+	TGAColor Roughness_color = RoughnessMap.get(uv.u, uv.v);
+	Vec3f res;
+	//TGAColor is bgra, and in byte
+	for (int i = 0; i < 3; i++) {
+		res.raw[2 - i] = Roughness_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+	}
+	return res;
+}
+
+Vec3f Model::getAlbedo(Vec2f uvf)
+{
+	Vec2i uv(uvf.u * AlbedoMap.get_width(), uvf.v * AlbedoMap.get_height());
+	TGAColor Albedo_color = AlbedoMap.get(uv.u, uv.v);
+	Vec3f res;
+	//TGAColor is bgra, and in byte
+	for (int i = 0; i < 3; i++) {
+		res.raw[2 - i] = Albedo_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+	}
+	return res;
+}
+
 
 
