@@ -22,13 +22,16 @@ class PBRShader : public IShader
 	Buffer<Vec3f>& NormalBuffer;// Vertex normal
 
 	Mat4x4 Uniform_M;
+    Mat4x4 Uniform_MITI;
 	Mat4x4 Uniform_MIT;
 	Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
+
+    Vec3f NormalTest;
 
  public:
 	explicit PBRShader(std::shared_ptr<Model> &model_,
 	const Camera& camera_,
-	const std::shared_ptr<Scene>& scene_) :
+	const std::shared_ptr<Scene>& scene_):
 	model(model_), camera(camera_), scene(scene_),
 	DepthBuffer(*GBuffer::Get().GetBuffer<float>("DepthBuffer")),
 	ShadowBuffer(*GBuffer::Get().GetBuffer<float>("ShadowBuffer")),
@@ -37,7 +40,8 @@ class PBRShader : public IShader
 		Uniform_M = camera.ViewMatrix;
 		Uniform_MIT = Uniform_M.Inverse().Transpose();
 		Uniform_MShadow = (camera.ViewportMatrix * camera.ProjectionMatrix * lookat(scene->LightPos, camera.LookTo, camera.Up)) * camera.ViewMatrix.Inverse();
-	}
+        Uniform_MITI = Uniform_MIT.Inverse();
+    }
 
 	~PBRShader() override;
 

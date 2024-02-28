@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "random"
 #include "Shader/SkyBoxShader.h"
+#include "Shader/PBRShader.h"
 
 namespace FilePath {
     auto head = "../obj/african_head/african_head.obj";
@@ -43,6 +44,7 @@ int main(int argc, char **argv) {
     /*Model*/
     std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
     std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
+    std::shared_ptr<Model> model_helmet = std::make_shared<Model>(FilePath::helmet);
 
 	/*SkyBox*/
 	std::shared_ptr<Model> model_skybox = std::make_shared<Model>(FilePath::skybox);
@@ -51,8 +53,9 @@ int main(int argc, char **argv) {
     /*Scene*/
     std::shared_ptr<Scene> scene = std::make_shared<Scene>();
     scene->SetLightDir(LightDir);
-    scene->Add(model_floor);
-    scene->Add(model_diablo);
+//    scene->Add(model_floor);
+//    scene->Add(model_diablo);
+    scene->Add(model_helmet);
 	scene->SetSkyBox(model_skybox);
 
     /*GBuffer Create*/
@@ -83,10 +86,16 @@ int main(int argc, char **argv) {
     image.flip_vertically();
     image.write_tga_file("lightview_depth.tga");
 
+//    for (auto &model_WeakPtr: scene->GetAllModels()) {
+//        auto model = model_WeakPtr.lock();
+//        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene);
+//		ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::BackFacingCulling);
+//    }
+
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
-        std::shared_ptr<IShader> Shader = std::make_shared<PhongShader>(model, camera, scene);
-		ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::BackFacingCulling);
+        std::shared_ptr<IShader> Shader = std::make_shared<PBRShader>(model, camera, scene);
+        ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::BackFacingCulling);
     }
 
     //Shadow: PCF

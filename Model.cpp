@@ -54,10 +54,10 @@ Model::Model(const char *filename) {
     load_texture(filename, "_spec.tga", specularmap_);
 
 	//PBR  @todo: use material.
-	load_texture(filename, "_metalness.tga", Metallic);
-	load_texture(filename, "_occlusion.tga", AO);
-	load_texture(filename, "_albedo.tga", Albedo);
-	load_texture(filename, "_roughness.tga", Roughness);
+	load_texture(filename, "_metalness.tga", MetallicMap);
+	load_texture(filename, "_occlusion.tga", AOMap);
+	load_texture(filename, "_albedo.tga", AlbedoMap);
+	load_texture(filename, "_roughness.tga", RoughnessMap);
 }
 
 Model::~Model() {
@@ -216,7 +216,7 @@ Vec3f Model::getAO(Vec2f uvf)
 	Vec3f res;
 	//TGAColor is bgra, and in byte
 	for (int i = 0; i < 3; i++) {
-		res.raw[2 - i] = AO_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+		res.raw[2 - i] = AO_color.raw[i] / 255.0f;// map to [0,1]
 	}
 	return res;
 }
@@ -228,7 +228,7 @@ Vec3f Model::getMetallic(Vec2f uvf)
 	Vec3f res;
 	//TGAColor is bgra, and in byte
 	for (int i = 0; i < 3; i++) {
-		res.raw[2 - i] = Metallic_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+		res.raw[2 - i] = Metallic_color.raw[i] / 255.0f;// map to [0,1]
 	}
 	return res;
 }
@@ -240,7 +240,7 @@ Vec3f Model::getRoughness(Vec2f uvf)
 	Vec3f res;
 	//TGAColor is bgra, and in byte
 	for (int i = 0; i < 3; i++) {
-		res.raw[2 - i] = Roughness_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+		res.raw[2 - i] = Roughness_color.raw[i] / 255.0f;// map to [0,1]
 	}
 	return res;
 }
@@ -252,7 +252,7 @@ Vec3f Model::getAlbedo(Vec2f uvf)
 	Vec3f res;
 	//TGAColor is bgra, and in byte
 	for (int i = 0; i < 3; i++) {
-		res.raw[2 - i] = Albedo_color.raw[i] / 255.0f * 2.0f - 1.0f;// map to [-1,1]
+		res.raw[2 - i] = Albedo_color.raw[i] / 255.0f;// map to [0,1]
 	}
 	return res;
 }
