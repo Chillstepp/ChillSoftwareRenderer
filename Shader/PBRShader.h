@@ -26,7 +26,7 @@ class PBRShader : public IShader
 	Mat4x4 Uniform_MIT;
 	Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
 
-    Vec3f NormalTest;
+    Vec3f NormalTest[3];
 
  public:
 	explicit PBRShader(std::shared_ptr<Model> &model_,

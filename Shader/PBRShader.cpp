@@ -13,27 +13,31 @@ Matrix<4, 1, float> PBRShader::vertex(int iface, int nthvert, VertexOut& Vertex)
 	gl_vertex = camera.ViewMatrix * gl_vertex;
 	Vertex.CameraSpaceCoord = Mat4x1::Proj(gl_vertex, true);
 	gl_vertex = camera.ProjectionMatrix * gl_vertex;
-	Vertex.VertexNormal = Matrix<4, 1, float>::Proj(Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert)));
+	//view space normal
+	Vertex.VertexNormal = Matrix<4, 1, float>::Proj(Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))).normlize();
+	NormalTest[nthvert] = model->getNormal(iface, nthvert);
+
 	return gl_vertex;
 }
 
 
 bool PBRShader::fragment(VertexOut Point, TGAColor& color)
 {
+
 	//uv interp
 	Vec2f uv = Point.UV;
-	Vec3f N = Mat4x1::Proj(Uniform_MITI * Mat4x1::Embed(Point.VertexNormal)).normlize();
-	float roughness = model->getRoughness(uv).z;
-	float metallic = model->getMetallic(uv).z;
+	Vec3f N = ((NormalTest[0] + NormalTest[1] + NormalTest[2]) / 3).normlize();//Mat4x1::Proj(Uniform_MITI * Mat4x1::Embed(Point.VertexNormal)).normlize();
+	float roughness = 0.5;//model->getRoughness(uv).z;
+	float metallic = 0.5;//model->getMetallic(uv).z;
 	Vec3f albedo = {0.5f, 0.0f, 0.0f};//model->getAlbedo(uv);
-    float ao = model->getAO(uv).z;
+    float ao = 1;//model->getAO(uv).z;
 
 	Vec3f V = (camera.Location - Point.WorldSpaceCoord).normlize();
 	Vec3f L = (scene->LightPos - Point.WorldSpaceCoord).normlize();
 	Vec3f H = (V + L).normlize();//half vector
 	float distance = (scene->LightPos - Point.WorldSpaceCoord).norm();
 	float attenuation = 1.0f / (distance * distance);
-	Vec3f lightColors(300, 300, 300);
+	Vec3f lightColors(500, 500, 500);
 	Vec3f radiance = lightColors * attenuation;
 
 	Vec3f F0(0.04f, 0.04f, 0.04f);//平面基础反射率
@@ -45,7 +49,7 @@ bool PBRShader::fragment(VertexOut Point, TGAColor& color)
 
     //BRDF Ready:
     Vec3f nominator = NDF * G * F;
-    float  denominator = 4.0f * std::max(N*V, 0.0f) * std::max(N*L, 0.0f) + 0.001;
+    float denominator = 4.0f * std::max(N*V, 0.0f) * std::max(N*L, 0.0f) + 0.001;
     Vec3f specular = nominator / denominator;
 
     Vec3f kS = F;//反射的比值
@@ -65,7 +69,9 @@ bool PBRShader::fragment(VertexOut Point, TGAColor& color)
         ambient.raw[i] = Vec3f(0.03f, 0.03f, 0.03f).raw[i] * albedo.raw[i] * ao;
     }
     Vec3f colorNormalize = ambient + Lo;
-    color = TGAColor(colorNormalize.raw[0] * 255.0f, colorNormalize.raw[1] * 255.0f, colorNormalize.raw[2] * 255.0f, 255.0f);
+	//colorNormalize = N;
+    color = TGAColor(std::min(colorNormalize.raw[0] * 255.0f, 255.0f), std::min(colorNormalize.raw[1] * 255.0f, 255.0f), std::min(colorNormalize.raw[2] * 255.0f, 255.0f), 255);
+	//std::cout<<colorNormalize.raw[0] * 255.0f<<" "<<colorNormalize.raw[1] * 255.0f<<" "<<colorNormalize.raw[2] * 255.0f<<"/n";
     return true;
 }
 Vec3f PBRShader::fresnelSchlick(float cosTheta, const Vec3f& F0)
@@ -92,10 +98,10 @@ float PBRShader::GeometrySchlickGGX(float NdotV, float roughness)
 	float r = (roughness + 1.0f);
 	float k = (r*r) / 8.0f;
 
-	float num   = NdotV;
+	float nom   = NdotV;
 	float denom = NdotV * (1.0f - k) + k;
 
-	return num / denom;
+	return nom / denom;
 }
 
 float PBRShader::GeometrySmith(Vec3f N, Vec3f V, Vec3f L, float roughness)

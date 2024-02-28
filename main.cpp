@@ -26,7 +26,7 @@ namespace FilePath {
 
 constexpr int width = 2000; // output image size
 constexpr int height = 2000;
-Vec3f LightDir{-1.5, -1.5, -1.5};
+Vec3f LightDir{0, 0, -10};
 Vec3f LightSpotLoc = -LightDir;
 
 
@@ -98,6 +98,9 @@ int main(int argc, char **argv) {
         ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::BackFacingCulling);
     }
 
+	image2.flip_vertically();//left-bottom is the origin
+	image2.write_tga_file("output.tga");
+
     //Shadow: PCF
 
 //    int sampleHalfSize = 3;
@@ -150,8 +153,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    image2.flip_vertically();//left-bottom is the origin
-    image2.write_tga_file("output.tga");
 
     /* Post-process : SSAO */
     Mat4x4 WorldSpaceMat2ScreenSpace = camera.ViewportMatrix * camera.ProjectionMatrix * camera.ViewMatrix;
