@@ -28,10 +28,10 @@ bool PBRShader::fragment(VertexOut Point, TGAColor& color)
     //Normal's transformation should not use homogeneous element!
 	Vec3f N =  Mat4x1::Proj(Uniform_MT * Mat4x1::Embed(Point.VertexNormal), false).normlize();
     Vec3f N2 = Mat4x1::Proj(Uniform_MT * Mat4x1::Embed(Point.VertexNormal)).normlize();
-	float roughness = model->getRoughness(uv).z;/*0.3f;*/
-	float metallic = model->getMetallic(uv).z;/*0.9f*/;
-	Vec3f albedo = /*{0.5f,0.0f,0.0f}; */model->getAlbedo(uv);
-    float ao = model->getAO(uv).z;//1;
+	float roughness = /*1 - model->getRoughness(uv).z;*/0.3f;
+	float metallic = /*model->getMetallic(uv).z;*/0.9f;
+	Vec3f albedo = {0.5f,0.0f,0.0f}; /*model->getAlbedo(uv);*/
+    float ao = /*model->getAO(uv).z;*/1;
 
 	Vec3f V = (camera.Location - Point.WorldSpaceCoord).normlize();
     Vec3f Lo(0.0f,0.0f,0.0f);

@@ -189,6 +189,7 @@ float Model::getSpecular(Vec2f uvf) {
     return specular_color.raw[0] / 1.0f;
 }
 
+//@todo:  map is wrong
 Vec3f Model::getSpecular_RGB(Vec2f uvf) {
     Vec2i uv(uvf.u * specularmap_.get_width(), uvf.v * specularmap_.get_height());
     TGAColor specular_color = specularmap_.get(uv.u, uv.v);
@@ -235,7 +236,7 @@ Vec3f Model::getMetallic(Vec2f uvf)
 
 Vec3f Model::getRoughness(Vec2f uvf)
 {
-	Vec2i uv(uvf.u * RoughnessMap.get_width(), uvf.v * MetallicMap.get_height());
+	Vec2i uv(uvf.u * RoughnessMap.get_width(), uvf.v * RoughnessMap.get_height());
 	TGAColor Roughness_color = RoughnessMap.get(uv.u, uv.v);
 	Vec3f res;
 	//TGAColor is bgra, and in byte
@@ -252,7 +253,7 @@ Vec3f Model::getAlbedo(Vec2f uvf)
 	Vec3f res;
 	//TGAColor is bgra, and in byte
 	for (int i = 0; i < 3; i++) {
-		res.raw[2 - i] = Albedo_color.raw[i] / 255.0f;// map to [0,1]
+		res.raw[2 - i] = std::pow(Albedo_color.raw[i] / 255.0f, 2.2f);// map to [0,1]
 	}
 	return res;
 }
