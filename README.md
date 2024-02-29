@@ -30,7 +30,7 @@
     - [ ] FXAA
     - [ ] TAA
 - [ ] SSR
-- [ ] PBR Metallic-Roughness Workflow
+- [ ] PBR(Metallic-Roughness Workflow)
 - [ ] Cubemap and Skybox
 - [ ] IBL
 
@@ -397,6 +397,12 @@ https://zhuanlan.zhihu.com/p/103683536
 - [图形学基础|屏幕空间反射(SSR)](https://blog.csdn.net/qjh5606/article/details/120102582#SSR_0)
 
 ### PBR
+
+Metallic-Roughness Workflow:
+
+With four spot light and Roughness is 0.3, Metallic is 0.9
+
+![image-20240229150810871](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240229150810871.png)
 
 
 

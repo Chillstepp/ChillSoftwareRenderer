@@ -26,7 +26,7 @@ namespace FilePath {
 
 constexpr int width = 2000; // output image size
 constexpr int height = 2000;
-Vec3f LightDir{0, 0, -10};
+Vec3f LightDir{-10, -10, -10};
 Vec3f LightSpotLoc = -LightDir;
 
 
@@ -42,8 +42,8 @@ std::uniform_real_distribution<float> UniformDis01(0.0f, 1.0f);
 
 int main(int argc, char **argv) {
     /*Model*/
-    std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
-    std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
+    //std::shared_ptr<Model> model_diablo = std::make_shared<Model>(FilePath::diablo);
+    //std::shared_ptr<Model> model_floor = std::make_shared<Model>(FilePath::floor);
     std::shared_ptr<Model> model_helmet = std::make_shared<Model>(FilePath::helmet);
 
 	/*SkyBox*/
@@ -71,20 +71,20 @@ int main(int argc, char **argv) {
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
 
-    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
-    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
+//    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
+//    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
 
 
-    for (auto &model_WeakPtr: scene->GetAllModels()) {
-        auto model = model_WeakPtr.lock();
-
-        std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, camera.ProjectionMatrix, lookat(LightSpotLoc, Center, Up), camera.ViewportMatrix);
-
-		ChillRender::Render(model, Shader_dep, camera, image, DepthBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
-    }
-
-    image.flip_vertically();
-    image.write_tga_file("lightview_depth.tga");
+//    for (auto &model_WeakPtr: scene->GetAllModels()) {
+//        auto model = model_WeakPtr.lock();
+//
+//        std::shared_ptr<IShader> Shader_dep = std::make_shared<DepthShder>(model, camera.ProjectionMatrix, lookat(LightSpotLoc, Center, Up), camera.ViewportMatrix);
+//
+//		ChillRender::Render(model, Shader_dep, camera, image, DepthBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
+//    }
+//
+//    image.flip_vertically();
+//    image.write_tga_file("lightview_depth.tga");
 
 //    for (auto &model_WeakPtr: scene->GetAllModels()) {
 //        auto model = model_WeakPtr.lock();
@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     for (auto &model_WeakPtr: scene->GetAllModels()) {
         auto model = model_WeakPtr.lock();
         std::shared_ptr<IShader> Shader = std::make_shared<PBRShader>(model, camera, scene);
-        ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::BackFacingCulling);
+        ChillRender::Render(model, Shader, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
     }
 
 	image2.flip_vertically();//left-bottom is the origin

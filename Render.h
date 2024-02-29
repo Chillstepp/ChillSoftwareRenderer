@@ -229,7 +229,7 @@ namespace ChillRender{
 			for (P.y = AABBMin.y; P.y <= AABBMax.y; P.y++) {
 				Vec3f LinearInterpBaryCoord = barycentric(ScreenPointsCoords[0], ScreenPointsCoords[1], ScreenPointsCoords[2], P);
 				if (LinearInterpBaryCoord.x < 0 || LinearInterpBaryCoord.y < 0 || LinearInterpBaryCoord.z < 0) continue;
-				float z = ChillMathUtility::TriangleBarycentricInterp(NDCCoords, LinearInterpBaryCoord).z;
+                float z = ChillMathUtility::TriangleBarycentricInterp(NDCCoords, LinearInterpBaryCoord).z;
 				Vec3f CorrectBaryCoord = ChillMathUtility::PerspectiveCorrectInterpolation(ClipSpaceCoords, LinearInterpBaryCoord);
 
                 VertexOut Point = ChillMathUtility::TriangleBarycentricInterp(Vertex, CorrectBaryCoord);

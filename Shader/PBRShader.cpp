@@ -14,8 +14,8 @@ Matrix<4, 1, float> PBRShader::vertex(int iface, int nthvert, VertexOut& Vertex)
 	Vertex.CameraSpaceCoord = Mat4x1::Proj(gl_vertex, true);
 	gl_vertex = camera.ProjectionMatrix * gl_vertex;
 	//view space normal
-	Vertex.VertexNormal = Matrix<4, 1, float>::Proj(Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert))).normlize();
-	NormalTest[nthvert] = model->getNormal(iface, nthvert);
+    //Normal's transformation should not use homogeneous element!
+	Vertex.VertexNormal = Matrix<4, 1, float>::Proj(Uniform_MIT * Mat4x1::Embed(model->getNormal(iface, nthvert)), false).normlize();
 
 	return gl_vertex;
 }
@@ -23,46 +23,53 @@ Matrix<4, 1, float> PBRShader::vertex(int iface, int nthvert, VertexOut& Vertex)
 
 bool PBRShader::fragment(VertexOut Point, TGAColor& color)
 {
-
 	//uv interp
 	Vec2f uv = Point.UV;
-	Vec3f N = ((NormalTest[0] + NormalTest[1] + NormalTest[2]) / 3).normlize();//Mat4x1::Proj(Uniform_MITI * Mat4x1::Embed(Point.VertexNormal)).normlize();
-	float roughness = 0.5;//model->getRoughness(uv).z;
-	float metallic = 0.5;//model->getMetallic(uv).z;
-	Vec3f albedo = {0.5f, 0.0f, 0.0f};//model->getAlbedo(uv);
-    float ao = 1;//model->getAO(uv).z;
+    //Normal's transformation should not use homogeneous element!
+	Vec3f N =  Mat4x1::Proj(Uniform_MT * Mat4x1::Embed(Point.VertexNormal), false).normlize();
+    Vec3f N2 = Mat4x1::Proj(Uniform_MT * Mat4x1::Embed(Point.VertexNormal)).normlize();
+	float roughness = model->getRoughness(uv).z;/*0.3f;*/
+	float metallic = model->getMetallic(uv).z;/*0.9f*/;
+	Vec3f albedo = /*{0.5f,0.0f,0.0f}; */model->getAlbedo(uv);
+    float ao = model->getAO(uv).z;//1;
 
 	Vec3f V = (camera.Location - Point.WorldSpaceCoord).normlize();
-	Vec3f L = (scene->LightPos - Point.WorldSpaceCoord).normlize();
-	Vec3f H = (V + L).normlize();//half vector
-	float distance = (scene->LightPos - Point.WorldSpaceCoord).norm();
-	float attenuation = 1.0f / (distance * distance);
-	Vec3f lightColors(500, 500, 500);
-	Vec3f radiance = lightColors * attenuation;
+    Vec3f Lo(0.0f,0.0f,0.0f);
 
-	Vec3f F0(0.04f, 0.04f, 0.04f);//平面基础反射率
-	F0 = ChillMathUtility::Vec3fLerp(F0, albedo, metallic);//根据金属度作插值,对于非金属表面F0始终为0.04。对于金属表面，我们根据初始的F0和表现金属属性的反射率进行线性插值。
-	Vec3f F = fresnelSchlick(std::max(H*V, 0.0f), F0);
+    for(Vec3f LightPos: {Vec3f(-5,-5,10), Vec3f(-5, 5,10), Vec3f(5,-5,10), Vec3f(5,5,10)}) {
 
-    float NDF = DistributionGGX(N, H, roughness);
-    float G = GeometrySmith(N, V, L, roughness);
 
-    //BRDF Ready:
-    Vec3f nominator = NDF * G * F;
-    float denominator = 4.0f * std::max(N*V, 0.0f) * std::max(N*L, 0.0f) + 0.001;
-    Vec3f specular = nominator / denominator;
+        Vec3f L = (LightPos - Point.WorldSpaceCoord).normlize();
+        Vec3f H = (V + L).normlize();//half vector
+        float distance = (LightPos - Point.WorldSpaceCoord).norm();
+        float attenuation = 1.0f / (distance * distance);
+        Vec3f lightColors(300, 300, 300);
+        Vec3f radiance = lightColors * attenuation;
 
-    Vec3f kS = F;//反射的比值
-    Vec3f kD = Vec3f(1.0f, 1.0f, 1.0f) - kS;//折射的比值
-    kD *= 1.0f - metallic;//金属不会折射光线，因此不会有漫反射。所以如果表面是金属的，我们会把系数kD变为0
 
-    float NdotL = std::max(N*L, 0.0f);
-    Vec3f Lo;
-    for(int i = 0; i < 3; i++)
-    {
-        Lo.raw[i] = (albedo * kD / (float)M_PI + specular).raw[i] * radiance.raw[i] * NdotL;
+        Vec3f F0(0.04f, 0.04f, 0.04f);//平面基础反射率
+        F0 = ChillMathUtility::Vec3fLerp(F0, albedo,
+                                         metallic);//根据金属度作插值,对于非金属表面F0始终为0.04。对于金属表面，我们根据初始的F0和表现金属属性的反射率进行线性插值。
+        Vec3f F = fresnelSchlick(std::max(H * V, 0.0f), F0);
+
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+
+        //BRDF Ready:
+        Vec3f nominator = NDF * G * F;
+        float denominator = 4.0f * std::max(N * V, 0.0f) * std::max(N * L, 0.0f) + 0.0001;
+        Vec3f specular = nominator / denominator;
+
+        Vec3f kS = F;//反射的比值
+        Vec3f kD = Vec3f(1.0f, 1.0f, 1.0f) - kS;//折射的比值
+        kD *= 1.0f - metallic;//金属不会折射光线，因此不会有漫反射。所以如果表面是金属的，我们会把系数kD变为0
+
+        float NdotL = std::max(N * L, 0.0f);
+
+        for (int i = 0; i < 3; i++) {
+            Lo.raw[i] += (albedo * kD / (float) M_PI + specular).raw[i] * radiance.raw[i] * NdotL;
+        }
     }
-
     Vec3f ambient;
     for(int i = 0; i < 3; i++)
     {
@@ -70,6 +77,12 @@ bool PBRShader::fragment(VertexOut Point, TGAColor& color)
     }
     Vec3f colorNormalize = ambient + Lo;
 	//colorNormalize = N;
+    for(int i = 0; i < 3; i++)
+    {
+        colorNormalize.raw[i] = colorNormalize.raw[i] / (colorNormalize.raw[i] + 1.0f);
+        colorNormalize.raw[i] = std::pow(colorNormalize.raw[i], 1.0f/2.2f);
+    }
+
     color = TGAColor(std::min(colorNormalize.raw[0] * 255.0f, 255.0f), std::min(colorNormalize.raw[1] * 255.0f, 255.0f), std::min(colorNormalize.raw[2] * 255.0f, 255.0f), 255);
 	//std::cout<<colorNormalize.raw[0] * 255.0f<<" "<<colorNormalize.raw[1] * 255.0f<<" "<<colorNormalize.raw[2] * 255.0f<<"/n";
     return true;

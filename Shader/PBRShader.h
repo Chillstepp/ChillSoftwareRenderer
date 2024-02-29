@@ -22,7 +22,7 @@ class PBRShader : public IShader
 	Buffer<Vec3f>& NormalBuffer;// Vertex normal
 
 	Mat4x4 Uniform_M;
-    Mat4x4 Uniform_MITI;
+    Mat4x4 Uniform_MT;
 	Mat4x4 Uniform_MIT;
 	Mat4x4 Uniform_MShadow;//transform framebuffer screen coordinates to shadowbuffer screen coordinates
 
@@ -40,7 +40,7 @@ class PBRShader : public IShader
 		Uniform_M = camera.ViewMatrix;
 		Uniform_MIT = Uniform_M.Inverse().Transpose();
 		Uniform_MShadow = (camera.ViewportMatrix * camera.ProjectionMatrix * lookat(scene->LightPos, camera.LookTo, camera.Up)) * camera.ViewMatrix.Inverse();
-        Uniform_MITI = Uniform_MIT.Inverse();
+        Uniform_MT = Uniform_M.Transpose();
     }
 
 	~PBRShader() override;
