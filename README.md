@@ -5,34 +5,49 @@
 ## Tech
 
 - [x] Shader-based programmable pipeline
+
 - [x] Perspective-Correct Interpolation
+
 - [x] Culling/Clipping
     - [x] Sutherland-Hodgeman Clipping 
     - [x] Switchable Back/Front-Face Culling
-- [x] Shading:
+    
+- [x] Shader:
     - [x] Phong
     - [x] Blinn–Phong
+    - [x] PBR
     - [x] Gouraud
     - [x] Flat
+    
 - [x] Tangent Space Normal Mapping
-- [ ] Shadow
+
+- [x] Shadow
     - [x] PCF
     - [x] PCSS
-    - [ ] CSM
-    - [ ] SDF Soft Shadows
-    - [ ] VSM/VSSM
-    - [ ] ESM
+    
+    CSM(Move to Real-time game engine)
+    
+    SDF Soft Shadows(Move to Real-time game engine)
+    
+    VSM/VSSM(Move to Real-time game engine)
+    
+    ESM(Move to Real-time game engine)
+    
 - [x] AO
     - [x] SSAO
     - [x] HBAO
+    
 - [ ] Anti-Aliasing
     - [ ] MSAA
-    - [ ] FXAA
-    - [ ] TAA
+    - [ ] FXAA(3.11)
+    
 - [ ] SSR
-- [ ] PBR(Metallic-Roughness Workflow)
-- [ ] Cubemap and Skybox
-- [ ] IBL
+
+- [x] PBR(Metallic-Roughness Workflow)
+
+- [x] Cubemap and Skybox
+
+- [x] IBL
 
 ## ShowCase
 
@@ -317,12 +332,12 @@ Reference:
 
 #### CSM(Cascaded Shadow Mapping)
 
- 一个常见的疑问是为什么有的叫它CSM，有的叫他PSSM（Parallel-Split Shadow Map）。实际上原论文是把它叫做PSSM，工业界实现的时候选择了个更广泛的名字CSM。从名字本身来说，只要是一系列层级关系的shadow
+ 	一个常见的疑问是为什么有的叫它CSM，有的叫他PSSM（Parallel-Split Shadow Map）。实际上原论文是把它叫做PSSM，工业界实现的时候选择了个更广泛的名字CSM。从名字本身来说，只要是一系列层级关系的shadow
 map，就能叫CSM，而只有平行切分视锥的才叫做PSSM。换句话说，CSM是个种类，PSSM是具体方法。
 
 ​    ![image-20231224214449007](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20231224214449007.png)
 
-CSGO游戏中就是用了CSM，保证了近处阴影的细节，远处阴影的基本轮廓。
+​	CS:GO中就是用了CSM，保证了近处阴影的细节，远处阴影的基本轮廓。
 
 Reference:
 
@@ -386,11 +401,13 @@ https://zhuanlan.zhihu.com/p/103683536
 
 ### Anti-Aliasing
 
-#### TAA
-
 #### MSAA
 
+
+
 #### FXAA
+
+[FXAA算法演义 - zilch的文章](https://zhuanlan.zhihu.com/p/373379681) 
 
 ### SSR(Screen Space Reflection)
 
@@ -404,7 +421,7 @@ With four spot light and Roughness is 0.3, Metallic is 0.9
 
 ![image-20240229150810871](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240229150810871.png)
 
-
+![image-20240305155133325](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240305155133325.png)
 
 ### IBL
 
