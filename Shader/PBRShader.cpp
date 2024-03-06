@@ -28,28 +28,28 @@ bool PBRShader::fragment(VertexOut Point, TGAColor& color)
     //Normal's transformation should not use homogeneous element!
 	Vec3f N =  Mat4x1::Proj(Uniform_MT * Mat4x1::Embed(Point.VertexNormal), false).normlize();
     Vec3f N2 = Mat4x1::Proj(Uniform_MT * Mat4x1::Embed(Point.VertexNormal)).normlize();
-	float roughness = /*1 - model->getRoughness(uv).z;*/0.3f;
-	float metallic = /*model->getMetallic(uv).z;*/0.9f;
-	Vec3f albedo = {0.5f,0.0f,0.0f}; /*model->getAlbedo(uv);*/
-    float ao = /*model->getAO(uv).z;*/1;
+	float roughness = model->getRoughness(uv).z;
+	float metallic = model->getMetallic(uv).z;
+    Vec3f emission = model->getEmission(uv);
+	Vec3f albedo = model->getAlbedo(uv);
+    float ao = model->getAO(uv).z;
 
 	Vec3f V = (camera.Location - Point.WorldSpaceCoord).normlize();
     Vec3f Lo(0.0f,0.0f,0.0f);
 
-    for(Vec3f LightPos: {Vec3f(-5,-5,10), Vec3f(-5, 5,10), Vec3f(5,-5,10), Vec3f(5,5,10)}) {
+    for(Vec3f LightPos: {Vec3f(-5,-5, 5), Vec3f(-5, 5,10), Vec3f(5,-5,10), Vec3f(5,5,10)}) {
 
 
         Vec3f L = (LightPos - Point.WorldSpaceCoord).normlize();
         Vec3f H = (V + L).normlize();//half vector
         float distance = (LightPos - Point.WorldSpaceCoord).norm();
         float attenuation = 1.0f / (distance * distance);
-        Vec3f lightColors(300, 300, 300);
-        Vec3f radiance = lightColors * attenuation;
+        Vec3f lightColors(600, 600, 600);
+        Vec3f radiance(3,3,3);
 
 
         Vec3f F0(0.04f, 0.04f, 0.04f);//平面基础反射率
-        F0 = ChillMathUtility::Vec3fLerp(F0, albedo,
-                                         metallic);//根据金属度作插值,对于非金属表面F0始终为0.04。对于金属表面，我们根据初始的F0和表现金属属性的反射率进行线性插值。
+        F0 = ChillMathUtility::Vec3fLerp(F0, albedo, metallic);//根据金属度作插值,对于非金属表面F0始终为0.04。对于金属表面，我们根据初始的F0和表现金属属性的反射率进行线性插值。
         Vec3f F = fresnelSchlick(std::max(H * V, 0.0f), F0);
 
         float NDF = DistributionGGX(N, H, roughness);
@@ -70,12 +70,13 @@ bool PBRShader::fragment(VertexOut Point, TGAColor& color)
             Lo.raw[i] += (albedo * kD / (float) M_PI + specular).raw[i] * radiance.raw[i] * NdotL;
         }
     }
+    //加一个环境光照
     Vec3f ambient;
     for(int i = 0; i < 3; i++)
     {
-        ambient.raw[i] = Vec3f(0.03f, 0.03f, 0.03f).raw[i] * albedo.raw[i] * ao;
+        ambient.raw[i] = Vec3f(0.05f, 0.05f, 0.05f).raw[i] * albedo.raw[i] * ao;
     }
-    Vec3f colorNormalize = ambient + Lo;
+    Vec3f colorNormalize = ambient + Lo + emission;
 	//colorNormalize = N;
     for(int i = 0; i < 3; i++)
     {

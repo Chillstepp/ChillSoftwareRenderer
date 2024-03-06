@@ -35,6 +35,7 @@ private:
 	TGAImage MetallicMap;
 	TGAImage RoughnessMap;
 	TGAImage AlbedoMap;
+    TGAImage EmissionMap;
 
 	std::unordered_map<EFaceOrientation, TGAImage*> SkyBoxDiffuseMaps;
 
@@ -74,6 +75,7 @@ public:
 	Vec3f getMetallic(Vec2f uvf);
 	Vec3f getRoughness(Vec2f uvf);
 	Vec3f getAlbedo(Vec2f uvf);
+    Vec3f getEmission(Vec2f uvf);
 
     TGAColor diffuseSkyBox(Vec2f uv, EFaceOrientation FaceOrientation);
 
