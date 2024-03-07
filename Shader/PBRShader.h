@@ -49,6 +49,10 @@ class PBRShader : public IShader
 
 	virtual bool fragment(VertexOut Vertex, TGAColor &color) override;
 
+    bool fragment_PointLight(const VertexOut& Vertex, TGAColor &color);
+
+    bool fragment_IBL(const VertexOut& Vertex, TGAColor &color);
+
 	Vec3f fresnelSchlick(float cosTheta, const Vec3f& F0);
 
 	float DistributionGGX(Vec3f N, Vec3f H, float roughness);
@@ -56,7 +60,6 @@ class PBRShader : public IShader
 	float GeometrySchlickGGX(float NdotV, float roughness);
 
 	float GeometrySmith(Vec3f N, Vec3f V, Vec3f L, float roughness);
-
 };
 
 #endif //CHILLSOFTWARERENDERER_SHADER_PBRSHADER_H_

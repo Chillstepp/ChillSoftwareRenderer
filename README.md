@@ -49,6 +49,10 @@
 
 - [x] IBL
 
+    - [x] Diffuse IBL
+    - [ ] Specular IBL
+
+
 ## ShowCase
 
 ![image-20240223183212808](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240223183212808.png)
@@ -424,6 +428,16 @@ With four spot light and Roughness is 0.3, Metallic is 0.9
 ![image-20240305155133325](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240305155133325.png)
 
 ### IBL
+
+#### Diffuse IBL
+
+| Without IBL                                                  | With IBL                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240307161331107](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240307161331107.png) | ![image-20240307161008694](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240307161008694.png) |
+
+#### Specular  IBL
+
+
 
 ### CubeMap
 

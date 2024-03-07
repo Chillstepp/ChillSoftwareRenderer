@@ -63,6 +63,73 @@ static void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color
     }
 }
 
+
+namespace ChillSampling{
+    static EFaceOrientation Calc_CubemapUV_From_Normal(Vec3f dir, Vec2f& uv)
+    {
+        EFaceOrientation Face = EFaceOrientation::Unknown;
+        float scale = 0, U = 0, V = 0;
+        float abs_x = std::abs(dir.x), abs_y = std::abs(dir.y), abs_z = std::abs(dir.z);
+
+        /*Major axis: X*/
+        if(abs_x > abs_y && abs_x > abs_z)
+        {
+            scale = abs_x;
+            if(dir.x > 0) /*Major axis: +X*/
+            {
+                Face = EFaceOrientation::Top;
+                U = dir.z;
+                V = dir.y;
+            }
+            else /*Major axis: -X*/
+            {
+                Face = EFaceOrientation::Bottom;
+                U = -dir.z;
+                V = dir.y;
+            }
+        }
+        /*Major axis: Y*/
+        else if(abs_y > abs_x && abs_y > abs_z)
+        {
+            scale = abs_y;
+            if(dir.y > 0) /*Major axis: +Y*/
+            {
+                Face = EFaceOrientation::Left;
+                U = dir.x;
+                V = dir.z;
+            }
+            else /*Major axis: -Y*/
+            {
+                Face = EFaceOrientation::Right;
+                U = dir.x;
+                V = -dir.z;
+            }
+        }
+        /*Major axis: Z*/
+        else if(abs_z > abs_y && abs_z > abs_x)
+        {
+            scale = abs_z;
+            if(dir.z > 0) /*Major axis: +Z*/
+            {
+                Face = EFaceOrientation::Front;
+                U = -dir.x;
+                V = dir.y;
+            }
+            else /*Major axis: -Z*/
+            {
+                Face = EFaceOrientation::Back;
+                U = dir.x;
+                V = dir.y;
+            }
+        }
+        uv.u = (U / scale + 1.0) / 2;
+        uv.v = (V / scale + 1.0) / 2;
+
+        return Face;
+    }
+}
+
+
 namespace ChillRender{
 	enum class EFaceCulling : uint8_t {
 		BackFacingCulling = 0,

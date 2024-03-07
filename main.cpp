@@ -71,8 +71,8 @@ int main(int argc, char **argv) {
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
 
-//    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
-//    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
+    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
+    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
 
 
 //    for (auto &model_WeakPtr: scene->GetAllModels()) {
