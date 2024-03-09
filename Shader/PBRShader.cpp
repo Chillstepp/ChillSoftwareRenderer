@@ -154,34 +154,6 @@ bool PBRShader::fragment_IBL(const VertexOut &Point, TGAColor &color) {
     Vec3f Lo(0.0f,0.0f,0.0f);
     Vec3f F0_basic(0.04f, 0.04f, 0.04f);//平面基础反射率
 
-    for(Vec3f LightPos: {Vec3f(-5,-5, 10)/*, Vec3f(-5, 5,10), Vec3f(5,-5,10), Vec3f(5,5,10)*/}) {
-
-        Vec3f L = (LightPos - Point.WorldSpaceCoord).normlize();
-        Vec3f H = (V + L).normlize();//half vector
-        Vec3f radiance(3,3,3);
-
-
-        Vec3f F0 = ChillMathUtility::Vec3fLerp(F0_basic, albedo, metallic);//根据金属度作插值,对于非金属表面F0始终为0.04。对于金属表面，我们根据初始的F0和表现金属属性的反射率进行线性插值。
-        Vec3f F = fresnelSchlick(std::max(H * V, 0.0f), F0);
-
-        float NDF = DistributionGGX(N, H, roughness);
-        float G = GeometrySmith(N, V, L, roughness);
-
-        //BRDF Ready:
-        Vec3f nominator = NDF * G * F;
-        float denominator = 4.0f * std::max(N * V, 0.0f) * std::max(N * L, 0.0f) + 0.0001;
-        Vec3f specular = nominator / denominator;
-
-        Vec3f kS = F;//反射的比值
-        Vec3f kD = Vec3f(1.0f, 1.0f, 1.0f) - kS;//折射的比值
-        kD *= (1.0f - metallic);//金属不会折射光线，因此不会有漫反射。所以如果表面是金属的，我们会把系数kD变为0
-
-        float NdotL = std::max(N * L, 0.0f);
-        //L_0 of PointLight
-        for (int i = 0; i < 3; i++) {
-            Lo.raw[i] += (albedo.raw[i] * kD.raw[i] / (float) M_PI + specular.raw[i]) * radiance.raw[i] * NdotL;
-        }
-    }
     //use IBL as ambient lighting
     Vec3f F0 = ChillMathUtility::Vec3fLerp(F0_basic, albedo, metallic);
     Vec3f kS = fresnelSchlick(std::max((N * V), 0.0f), F0);
@@ -194,13 +166,13 @@ bool PBRShader::fragment_IBL(const VertexOut &Point, TGAColor &color) {
     Vec3f ambient(0, 0, 0);
     for(int i = 0; i < 3; i++)
     {
-        ambient.raw[i] = kD.raw[i] * irradiance.raw[i] * albedo.raw[i] * ao;
+        ambient.raw[i] = kD.raw[i] * irradiance.raw[i] * irradiance.raw[i] * albedo.raw[i] * ao;
     }
 
 	Vec3f r = ChillMathUtility::ReflectedVec(-V, N);
 	Vec2f lut_uv = Vec2f(N * V, roughness);
 	Vec3f lut_sample = model->getLUT(lut_uv);
-	float specular_scale = lut_sample.z;
+	float specular_scale = lut_sample.x;
 	float specular_bias = lut_sample.y;
 	Vec3f specular = F0 * specular_scale + specular_bias;
 	Vec2f Prefilter_uv;
@@ -208,9 +180,9 @@ bool PBRShader::fragment_IBL(const VertexOut &Point, TGAColor &color) {
 	Vec3f prefilter_color = Vec3f(scene->SkyBox->diffuseSkyBox(Prefilter_uv ,FaceOrientation2)) / 255.0f;
 	for(int i = 0; i < 3; i++)
 	{
-		specular.raw[i] = specular.raw[i] * prefilter_color.raw[i];
+		specular.raw[i] = specular.raw[i] * prefilter_color.raw[i] * prefilter_color.raw[i];
 	}
-    Vec3f colorNormalize = ambient + specular + Lo /*+ emission*/;
+    Vec3f colorNormalize = ambient + specular + Lo + emission;
 
 
 

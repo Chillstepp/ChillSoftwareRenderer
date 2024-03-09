@@ -21,17 +21,17 @@ namespace FilePath {
     auto floor = "../obj/floor.obj";
     auto gun = "../obj/gun/Cerberus.obj";
     auto helmet = "../obj/helmet/helmet.obj";
-	auto skybox = "../obj/skybox4/box.obj";
+	auto skybox = "../obj/skybox3/box.obj";
 }
 
-constexpr int width = 1000; // output image size
-constexpr int height = 1000;
+constexpr int width = 2000; // output image size
+constexpr int height = 2000;
 Vec3f LightDir{-1.5, -1.5, -1.5};
 Vec3f LightSpotLoc = -LightDir;
 
 
 
-Vec3f Eye{0, 0, 1.5};
+Vec3f Eye{0.6, 0, 1.5};
 Vec3f Center{0, 0, 0};
 Vec3f Up{0, 1, 0};
 Camera camera(Eye, Center, Up, Vec2i(width, height), 0.0001, 1000);

@@ -72,7 +72,7 @@ namespace ChillSampling{
         float abs_x = std::abs(dir.x), abs_y = std::abs(dir.y), abs_z = std::abs(dir.z);
 
         /*Major axis: X*/
-        if(abs_x > abs_y && abs_x > abs_z)
+        if(abs_x >= abs_y && abs_x >= abs_z)
         {
             scale = abs_x;
             if(dir.x > 0) /*Major axis: +X*/
@@ -89,7 +89,7 @@ namespace ChillSampling{
             }
         }
         /*Major axis: Y*/
-        else if(abs_y > abs_x && abs_y > abs_z)
+        else if(abs_y >= abs_x && abs_y >= abs_z)
         {
             scale = abs_y;
             if(dir.y > 0) /*Major axis: +Y*/
@@ -106,7 +106,7 @@ namespace ChillSampling{
             }
         }
         /*Major axis: Z*/
-        else if(abs_z > abs_y && abs_z > abs_x)
+        else if(abs_z >= abs_y && abs_z >= abs_x)
         {
             scale = abs_z;
             if(dir.z > 0) /*Major axis: +Z*/
