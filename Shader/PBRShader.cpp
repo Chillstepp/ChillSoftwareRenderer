@@ -154,7 +154,7 @@ bool PBRShader::fragment_IBL(const VertexOut &Point, TGAColor &color) {
     Vec3f Lo(0.0f,0.0f,0.0f);
     Vec3f F0_basic(0.04f, 0.04f, 0.04f);//平面基础反射率
 
-    for(Vec3f LightPos: {Vec3f(-5,-5, 10), Vec3f(-5, 5,10), Vec3f(5,-5,10), Vec3f(5,5,10)}) {
+    for(Vec3f LightPos: {Vec3f(-5,-5, 10)/*, Vec3f(-5, 5,10), Vec3f(5,-5,10), Vec3f(5,5,10)*/}) {
 
         Vec3f L = (LightPos - Point.WorldSpaceCoord).normlize();
         Vec3f H = (V + L).normlize();//half vector
@@ -196,7 +196,23 @@ bool PBRShader::fragment_IBL(const VertexOut &Point, TGAColor &color) {
     {
         ambient.raw[i] = kD.raw[i] * irradiance.raw[i] * albedo.raw[i] * ao;
     }
-    Vec3f colorNormalize = ambient + Lo + emission;
+
+	Vec3f r = ChillMathUtility::ReflectedVec(-V, N);
+	Vec2f lut_uv = Vec2f(N * V, roughness);
+	Vec3f lut_sample = model->getLUT(lut_uv);
+	float specular_scale = lut_sample.z;
+	float specular_bias = lut_sample.y;
+	Vec3f specular = F0 * specular_scale + specular_bias;
+	Vec2f Prefilter_uv;
+	auto FaceOrientation2 = ChillSampling::Calc_CubemapUV_From_Normal(r, Prefilter_uv);
+	Vec3f prefilter_color = Vec3f(scene->SkyBox->diffuseSkyBox(Prefilter_uv ,FaceOrientation2)) / 255.0f;
+	for(int i = 0; i < 3; i++)
+	{
+		specular.raw[i] = specular.raw[i] * prefilter_color.raw[i];
+	}
+    Vec3f colorNormalize = ambient + specular + Lo /*+ emission*/;
+
+
 
     for(int i = 0; i < 3; i++)
     {

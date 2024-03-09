@@ -50,7 +50,7 @@
 - [x] IBL
 
     - [x] Diffuse IBL
-    - [ ] Specular IBL
+    - [x] Specular IBL
 
 
 ## ShowCase
@@ -437,10 +437,14 @@ With four spot light and Roughness is 0.3, Metallic is 0.9
 
 #### Specular  IBL
 
-
+| Without Specular IBL                                         | With Speular IBL                                             |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240309183029663](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309183029663.png) | ![image-20240309182700587](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309182700587.png) |
 
 ### CubeMap
 
+![image-20240223183212808](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240223183212808.png)
+
 ### Scene Management
 
-Multi Objects Render Pipeline is supported~ 
+Multi Objects Render Pipeline is supported.

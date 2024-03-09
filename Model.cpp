@@ -59,6 +59,7 @@ Model::Model(const char *filename) {
 	load_texture(filename, "_albedo.tga", AlbedoMap);
 	load_texture(filename, "_roughness.tga", RoughnessMap);
     load_texture(filename, "_emission.tga", EmissionMap);
+	load_texture(filename, "_BRDF_LUT.tga", brdfLUTMap);
 }
 
 Model::~Model() {
@@ -254,7 +255,7 @@ Vec3f Model::getAlbedo(Vec2f uvf)
 	Vec3f res;
 	//TGAColor is bgra, and in byte
 	for (int i = 0; i < 3; i++) {
-		res.raw[2 - i] = std::pow(Albedo_color.raw[i] / 255.0f, 2.2f);// map to [0,1]
+		res.raw[2 - i] = Albedo_color.raw[i] / 255.0f;// map to [0,1]
 	}
 	return res;
 }
@@ -267,9 +268,20 @@ Vec3f Model::getEmission(Vec2f uvf)
     Vec3f res;
     //TGAColor is bgra, and in byte
     for (int i = 0; i < 3; i++) {
-        res.raw[2 - i] = std::pow(Emission_color.raw[i] / 255.0f, 2.2f);// map to [0,1]
+        res.raw[2 - i] = Emission_color.raw[i] / 255.0f;// map to [0,1]
     }
     return res;
+}
+Vec3f Model::getLUT(Vec2f uvf)
+{
+	Vec2i uv(uvf.u * brdfLUTMap.get_width(), uvf.v * brdfLUTMap.get_height());
+	TGAColor brdfLUTMap_color = brdfLUTMap.get(uv.u, uv.v);
+	Vec3f res;
+	//TGAColor is bgra, and in byte
+	for (int i = 0; i < 3; i++) {
+		res.raw[2 - i] = brdfLUTMap_color.raw[i] / 255.0f;// map to [0,1]
+	}
+	return res;
 }
 
 

@@ -21,12 +21,12 @@ namespace FilePath {
     auto floor = "../obj/floor.obj";
     auto gun = "../obj/gun/Cerberus.obj";
     auto helmet = "../obj/helmet/helmet.obj";
-	auto skybox = "../obj/skybox1/box.obj";
+	auto skybox = "../obj/skybox4/box.obj";
 }
 
-constexpr int width = 2000; // output image size
-constexpr int height = 2000;
-Vec3f LightDir{-10, -10, -10};
+constexpr int width = 1000; // output image size
+constexpr int height = 1000;
+Vec3f LightDir{-1.5, -1.5, -1.5};
 Vec3f LightSpotLoc = -LightDir;
 
 
@@ -71,8 +71,8 @@ int main(int argc, char **argv) {
     TGAImage image2{width, height, TGAImage::RGB};
     TGAImage image3{width, height, TGAImage::RGB};
 
-    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
-    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
+//    std::shared_ptr<IShader> Shader_SkyBox = std::make_shared<SkyBoxShader>(scene->SkyBox, camera, scene);
+//    ChillRender::Render(model_skybox, Shader_SkyBox, camera, image2, ZBuffer, ChillRender::EFaceCulling::DisableFacingCulling);
 
 
 //    for (auto &model_WeakPtr: scene->GetAllModels()) {
