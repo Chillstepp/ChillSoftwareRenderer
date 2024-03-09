@@ -52,10 +52,11 @@
     - [x] Diffuse IBL
     - [x] Specular IBL
 
-
 ## ShowCase
 
-![image-20240223183212808](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240223183212808.png)
+| Blinn-Phong                                                  | PBR + IBL                                                    |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240223183212808](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240223183212808.png) | ![image-20240309223909758](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309223909758.png) |
 
 ## Tech Roadmap
 
@@ -439,7 +440,7 @@ With four spot light and Roughness is 0.3, Metallic is 0.9
 
 | Without Specular IBL                                         | With Speular IBL                                             |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![image-20240309183029663](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309183029663.png) | ![image-20240309182700587](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309182700587.png) |
+| ![image-20240309222433670](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309222433670.png) | ![image-20240309222335355](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240309222335355.png) |
 
 ### CubeMap
 
