@@ -260,6 +260,30 @@ namespace ChillRender{
 		return n;
 	}
 
+	//Size * Size MSAA
+	static TGAColor MSAA(const std::vector<Vec2f>& Triangle, const Vec2i& ScreenCoord, const TGAColor& color, int Size = 2)
+	{
+		Buffer<float>& ZBuffer = *GBuffer::Get().GetBuffer<float>("ZBuffer");
+		int max_pixel_count = Size * Size;
+		int cover_pixel_count = 0;
+		Vec2f left_top(ScreenCoord.x - 0.5f + 0.5f/Size, ScreenCoord.y - 0.5f + 0.5f/Size);
+		for(int i = 0 ; i < Size; i++)
+		{
+			for(int j = 0; j < Size; j++)
+			{
+				float x = left_top.x + i * (1.0f/Size);
+				float y = left_top.y + j * (1.0f/Size);
+				if(ChillMathUtility::PointInTriangle2D(Triangle, {x, y}))
+				{
+					cover_pixel_count ++;
+				}
+			}
+		}
+		//@todo: need to record all ? use a trick now.
+		//if(cover_pixel_count < max_pixel_count) ZBuffer[ScreenCoord.x][ScreenCoord.y] += 0.05;
+		float ratio = (float)cover_pixel_count / max_pixel_count;
+		return TGAColor(color.r * ratio, color.g * ratio, color.b * ratio, color.a);
+	}
 
 	static void DrawTriangle(const std::vector<VertexOut> &Vertex, const std::shared_ptr<Model>& Model, TGAImage &image,
 		Buffer<float> &ZBuffer, std::shared_ptr<IShader> &Shader) {
@@ -309,7 +333,9 @@ namespace ChillRender{
 					ZBuffer[P.x][P.y] = z;
 					TGAColor Color;
 					Shader->fragment(Point, Color);
-					image.set(P.x, P.y, Color);
+					Color = ChillRender::MSAA(ScreenPointsCoords, P, Color);
+					TGAColor color_origin = image.get(P.x, P.y);
+					image.set(P.x, P.y, TGAColor(color_origin.r + Color.r, color_origin.g + Color.g, color_origin.b + Color.b, 255));
 				}
 			}
 		}
@@ -355,6 +381,8 @@ namespace ChillRender{
 
 		}
 	}
+
+
 
 }
 

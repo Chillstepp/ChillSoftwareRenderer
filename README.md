@@ -418,6 +418,38 @@ https://zhuanlan.zhihu.com/p/103683536
 
 - [图形学基础|屏幕空间反射(SSR)](https://blog.csdn.net/qjh5606/article/details/120102582#SSR_0)
 
+考虑一个三维空间的光线步进：
+
+- 对于一个着色点x， 根据x的法线和视角方向，求出反射方向R
+- 从着色点x开始沿着反射方向R，每次步进一定距离，得到一个新的点，记为$x_i$
+- 计算$x_i$在screenspace上的坐标
+- 有了UV坐标后，采样深度缓存，得到深度然后和$x_i$的深度对比
+
+
+
+但有些问题三维空间的光线步进：
+
+非常多的$x_i$对应着同一个像素(过采样)：
+
+![image-20240310160933684](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240310160933684.png)
+
+也可能采样间隔过大，导致欠采样：
+
+![image-20240310161037112](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240310161037112.png)
+
+所以考虑《Efficient GPU Screen-Space Ray Tracing》中提到的屏幕空间光线步进的方法：
+
+1. 像素采样点是连续的；
+2. 每个像素采样点不会出现重复计算；
+3. ray的取样范围会被限制在view frustum内；
+4. 算法内高效利用GPU特性，例如减少寄存器使用量、分支判断和耗时的内置函数；
+
+
+
+如何在屏幕空间光线步进呢？
+
+
+
 ### PBR
 
 Metallic-Roughness Workflow:

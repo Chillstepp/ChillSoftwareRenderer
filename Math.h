@@ -60,7 +60,15 @@ struct Vec2 {
 		return Vec2<T>{u * f, v * f};
 	}
 
-    inline float norm() {
+	inline T operator*(const Vec2<T> &v) const {
+		return x * v.x + y * v.y;
+	}
+
+	inline T operator^(const Vec2<T> &v) const {
+		return x * v.y - y * v.x;
+	}
+
+	inline float norm() {
         return std::sqrt(x * x + y * y);
     }
 
@@ -716,6 +724,20 @@ namespace ChillMathUtility {
 
         return CorrectBaryCoord;
     };
+
+	static bool PointInTriangle2D(const std::vector<Vec2f>& Triangle, const Vec2f& point)
+	{
+		Vec2f v12 = Triangle[2] - Triangle[1];
+		Vec2f v01 = Triangle[1] - Triangle[0];
+		Vec2f v20 = Triangle[0] - Triangle[2];
+		Vec2f v1p = point - Triangle[1];
+		Vec2f v0p = point - Triangle[0];
+		Vec2f v2p = point - Triangle[2];
+
+		if((v12 ^ v1p) >= 0 && (v20 ^ v2p) >= 0 && (v01 ^ v0p) >= 0) return true;
+		if((v12 ^ v1p) <= 0 && (v20 ^ v2p) <= 0 && (v01 ^ v0p) <= 0) return true;
+		return false;
+	}
 
     static Vec3f ReflectedVec(Vec3f InVec, Vec3f Normal)
     {
