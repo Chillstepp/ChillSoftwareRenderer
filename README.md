@@ -498,6 +498,10 @@ $$\begin{aligned}2\pi\left[\frac{\alpha^2}{\pi\left(2\alpha^2-2\right)\left(\lef
 
 ![image-20240715151822803](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240715151822803.png)
 
+​	我们看下对于v变量和$\theta$的关系： 当粗糙度很低(0.1)时, 当随机选择v(竖轴)时，总会在$\theta$很小处，即此时采样主要在lobe处。
+
+![image-20240715154443729](https://raw.githubusercontent.com/Chillstepp/MyPicBed/master/master/image-20240715154443729.png)
+
 ​	u，v就是我们新的分布，我们可以直接对u，v应用uniform分布，但是为了加速收敛，选择低差异序列，传统蒙特卡洛方法使用伪随机数生成样本点，这些点在高维空间中可能会出现聚集或空隙现象，从而导致估计不稳定。拟蒙特卡洛方法使用确定性的低差异序列（如Sobol序列、Halton序列等）生成样本点，这些点在高维空间中分布更加均匀，减少了空隙和重叠的现象，提高了估计的稳定性。
 
 最后预处理得到不同粗糙度下的预滤波环境贴图：
